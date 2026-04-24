@@ -79,6 +79,60 @@ function Reader() {
     dispatch({ type: 'SET_BOOKS', books: newBooks });
   }
 
+  const [tocOpen, setTocOpen] = React.useState(false);
+  const [tweaksOpen, setTweaksOpen] = React.useState(false);
+
+  async function setSettings(patch) {
+    const next = await settingsStore.save(patch);
+    dispatch({ type: 'SET_SETTINGS', settings: next });
+  }
+  async function updateBook(patch) {
+    const updated = await booksStore.update(book.id, patch);
+    setBook(updated);
+    // invalidate cache for this book if preserveCss changed
+    if ('preserveOriginalCss' in patch) {
+      for (const k of Array.from(chapterCacheRef.current.keys())) {
+        if (k.startsWith(`${book.id}:`)) chapterCacheRef.current.delete(k);
+      }
+      if (blob && currentChapterId) {
+        await openChapter({ ...book, ...patch }, blob, currentChapterId, 0);
+      }
+    }
+  }
+
+  function pageScroll(delta) {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({ top: scrollRef.current.clientHeight * delta * 0.9, behavior: 'smooth' });
+  }
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    function onKey(e) {
+      if (tocOpen || tweaksOpen) {
+        if (e.key === 'Escape') { setTocOpen(false); setTweaksOpen(false); }
+        return;
+      }
+      const inInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+      if (inInput) return;
+      switch (e.key) {
+        case 'ArrowLeft': e.preventDefault(); prevChapter(); break;
+        case 'ArrowRight': e.preventDefault(); nextChapter(); break;
+        case 'PageDown': case ' ': e.preventDefault(); pageScroll(1); break;
+        case 'PageUp': e.preventDefault(); pageScroll(-1); break;
+        case 'T': case 't': setTocOpen((o) => !o); break;
+        case ',': setTweaksOpen((o) => !o); break;
+        case 'F': case 'f':
+          if (document.fullscreenElement) document.exitFullscreen();
+          else document.documentElement.requestFullscreen();
+          break;
+        case 'Escape': backToLibrary(); break;
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line
+  }, [book, currentChapterId, tocOpen, tweaksOpen]);
+
   if (!book) return <div className="loading-screen">載入中…</div>;
   if (permIssue) return <PermissionBanner book={book} onRetry={() => window.location.reload()} onBack={backToLibrary}/>;
 
@@ -90,7 +144,8 @@ function Reader() {
       width: '100%', height: '100vh', display: 'flex', flexDirection: 'column',
     }}>
       {chapterExtraCss && <style>{chapterExtraCss}</style>}
-      <ReaderTopBar book={book} chapterTitle={chapterTitle} onBack={backToLibrary}/>
+      <ReaderTopBar book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
+        onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}/>
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex' }}>
         <ReaderContent
           book={book}
@@ -105,6 +160,12 @@ function Reader() {
         />
       </div>
       <ReaderFooter book={book} chapterIdx={chapterIdx}/>
+      <TocDrawer book={book} currentChapterId={currentChapterId}
+        open={tocOpen} onClose={() => setTocOpen(false)}
+        onJump={(id) => openChapter(book, blob, id, 0)}/>
+      <TweaksPanel book={book} settings={settings}
+        open={tweaksOpen} onClose={() => setTweaksOpen(false)}
+        onSettingsChange={setSettings} onBookChange={updateBook}/>
     </div>
   );
 }
@@ -136,7 +197,7 @@ async function loadBookBlob(book, setPermIssue) {
   }
 }
 
-function ReaderTopBar({ book, chapterTitle, onBack }) {
+function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks }) {
   return (
     <div style={{
       height: 44, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 12,
@@ -148,6 +209,8 @@ function ReaderTopBar({ book, chapterTitle, onBack }) {
       <div style={{ opacity: 0.5 }}>·</div>
       <div style={{ opacity: 0.7 }}>{chapterTitle}</div>
       <div style={{ flex: 1 }}/>
+      <button onClick={onOpenToc} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>目錄 (T)</button>
+      <button onClick={onOpenTweaks} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>Aa (,)</button>
     </div>
   );
 }
