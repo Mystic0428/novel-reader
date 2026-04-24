@@ -45,7 +45,7 @@ function Cover({ book, size = 'md' }) {
       }}>{book.title}</div>
       <div style={{ fontSize: 6.5, letterSpacing: '0.2em', opacity: 0.7, fontFamily: 'var(--ui)' }}>{book.author || ''}</div>
       <div style={{
-        content: '', position: 'absolute', inset: 5,
+        position: 'absolute', inset: 5,
         border: '0.5px solid rgba(245,237,224,0.3)', pointerEvents: 'none',
       }}/>
     </div>
