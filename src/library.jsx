@@ -147,6 +147,34 @@ function LibraryTopbar({ settings, dispatch }) {
     await scanRoot(root, setBusy, dispatch);
   }
 
+  async function addFile() {
+    let fileHandle, file;
+    if ('showOpenFilePicker' in window) {
+      try {
+        const [fh] = await window.showOpenFilePicker({
+          types: [{
+            description: '小說檔',
+            accept: { 'application/epub+zip': ['.epub'], 'text/plain': ['.txt'] },
+          }],
+          excludeAcceptAllOption: false,
+        });
+        fileHandle = fh;
+        file = await fh.getFile();
+      } catch (_) { return; }
+    } else {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.epub,.txt';
+      file = await new Promise((resolve) => {
+        input.onchange = () => resolve(input.files[0]);
+        input.click();
+      });
+      if (!file) return;
+      fileHandle = null;  // no persistent handle on fallback
+    }
+    await addFromFile(file, fileHandle, dispatch);
+  }
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
       <input placeholder="搜尋書名 / 作者 / tag" style={{
@@ -154,7 +182,7 @@ function LibraryTopbar({ settings, dispatch }) {
         borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#fff',
       }} disabled title="TODO Task 12"/>
       {supported && <button style={btnStyle()} onClick={addRoot}>＋ 加根目錄</button>}
-      <button style={btnStyle()} disabled title="TODO Task 10">＋ 加單檔</button>
+      <button style={btnStyle()} onClick={addFile}>＋ 加單檔</button>
       {busy && <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.6)' }}>
         掃描中 {busy.current}/{busy.total}: {busy.name.slice(0, 30)}…
       </div>}
@@ -294,6 +322,25 @@ async function scanRoot(root, setBusy, dispatch) {
   const [newBooks, newRoots] = await Promise.all([booksStore.list(), rootsStore.list()]);
   dispatch({ type: 'SET_BOOKS', books: newBooks });
   dispatch({ type: 'SET_ROOTS', roots: newRoots });
+}
+
+async function addFromFile(file, fileHandle, dispatch) {
+  const ext = file.name.toLowerCase().split('.').pop();
+  const parser = ext === 'txt' ? txtParser : epubParser;
+  const meta = await parser.parseMetadata(file);
+  await booksStore.add({
+    rootId: null,
+    relPath: null,
+    fileHandle,
+    sourceType: ext === 'txt' ? 'txt' : 'epub',
+    title: meta.title,
+    author: meta.author,
+    coverBlob: meta.coverBlob || null,
+    chaptersMeta: meta.chaptersMeta,
+    wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
+  });
+  const newBooks = await booksStore.list();
+  dispatch({ type: 'SET_BOOKS', books: newBooks });
 }
 
 // Fraction in [0, 1]. Returns 0 for unread, stale (chapter not in current TOC), or empty-meta books.
