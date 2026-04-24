@@ -23,7 +23,6 @@ html, body {
 
 .reading-body p {
   margin: 0 0 1em;
-  text-indent: 2em;
   text-align: justify;
   text-justify: inter-ideograph;
 }
