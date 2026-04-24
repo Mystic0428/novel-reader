@@ -2,11 +2,24 @@
 function Library() {
   const { state, dispatch } = React.useContext(AppContext);
   const { books, roots, settings } = state;
+  const [search, setSearch] = React.useState('');
 
   const tags = React.useMemo(() => booksStore.allTags(books), [books]);
   const collections = React.useMemo(() => booksStore.allCollections(books), [books]);
 
-  const filtered = React.useMemo(() => filterBooks(books, settings), [books, settings]);
+  const filtered = React.useMemo(() => {
+    let out = filterBooks(books, settings);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      out = out.filter((b) =>
+        b.title.toLowerCase().includes(q) ||
+        (b.author || '').toLowerCase().includes(q) ||
+        (b.tags || []).some((t) => t.toLowerCase().includes(q)) ||
+        (b.collections || []).some((c) => c.toLowerCase().includes(q))
+      );
+    }
+    return out;
+  }, [books, settings, search]);
 
   const hasLibrary = roots.length > 0 || books.length > 0;
 
@@ -24,9 +37,11 @@ function Library() {
         dispatch={dispatch}
       />
       <main style={{ overflow: 'auto', padding: '32px 40px' }} className="scroll-thin">
-        <LibraryTopbar settings={settings} dispatch={dispatch}/>
+        <LibraryTopbar settings={settings} dispatch={dispatch} onSearchChange={setSearch}/>
         {!hasLibrary ? (
           <LibraryEmpty dispatch={dispatch}/>
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: 'rgba(43,36,27,0.5)' }}>沒有符合條件的書</div>
         ) : (
           <BookGrid books={filtered} dispatch={dispatch}/>
         )}
@@ -132,8 +147,8 @@ function LibrarySidebar({ settings, tags, collections, roots, books, dispatch })
   );
 }
 
-function LibraryTopbar({ settings, dispatch }) {
-  const [busy, setBusy] = React.useState(null);   // { current, total, name } | null
+function LibraryTopbar({ settings, dispatch, onSearchChange }) {
+  const [busy, setBusy] = React.useState(null);
   const supported = 'showDirectoryPicker' in window;
 
   async function addRoot() {
@@ -152,11 +167,7 @@ function LibraryTopbar({ settings, dispatch }) {
     if ('showOpenFilePicker' in window) {
       try {
         const [fh] = await window.showOpenFilePicker({
-          types: [{
-            description: '小說檔',
-            accept: { 'application/epub+zip': ['.epub'], 'text/plain': ['.txt'] },
-          }],
-          excludeAcceptAllOption: false,
+          types: [{ description: '小說檔', accept: { 'application/epub+zip': ['.epub'], 'text/plain': ['.txt'] } }],
         });
         fileHandle = fh;
         file = await fh.getFile();
@@ -165,26 +176,51 @@ function LibraryTopbar({ settings, dispatch }) {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.epub,.txt';
-      file = await new Promise((resolve) => {
-        input.onchange = () => resolve(input.files[0]);
-        input.click();
-      });
+      file = await new Promise((resolve) => { input.onchange = () => resolve(input.files[0]); input.click(); });
       if (!file) return;
-      fileHandle = null;  // no persistent handle on fallback
+      fileHandle = null;
     }
     await addFromFile(file, fileHandle, dispatch);
   }
 
+  async function setSort(sortBy) {
+    const order = settings.sortBy === sortBy
+      ? (settings.sortOrder === 'asc' ? 'desc' : 'asc')
+      : 'desc';
+    const next = await settingsStore.save({ sortBy, sortOrder: order });
+    dispatch({ type: 'SET_SETTINGS', settings: next });
+  }
+
+  const sortOptions = [
+    { key: 'lastRead', label: '最近讀' },
+    { key: 'addedAt', label: '加入時間' },
+    { key: 'title', label: '書名' },
+    { key: 'author', label: '作者' },
+  ];
+  const arrow = settings.sortOrder === 'asc' ? '▲' : '▼';
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-      <input placeholder="搜尋書名 / 作者 / tag" style={{
-        flex: 1, padding: '8px 14px', border: '0.5px solid rgba(0,0,0,0.1)',
-        borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#fff',
-      }} disabled title="TODO Task 12"/>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
+      <input placeholder="搜尋書名 / 作者 / tag / collection"
+        onChange={(e) => onSearchChange(e.target.value)}
+        style={{
+          flex: 1, minWidth: 240, padding: '8px 14px',
+          border: '0.5px solid rgba(0,0,0,0.1)',
+          borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#fff',
+        }}/>
+      <div style={{ display: 'flex', gap: 4, fontSize: 12 }}>
+        {sortOptions.map((o) => (
+          <button key={o.key} onClick={() => setSort(o.key)} style={{
+            ...btnStyle(),
+            background: settings.sortBy === o.key ? 'rgba(0,0,0,0.08)' : '#fff',
+            padding: '6px 10px', fontSize: 12,
+          }}>{o.label} {settings.sortBy === o.key ? arrow : ''}</button>
+        ))}
+      </div>
       {supported && <button style={btnStyle()} onClick={addRoot}>＋ 加根目錄</button>}
       <button style={btnStyle()} onClick={addFile}>＋ 加單檔</button>
-      {busy && <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.6)' }}>
-        掃描中 {busy.current}/{busy.total}: {busy.name.slice(0, 30)}…
+      {busy && <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.6)', width: '100%' }}>
+        掃描中 {busy.current}/{busy.total}: {busy.name.slice(-40)}
       </div>}
     </div>
   );
