@@ -20,6 +20,21 @@ Open the home, then the reader, then try switching themes from the top-right dro
 
 ---
 
+## Prerequisites
+
+On a fresh machine you need **two things**:
+
+| What | Why | Install |
+| ---- | --- | ------- |
+| **Python 3** | The launcher (`start.bat` / `start.sh`) uses `python -m http.server` to serve the folder. | Windows: [python.org](https://www.python.org/downloads/) — **tick "Add Python to PATH"** during install.<br>macOS: `brew install python` (macOS 12.3+ no longer ships Python).<br>Linux: usually pre-installed; if not, `sudo apt install python3`. |
+| **A Chromium browser** | Folder scanning needs the File System Access API (`showDirectoryPicker`), which only Chromium has. | Windows: Microsoft Edge is pre-installed and works. Otherwise install Chrome / Brave.<br>macOS / Linux: install Chrome / Edge / Brave. |
+
+Firefox and Safari will run the app but only support **single-file mode** (no folder scan). Everything else — IndexedDB, EPUB parsing, themes — works in any modern browser.
+
+No Node.js, no npm, no build step. This is by design.
+
+---
+
 ## Quick Start
 
 No build. No install. Just start the bundled launcher:
