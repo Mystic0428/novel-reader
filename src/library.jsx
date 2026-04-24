@@ -133,15 +133,31 @@ function LibrarySidebar({ settings, tags, collections, roots, books, dispatch })
 }
 
 function LibraryTopbar({ settings, dispatch }) {
-  // Search + sort + "+ Root" / "+ File" buttons
+  const [busy, setBusy] = React.useState(null);   // { current, total, name } | null
+  const supported = 'showDirectoryPicker' in window;
+
+  async function addRoot() {
+    if (!supported) return;
+    let dirHandle;
+    try { dirHandle = await window.showDirectoryPicker(); }
+    catch (_) { return; }
+    const granted = await rootsStore.ensurePermission(dirHandle, 'read');
+    if (!granted) { alert('需要讀取權限'); return; }
+    const root = await rootsStore.add({ name: dirHandle.name, dirHandle });
+    await scanRoot(root, setBusy, dispatch);
+  }
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
       <input placeholder="搜尋書名 / 作者 / tag" style={{
         flex: 1, padding: '8px 14px', border: '0.5px solid rgba(0,0,0,0.1)',
         borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#fff',
       }} disabled title="TODO Task 12"/>
-      <button style={btnStyle()} disabled title="TODO Task 9">＋ 加根目錄</button>
+      {supported && <button style={btnStyle()} onClick={addRoot}>＋ 加根目錄</button>}
       <button style={btnStyle()} disabled title="TODO Task 10">＋ 加單檔</button>
+      {busy && <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.6)' }}>
+        掃描中 {busy.current}/{busy.total}: {busy.name.slice(0, 30)}…
+      </div>}
     </div>
   );
 }
@@ -219,6 +235,61 @@ function btnStyle() {
 
 async function openBook(bookId, dispatch) {
   dispatch({ type: 'SET_VIEW', view: 'reader', bookId });
+}
+
+async function scanRoot(root, setBusy, dispatch) {
+  // 1) enumerate all .epub files recursively
+  const files = [];
+  async function walk(dirHandle, path) {
+    for await (const [name, handle] of dirHandle.entries()) {
+      if (handle.kind === 'directory') {
+        await walk(handle, path + name + '/');
+      } else if (name.toLowerCase().endsWith('.epub')) {
+        files.push({ handle, relPath: path + name });
+      }
+    }
+  }
+  setBusy({ current: 0, total: 0, name: root.name });
+  await walk(root.dirHandle, '');
+
+  // 2) parse metadata per file
+  const existing = await booksStore.list();
+  const existingPaths = new Set(existing.filter((b) => b.rootId === root.id).map((b) => b.relPath));
+  let done = 0;
+  for (const { handle, relPath } of files) {
+    done++;
+    setBusy({ current: done, total: files.length, name: relPath });
+    if (existingPaths.has(relPath)) continue;       // already indexed
+    try {
+      const f = await handle.getFile();
+      const meta = await epubParser.parseMetadata(f);
+      await booksStore.add({
+        rootId: root.id,
+        relPath,
+        fileHandle: handle,
+        sourceType: 'epub',
+        title: meta.title,
+        author: meta.author,
+        coverBlob: meta.coverBlob,
+        chaptersMeta: meta.chaptersMeta,
+        wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
+      });
+    } catch (err) {
+      console.warn('Failed to parse', relPath, err);
+    }
+  }
+
+  // 3) mark root scanned + update book count
+  await rootsStore.update(root.id, {
+    lastScannedAt: Date.now(),
+    bookCount: files.length,
+  });
+  setBusy(null);
+
+  // 4) refresh state
+  const [newBooks, newRoots] = await Promise.all([booksStore.list(), rootsStore.list()]);
+  dispatch({ type: 'SET_BOOKS', books: newBooks });
+  dispatch({ type: 'SET_ROOTS', roots: newRoots });
 }
 
 // Fraction in [0, 1]. Returns 0 for unread, stale (chapter not in current TOC), or empty-meta books.
