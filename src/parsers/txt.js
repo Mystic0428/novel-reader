@@ -1,6 +1,9 @@
 // src/parsers/txt.js — TXT novel parser
 (function () {
-  const CHAPTER_RE = /^[ \t]*第[一二三四五六七八九十百千零〇0-9]+[章回節卷部篇][ \t]*.*$/mu;
+  // Require the char after the suffix to be whitespace (ASCII or U+3000 ideographic) or
+  // end-of-line. Otherwise body lines like "第二章開始。" collide with real headings like
+  // "第二章　中途" because ".*" swallowed arbitrary prose.
+  const CHAPTER_RE = /^[ \t]*第[一二三四五六七八九十百千零〇0-9]+[章回節卷部篇](?:[ \t　].*)?$/mu;
   const CHAPTER_RE_GLOBAL = new RegExp(CHAPTER_RE.source, 'gmu');
 
   function detectAndDecode(buffer) {
@@ -25,14 +28,16 @@
     return new TextDecoder('utf-8').decode(buffer);
   }
 
-  function guessTitleAuthor(filename, firstLine) {
+  function guessTitleAuthor(filename) {
     // "書名 - 作者.txt" or "【作者】書名.txt"
     const base = filename.replace(/\.[^.]+$/, '');
-    let m = base.match(/^(.+?)\s*[-－─]\s*(.+)$/);
+    // Greedy title + dash-free author so hyphenated titles like "Anne-Marie - Someone"
+    // split at the final separator instead of the first hyphen. Covers ASCII hyphen,
+    // fullwidth minus (U+FF0D), box-drawing horizontal (U+2500), en-dash, em-dash.
+    let m = base.match(/^(.+)\s*[-－─–—]\s*([^-－─–—]+)$/);
     if (m) return { title: m[1].trim(), author: m[2].trim() };
     m = base.match(/^[【\[](.+?)[】\]]\s*(.+)$/);
     if (m) return { title: m[2].trim(), author: m[1].trim() };
-    // Fallback to filename + optional first-line hint
     return { title: base, author: null };
   }
 
@@ -61,7 +66,7 @@
   async function parseMetadata(file) {
     const buffer = await file.arrayBuffer();
     const text = detectAndDecode(buffer);
-    const { title, author } = guessTitleAuthor(file.name, text.split(/\r?\n/, 1)[0]);
+    const { title, author } = guessTitleAuthor(file.name);
     const chapters = splitChapters(text);
     const chaptersMeta = chapters.map((c) => ({ id: c.id, title: c.title, wordCount: c.text.length }));
     // Retain full chapter text in a parse result (consumed by getChapter).
