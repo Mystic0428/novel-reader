@@ -648,6 +648,14 @@ async function addFromFile(file, fileHandle, dispatch) {
   const ext = file.name.toLowerCase().split('.').pop();
   const parser = ext === 'txt' ? txtParser : epubParser;
   const meta = await parser.parseMetadata(file);
+  const existing = await booksStore.list();
+  const dup = existing.find((b) =>
+    b.title === meta.title && (b.author || null) === (meta.author || null)
+  );
+  if (dup) {
+    const msg = `「${meta.title}」${meta.author ? ` · ${meta.author}` : ''} 已經在書庫裡了。\n\n確定要再加一份嗎？`;
+    if (!confirm(msg)) return;
+  }
   await booksStore.add({
     rootId: null,
     relPath: null,
