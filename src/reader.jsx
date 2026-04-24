@@ -1,8 +1,6 @@
 // src/reader.jsx — reader view shell
 
-// T16: V4/V5 stub aliases — replaced by T17/T18
-window.V4Reader = window.V4Reader || V1Reader;
-window.V4Footer = window.V4Footer || V1Footer;
+// T16: V5 stub aliases — replaced by T18
 window.V5Reader = window.V5Reader || V1Reader;
 window.V5Footer = window.V5Footer || V1Footer;
 
@@ -166,14 +164,17 @@ function Reader() {
   return (
     <div className="nr-root nr-reading-scope" style={{
       width: '100%', height: '100vh', display: 'flex', flexDirection: 'column',
+      background: settings.activeTheme === 'v4' ? 'transparent' : undefined,
+      position: 'relative',
     }}>
       {chapterExtraCss && <style>{chapterExtraCss}</style>}
       <ReaderTopBar book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
         onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}/>
-      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex' }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', position: 'relative' }}>
         {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
+        {settings.activeTheme === 'v4' && renderThemeFooter({ book, chapterIdx, settings })}
       </div>
-      {renderThemeFooter({ book, chapterIdx, settings })}
+      {settings.activeTheme !== 'v4' && renderThemeFooter({ book, chapterIdx, settings })}
       <TocDrawer book={book} currentChapterId={currentChapterId}
         open={tocOpen} onClose={() => setTocOpen(false)}
         onJump={(id) => openChapter(book, blob, id, 0)}/>
