@@ -337,7 +337,33 @@
       chapterDir,
     });
 
+    // Strip a leading heading whose text duplicates the chapter title — the theme
+    // already renders the title, so keeping the in-body one produces a visible repeat.
+    stripDuplicateLeadingHeading(body, meta.title);
+
     return { html: body.innerHTML, extraCss, blobUrls: Object.values(blobUrlMap) };
+  }
+
+  function stripDuplicateLeadingHeading(body, chapterTitle) {
+    if (!chapterTitle) return;
+    const norm = (s) => (s || '').replace(/\s+/g, '').trim();
+    const want = norm(chapterTitle);
+    if (!want) return;
+    for (const child of Array.from(body.children)) {
+      const tag = child.tagName;
+      if (tag === 'H1' || tag === 'H2' || tag === 'H3') {
+        const got = norm(child.textContent);
+        // Match if the body heading is a superset or subset of the chapter title.
+        // EPUB authors often include a chapter number that's absent from the title in TOC.
+        if (got && (got === want || got.includes(want) || want.includes(got))) {
+          child.remove();
+        }
+        return;
+      }
+      // Skip whitespace-only text nodes that precede the heading
+      if (child.tagName === 'P' && !child.textContent.trim()) continue;
+      return;
+    }
   }
 
   window.epubParser = { parseMetadata, getChapter };

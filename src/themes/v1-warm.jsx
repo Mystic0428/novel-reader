@@ -45,8 +45,20 @@ function V1Footer({ book, chapterIdx, settings }) {
 }
 
 function injectDropCap(html, size) {
-  return html.replace(/<p([^>]*)>(.)/, (_m, attrs, ch) =>
-    `<p${attrs}><span class="v1-dropcap" style="font-size:${size}px">${ch}</span>`
+  // Find the first <p> and its immediate text, skipping leading whitespace.
+  const m = html.match(/<p([^>]*)>(\s*)(.)/);
+  if (!m) return html;
+  const ch = m[3];
+  // Skip if first char is non-letter/ideograph (digits, punctuation, quotes, full-width
+  // brackets, etc.) — a drop cap on "1" of "10." or "「" looks wrong.
+  const isLetter = /[\p{L}]/u.test(ch);
+  if (!isLetter) return html;
+  // Also skip very short first paragraphs — drop cap on a single-word line is awkward.
+  const firstPEnd = html.indexOf('</p>');
+  const firstPText = firstPEnd > 0 ? html.slice(0, firstPEnd).replace(/<[^>]+>/g, '').trim() : '';
+  if (firstPText.length < 15) return html;
+  return html.replace(/<p([^>]*)>(\s*)(.)/, (_m, attrs, lead, c) =>
+    `<p${attrs}>${lead}<span class="v1-dropcap" style="font-size:${size}px">${c}</span>`
   );
 }
 function stripChapterPrefix(title) {
