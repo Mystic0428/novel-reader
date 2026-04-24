@@ -167,31 +167,44 @@ function BookGrid({ books, dispatch }) {
       gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
       gap: 28,
     }}>
-      {books.map((b) => (
-        <div key={b.id} style={{ cursor: 'pointer' }} onClick={() => openBook(b.id, dispatch)}>
-          <div style={{
-            width: '100%', aspectRatio: '3 / 4',
-            background: b.accent || '#8C3A2E',
-            borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            display: 'flex', alignItems: 'flex-end', padding: 10, color: '#F5EDE0',
-            fontFamily: 'var(--serif)', fontSize: 14,
-            writingMode: 'vertical-rl', textOrientation: 'upright',
-            letterSpacing: '0.15em',
-          }}>{b.title}</div>
-          <div style={{ fontSize: 12, fontWeight: 500, marginTop: 10 }}>{b.title}</div>
-          <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.55)' }}>{b.author || '—'}</div>
-          <div style={{
-            marginTop: 6, height: 2, background: 'rgba(0,0,0,0.08)', borderRadius: 1,
-            position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{
-              position: 'absolute', inset: 0,
-              width: `${bookProgress(b) * 100}%`,
-              background: b.accent || '#8C3A2E',
-            }}/>
-          </div>
+      {books.map((b) => <BookCard key={b.id} book={b} dispatch={dispatch}/>)}
+    </div>
+  );
+}
+
+function BookCard({ book, dispatch }) {
+  const [hover, setHover] = React.useState(false);
+  const progress = bookProgress(book);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onClick={() => openBook(book.id, dispatch)}
+      style={{ cursor: 'pointer', position: 'relative' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+        <Cover book={book}/>
+      </div>
+      <div style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4 }}>{book.title}</div>
+      <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.55)', marginTop: 2 }}>{book.author || '—'}</div>
+      <div style={{
+        marginTop: 6, height: 2, background: 'rgba(0,0,0,0.08)', borderRadius: 1, overflow: 'hidden',
+      }}>
+        <div style={{
+          width: `${progress * 100}%`,
+          height: '100%', background: book.accent || '#8C3A2E',
+        }}/>
+      </div>
+      {book.tags && book.tags.length > 0 && hover && (
+        <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
+          {book.tags.slice(0, 4).map((t) => (
+            <span key={t} style={{
+              fontSize: 9, padding: '2px 6px', borderRadius: 3,
+              background: 'rgba(0,0,0,0.06)', color: 'rgba(43,36,27,0.7)',
+            }}># {t}</span>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }
