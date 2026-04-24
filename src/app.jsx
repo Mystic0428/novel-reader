@@ -70,9 +70,4 @@ function App() {
   );
 }
 
-// Temporary stubs — will be replaced by real implementations in subsequent tasks
-window.Reader = window.Reader || function Reader() {
-  return <div className="nr-root" style={{ padding: 40 }}>Reader (stub)</div>;
-};
-
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
