@@ -9,9 +9,10 @@
   }
   function joinPath(base, rel) {
     // base: 'OEBPS/content.opf', rel: 'Text/Chapter1.xhtml'
+    // Hrefs starting with '/' are ZIP-root-absolute — ignore baseDir.
+    if (rel.startsWith('/')) return rel.slice(1);
     const baseDir = base.includes('/') ? base.slice(0, base.lastIndexOf('/')) : '';
-    if (!baseDir) return rel.replace(/^\//, '');
-    const parts = (baseDir + '/' + rel).split('/');
+    const parts = (baseDir ? baseDir + '/' + rel : rel).split('/');
     const out = [];
     for (const p of parts) {
       if (p === '' || p === '.') continue;
@@ -24,18 +25,26 @@
     const n = el.getElementsByTagName(local);
     return n.length ? (n[0].textContent || '').trim() : null;
   }
+  function requireEntry(zip, path) {
+    const entry = zip.file(path);
+    if (!entry) throw new Error(`EPUB missing required entry: ${path}`);
+    return entry;
+  }
 
   async function parseMetadata(fileOrBlob) {
     const zip = await JSZip.loadAsync(fileOrBlob);
 
     // 1. find OPF via container.xml
-    const containerXml = await zip.file('META-INF/container.xml').async('text');
+    const containerXml = await requireEntry(zip, 'META-INF/container.xml').async('text');
     const containerDoc = parseXML(containerXml);
-    const opfPath = containerDoc.getElementsByTagName('rootfile')[0].getAttribute('full-path');
+    const rootfileEl = containerDoc.getElementsByTagName('rootfile')[0];
+    if (!rootfileEl) throw new Error('EPUB container.xml has no <rootfile>');
+    const opfPath = rootfileEl.getAttribute('full-path');
+    if (!opfPath) throw new Error('EPUB <rootfile> missing full-path');
     const opfDir = opfPath.includes('/') ? opfPath.slice(0, opfPath.lastIndexOf('/')) : '';
 
     // 2. parse OPF
-    const opfXml = await zip.file(opfPath).async('text');
+    const opfXml = await requireEntry(zip, opfPath).async('text');
     const opf = parseXML(opfXml);
 
     // metadata
@@ -102,9 +111,11 @@
     }
     if (navId) {
       const navPath = joinPath(opfPath, manifest[navId].href);
-      const navHtml = await zip.file(navPath).async('text');
+      const navHtml = await requireEntry(zip, navPath).async('text');
       const navDoc = new DOMParser().parseFromString(navHtml, 'text/html');
-      const tocNav = navDoc.querySelector('nav[*|type="toc"], nav[epub\\:type="toc"], nav[type="toc"], nav');
+      const allNavs = Array.from(navDoc.querySelectorAll('nav'));
+      const hasTocType = (n) => /\btoc\b/.test(n.getAttribute('epub:type') || n.getAttribute('type') || '');
+      const tocNav = allNavs.find(hasTocType) || allNavs[0];
       if (tocNav) {
         const links = tocNav.querySelectorAll('a[href]');
         const items = [];
@@ -122,7 +133,7 @@
     const ncxRef = opf.getElementsByTagName('spine')[0].getAttribute('toc');
     if (ncxRef && manifest[ncxRef]) {
       const ncxPath = joinPath(opfPath, manifest[ncxRef].href);
-      const ncxXml = await zip.file(ncxPath).async('text');
+      const ncxXml = await requireEntry(zip, ncxPath).async('text');
       const ncx = parseXML(ncxXml);
       const navPoints = ncx.getElementsByTagName('navPoint');
       const items = [];
@@ -130,7 +141,9 @@
         const labelEl = np.getElementsByTagName('text')[0];
         const contentEl = np.getElementsByTagName('content')[0];
         if (!labelEl || !contentEl) continue;
-        const absHref = joinPath(ncxPath, contentEl.getAttribute('src').split('#')[0]);
+        const src = contentEl.getAttribute('src');
+        if (!src) continue;
+        const absHref = joinPath(ncxPath, src.split('#')[0]);
         items.push({ id: `toc-${items.length}`, title: (labelEl.textContent || '').trim(), href: absHref });
       }
       if (items.length) return items;
