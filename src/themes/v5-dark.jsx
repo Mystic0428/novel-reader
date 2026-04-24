@@ -24,7 +24,7 @@ function V5Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, o
           fontSize: settings.tweaks.fontSize,
           lineHeight: settings.tweaks.lineHeight,
         }} dangerouslySetInnerHTML={{ __html: html }}/>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 60, paddingTop: 30, borderTop: '0.5px solid var(--rule)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 60, paddingTop: 30 }}>
           <button onClick={onPrev} disabled={!canPrev} style={{ ...btnStyle(), opacity: canPrev ? 1 : 0.3, background: 'rgba(255,255,255,0.06)', color: 'inherit', border: '0.5px solid rgba(255,255,255,0.15)' }}>← 上一章</button>
           <button onClick={onNext} disabled={!canNext} style={{ ...btnStyle(), opacity: canNext ? 1 : 0.3, background: 'rgba(255,255,255,0.06)', color: 'inherit', border: '0.5px solid rgba(255,255,255,0.15)' }}>下一章 →</button>
         </div>
