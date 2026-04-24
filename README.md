@@ -22,14 +22,20 @@ Open the home, then the reader, then try switching themes from the top-right dro
 
 ## Quick Start
 
-No build. No install. Just serve the folder over HTTP:
+No build. No install. Just start the bundled launcher:
+
+**Windows** — double-click `start.bat` (or run from terminal).
+**macOS / Linux** — `./start.sh` (first time: `chmod +x start.sh`).
+
+Both scripts launch `python -m http.server 8080` in the project folder and open <http://localhost:8080/novel-reader.html> in your default browser.
+
+Or do it manually:
 
 ```sh
 cd novel-reader
 python -m http.server 8080
+# then open http://localhost:8080/novel-reader.html
 ```
-
-Open <http://localhost:8080/novel-reader.html>
 
 > The `http://` URL is **required** for the File System Access API — `file://` will not work.
 
