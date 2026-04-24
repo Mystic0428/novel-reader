@@ -1,5 +1,7 @@
 # Novel Reader
 
+**English** · [繁體中文](README.zh-TW.md)
+
 A local-first, zero-build, desktop novel reader for **EPUB** and **TXT**, designed for Chinese serialized web novels (zh-TW / zh-CN) but works for anything.
 
 - **Library-first UX** — Netflix-style home with hero, horizontal rows (繼續閱讀 / 有新章節 / tag & collection 分組), and a dark-mode browse grid
