@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --serif: "Noto Serif TC", "Source Han Serif TC", "Songti TC", serif;
+  --sans: "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+  --ui: "Inter", "Noto Sans TC", system-ui, sans-serif;
+  --mono: ui-monospace, monospace;
+}
+
+html, body {
+  margin: 0; padding: 0; height: 100%; overflow: hidden;
+  background: #f0eee9;
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.nr-root, .nr-root * { box-sizing: border-box; }
+.nr-root {
+  width: 100%; height: 100%;
+  line-height: 1.7; text-wrap: pretty;
+}
+
+.reading-body p {
+  margin: 0 0 1em;
+  text-indent: 2em;
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+.reading-body p:first-child { margin-top: 0; }
+
+.scroll { overflow-y: auto; scrollbar-width: thin; }
+.scroll-hidden::-webkit-scrollbar { display: none; }
+.scroll-hidden { scrollbar-width: none; }
+.scroll-thin::-webkit-scrollbar { width: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.25); border-radius: 3px; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+.nr-root button { font-family: inherit; }
+.nr-root button:focus { outline: none; }
+
+.paper-tex {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(139,100,60,0.03) 0, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(139,100,60,0.025) 0, transparent 50%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.32  0 0 0 0 0.18  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: auto, auto, 200px 200px;
+}
+
+.loading-screen {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif);
+  color: #5a5147;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+}

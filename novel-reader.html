@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<title>Novel Reader</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="styles/shared.css"/>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="src/storage/idb.js"></script>
+<script type="text/babel" src="src/storage/roots.js"></script>
+<script type="text/babel" src="src/storage/books.js"></script>
+<script type="text/babel" src="src/storage/settings.js"></script>
+<script type="text/babel" src="src/parsers/epub.js"></script>
+<script type="text/babel" src="src/parsers/txt.js"></script>
+<script type="text/babel" src="src/ui/cover.jsx"></script>
+<script type="text/babel" src="src/ui/book-menu.jsx"></script>
+<script type="text/babel" src="src/ui/toc-drawer.jsx"></script>
+<script type="text/babel" src="src/ui/tweaks-panel.jsx"></script>
+<script type="text/babel" src="src/ui/theme-switcher.jsx"></script>
+<script type="text/babel" src="src/ui/color-picker.jsx"></script>
+<script type="text/babel" src="src/themes/v1-warm.jsx"></script>
+<script type="text/babel" src="src/themes/v4-glass.jsx"></script>
+<script type="text/babel" src="src/themes/v5-dark.jsx"></script>
+<script type="text/babel" src="src/library.jsx"></script>
+<script type="text/babel" src="src/reader.jsx"></script>
+<script type="text/babel" src="src/app.jsx"></script>
+</body>
+</html>
