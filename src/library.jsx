@@ -218,38 +218,56 @@ function BookGrid({ books, dispatch }) {
 
 function BookCard({ book, dispatch }) {
   const [hover, setHover] = React.useState(false);
+  const [menuPos, setMenuPos] = React.useState(null);
   const progress = bookProgress(book);
+
+  async function refresh() {
+    const books = await booksStore.list();
+    dispatch({ type: 'SET_BOOKS', books });
+  }
+
   return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onClick={() => openBook(book.id, dispatch)}
-      style={{ cursor: 'pointer', position: 'relative' }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-        <Cover book={book}/>
-      </div>
-      <div style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4 }}>{book.title}</div>
-      <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.55)', marginTop: 2 }}>{book.author || '—'}</div>
-      <div style={{
-        marginTop: 6, height: 2, background: 'rgba(0,0,0,0.08)', borderRadius: 1, overflow: 'hidden',
-      }}>
-        <div style={{
-          width: `${progress * 100}%`,
-          height: '100%', background: book.accent || '#8C3A2E',
-        }}/>
-      </div>
-      {book.tags && book.tags.length > 0 && hover && (
-        <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
-          {book.tags.slice(0, 4).map((t) => (
-            <span key={t} style={{
-              fontSize: 9, padding: '2px 6px', borderRadius: 3,
-              background: 'rgba(0,0,0,0.06)', color: 'rgba(43,36,27,0.7)',
-            }}># {t}</span>
-          ))}
+    <>
+      <div
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={() => openBook(book.id, dispatch)}
+        onContextMenu={(e) => { e.preventDefault(); setMenuPos({ x: e.clientX, y: e.clientY }); }}
+        style={{ cursor: 'pointer', position: 'relative' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+          <Cover book={book}/>
         </div>
+        <div style={{ fontSize: 12.5, fontWeight: 500, lineHeight: 1.4 }}>{book.title}</div>
+        <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.55)', marginTop: 2 }}>{book.author || '—'}</div>
+        <div style={{
+          marginTop: 6, height: 2, background: 'rgba(0,0,0,0.08)', borderRadius: 1, overflow: 'hidden',
+        }}>
+          <div style={{
+            width: `${progress * 100}%`,
+            height: '100%', background: book.accent || '#8C3A2E',
+          }}/>
+        </div>
+        {book.tags && book.tags.length > 0 && hover && (
+          <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
+            {book.tags.slice(0, 4).map((t) => (
+              <span key={t} style={{
+                fontSize: 9, padding: '2px 6px', borderRadius: 3,
+                background: 'rgba(0,0,0,0.06)', color: 'rgba(43,36,27,0.7)',
+              }}># {t}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      {menuPos && (
+        <BookMenu
+          book={book}
+          anchorPos={menuPos}
+          onClose={() => setMenuPos(null)}
+          onChanged={refresh}
+        />
       )}
-    </div>
+    </>
   );
 }
 
