@@ -37,13 +37,18 @@ function App() {
 
   React.useEffect(() => {
     (async () => {
-      await idb.openDB();
-      const [settings, roots, books] = await Promise.all([
-        settingsStore.load(),
-        rootsStore.list(),
-        booksStore.list(),
-      ]);
-      dispatch({ type: 'HYDRATE', payload: { settings, roots, books } });
+      try {
+        await idb.openDB();
+        const [settings, roots, books] = await Promise.all([
+          settingsStore.load(),
+          rootsStore.list(),
+          booksStore.list(),
+        ]);
+        dispatch({ type: 'HYDRATE', payload: { settings, roots, books } });
+      } catch (err) {
+        console.error('Failed to hydrate app state:', err);
+        dispatch({ type: 'HYDRATE', payload: { settings: {}, roots: [], books: [] } });
+      }
     })();
   }, []);
 
@@ -60,7 +65,6 @@ function App() {
 }
 
 // Temporary stubs — will be replaced by real implementations in subsequent tasks
-window.idb = window.idb || { openDB: async () => {} };
 window.settingsStore = window.settingsStore || { load: async () => ({ activeTheme: 'v1' }) };
 window.rootsStore = window.rootsStore || { list: async () => [] };
 window.booksStore = window.booksStore || { list: async () => [] };
