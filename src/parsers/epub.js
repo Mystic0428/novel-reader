@@ -185,10 +185,15 @@
       }
       if (!preserveCss && (tag === 'STYLE' || tag === 'LINK')) { node.remove(); return; }
       if (!ALLOWED_TAGS.has(tag) && tag !== 'STYLE') {
-        // unwrap: replace with children
+        // Unwrap: move children up, recurse on them so they get sanitized, then drop self.
+        // Snapshot children before moving; the parent's outer childNodes iteration already
+        // captured the current node, not its grandchildren, so without this recursion
+        // grandchildren would escape sanitization entirely (e.g. <svg><script>…</script></svg>).
         const parent = node.parentNode;
+        const moved = Array.from(node.childNodes);
         while (node.firstChild) parent.insertBefore(node.firstChild, node);
         parent.removeChild(node);
+        for (const child of moved) sanitizeNode(child, { preserveCss, blobUrlMap, chapterDir });
         return;
       }
       // strip unsafe attrs
@@ -236,13 +241,20 @@
           const semi = block.indexOf(';', i);
           const brace = block.indexOf('{', i);
           if (semi !== -1 && (brace === -1 || semi < brace)) {
-            out += block.slice(i, semi + 1); i = semi + 1; continue;
+            // Semicolon-terminated @-rule (@import, @charset, @namespace).
+            // Strip @import so EPUBs can't pull in external stylesheets past the scope.
+            const atRule = block.slice(i, semi + 1);
+            if (!/^\s*@import\b/i.test(atRule)) out += atRule;
+            i = semi + 1; continue;
           }
-          // @media / @supports → recurse
+          // Brace-terminated @-rule. @media / @supports contain nested rule lists that
+          // SHOULD be scoped. @keyframes contains percentage-or-keyword selectors
+          // (from/to/50%) that MUST NOT be scoped or the animation breaks.
           const close = matchBrace(block, brace);
           const head = block.slice(i, brace + 1);
           const body = block.slice(brace + 1, close);
-          out += head + scopeBlock(body) + '}';
+          const isKeyframes = /^\s*@(-\w+-)?keyframes\b/i.test(head);
+          out += head + (isKeyframes ? body : scopeBlock(body)) + '}';
           i = close + 1; continue;
         }
         const brace = block.indexOf('{', i);
@@ -294,30 +306,36 @@
       }
     }
 
-    // sanitize
-    sanitizeNode(body, {
-      preserveCss: !!opts.preserveCss,
-      blobUrlMap,
-      chapterDir,
-    });
-
-    // if preserveCss, gather and scope <style> + <link> content
+    // Collect preserveCss content BEFORE sanitization — the sanitizer strips <link> from
+    // <body> as a disallowed tag, and standard EPUBs put stylesheet links in <head> which
+    // the sanitizer never touches. Gathering here means we see both cases.
     let extraCss = '';
     if (opts.preserveCss) {
-      const styles = body.querySelectorAll('style');
-      for (const s of styles) { extraCss += scopeCss(s.textContent || '', '.nr-reading-scope'); s.remove(); }
-      const links = body.querySelectorAll('link[rel="stylesheet"][href]');
-      for (const l of links) {
+      const head = doc.head;
+      const linkSelector = 'link[rel="stylesheet"][href]';
+      const headLinks = head ? head.querySelectorAll(linkSelector) : [];
+      const bodyLinks = body.querySelectorAll(linkSelector);
+      for (const l of [...headLinks, ...bodyLinks]) {
         const href = l.getAttribute('href');
+        if (!href) continue;
         const resolved = joinPath(chapterDir + '/_', href);
         const entry = zip.file(resolved);
         if (entry) {
           const cssText = await entry.async('text');
           extraCss += scopeCss(cssText, '.nr-reading-scope');
         }
-        l.remove();
+      }
+      for (const s of body.querySelectorAll('style')) {
+        extraCss += scopeCss(s.textContent || '', '.nr-reading-scope');
       }
     }
+
+    // sanitize
+    sanitizeNode(body, {
+      preserveCss: !!opts.preserveCss,
+      blobUrlMap,
+      chapterDir,
+    });
 
     return { html: body.innerHTML, extraCss, blobUrls: Object.values(blobUrlMap) };
   }
