@@ -211,7 +211,7 @@ Layout varies per theme but all share this shell:
 - **Aa panel** = tweaks: fontSize slider, lineHeight slider, font radio (黑體/宋體), paper texture toggle, "Preserve original EPUB styling" toggle (scoped to this book).
 - **🎨 panel** = per-theme color picker: accent color (free hex + presets) and style-specific background preset (paper tone / gradient / dark tone).
 - **Theme switcher** = 3 thumbnails + current name; click to switch. Smooth crossfade.
-- **Keyboard**: `←/→` prev/next chapter; `PgUp/PgDn` page-height scroll; `Space` next page; `J/K` chapter nav; `F` fullscreen; `Esc` back to library; `,` tweaks panel; `T` TOC.
+- **Keyboard**: `←/→` prev/next chapter; `PgUp/PgDn` page-height scroll; `Space` next page; `F` fullscreen; `Esc` back to library; `,` tweaks panel; `T` TOC.
 - **Auto-save**: scroll position debounced 500ms → writes `lastChapterId` + `lastScroll` + `lastReadAt`. No explicit "save".
 - **Status derivation**: `lastScroll + chapter index / total chapters >= 0.95` → `finished`. Any read progress → `reading`. Otherwise `unread`.
 
