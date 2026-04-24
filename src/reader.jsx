@@ -7,41 +7,76 @@ function Reader() {
   const [chapterExtraCss, setChapterExtraCss] = React.useState('');
   const [currentChapterId, setCurrentChapterId] = React.useState(null);
   const [permIssue, setPermIssue] = React.useState(false);
+  const [blob, setBlob] = React.useState(null);
+  const scrollRef = React.useRef(null);
 
-  // Load book
   React.useEffect(() => {
     (async () => {
       const b = await booksStore.get(activeBookId);
       setBook(b);
-      // try to load the file blob via handle
-      const blob = await loadBookBlob(b, setPermIssue);
-      if (!blob) return;
+      const bl = await loadBookBlob(b, setPermIssue);
+      if (!bl) return;
+      setBlob(bl);
       const chId = b.lastChapterId || b.chaptersMeta[0]?.id;
-      if (chId) openChapter(b, blob, chId);
+      if (chId) await openChapter(b, bl, chId, b.lastScroll || 0);
     })();
     return () => { chapterCacheRef.current.clear(); };
     // eslint-disable-next-line
   }, [activeBookId]);
 
-  async function openChapter(b, blob, chapterId) {
+  async function openChapter(b, bl, chapterId, restoreScroll = 0) {
     const key = `${b.id}:${chapterId}`;
     const cache = chapterCacheRef.current;
-    if (cache.has(key)) {
-      const { html, extraCss } = cache.get(key);
-      setChapterHtml(html); setChapterExtraCss(extraCss);
-      setCurrentChapterId(chapterId);
-      return;
+    let res = cache.get(key);
+    if (!res) {
+      const parser = b.sourceType === 'txt' ? txtParser : epubParser;
+      const parsed = await parser.parseMetadata(bl);
+      res = await parser.getChapter(bl, parsed, chapterId, { preserveCss: b.preserveOriginalCss });
+      cache.set(key, res);
     }
-    const parser = b.sourceType === 'txt' ? txtParser : epubParser;
-    const parsed = await parser.parseMetadata(blob);
-    const res = await parser.getChapter(blob, parsed, chapterId, { preserveCss: b.preserveOriginalCss });
-    cache.set(key, res);
     setChapterHtml(res.html); setChapterExtraCss(res.extraCss);
     setCurrentChapterId(chapterId);
+    // restore scroll after next paint
+    setTimeout(() => {
+      if (scrollRef.current) {
+        const max = scrollRef.current.scrollHeight - scrollRef.current.clientHeight;
+        scrollRef.current.scrollTop = max * restoreScroll;
+      }
+    }, 0);
+    await booksStore.update(b.id, { lastChapterId: chapterId, lastScroll: restoreScroll, lastReadAt: Date.now() });
+    const fresh = await booksStore.get(b.id);
+    setBook(fresh);
+  }
+
+  // Debounced scroll save
+  const saveTimer = React.useRef(null);
+  function onScroll() {
+    if (!scrollRef.current || !book) return;
+    const max = scrollRef.current.scrollHeight - scrollRef.current.clientHeight;
+    const frac = max > 0 ? scrollRef.current.scrollTop / max : 0;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      booksStore.update(book.id, { lastScroll: frac });
+    }, 500);
+  }
+
+  async function nextChapter() {
+    if (!book || !blob) return;
+    const idx = book.chaptersMeta.findIndex((c) => c.id === currentChapterId);
+    const next = book.chaptersMeta[idx + 1];
+    if (next) await openChapter(book, blob, next.id, 0);
+  }
+  async function prevChapter() {
+    if (!book || !blob) return;
+    const idx = book.chaptersMeta.findIndex((c) => c.id === currentChapterId);
+    const prev = book.chaptersMeta[idx - 1];
+    if (prev) await openChapter(book, blob, prev.id, 0);
   }
 
   async function backToLibrary() {
     dispatch({ type: 'SET_VIEW', view: 'library' });
+    const newBooks = await booksStore.list();
+    dispatch({ type: 'SET_BOOKS', books: newBooks });
   }
 
   if (!book) return <div className="loading-screen">載入中…</div>;
@@ -61,6 +96,12 @@ function Reader() {
           book={book}
           html={chapterHtml}
           settings={settings}
+          scrollRef={scrollRef}
+          onScroll={onScroll}
+          onPrev={prevChapter}
+          onNext={nextChapter}
+          canPrev={chapterIdx > 0}
+          canNext={chapterIdx < book.chaptersMeta.length - 1}
         />
       </div>
       <ReaderFooter book={book} chapterIdx={chapterIdx}/>
@@ -111,9 +152,14 @@ function ReaderTopBar({ book, chapterTitle, onBack }) {
   );
 }
 
-function ReaderContent({ book, html, settings }) {
+function ReaderContent({ book, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {
   return (
-    <main className="scroll scroll-thin" style={{ flex: 1, padding: '56px 0', background: '#FCFBF8' }}>
+    <main
+      ref={scrollRef}
+      onScroll={onScroll}
+      className="scroll scroll-thin"
+      style={{ flex: 1, padding: '56px 0', background: '#FCFBF8' }}
+    >
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '0 60px' }}>
         <div className="reading-body" style={{
           fontFamily: settings.tweaks.font === 'serif' ? 'var(--serif)' : 'var(--sans)',
@@ -121,6 +167,10 @@ function ReaderContent({ book, html, settings }) {
           lineHeight: settings.tweaks.lineHeight,
           color: '#2B241B',
         }} dangerouslySetInnerHTML={{ __html: html || '<p style="opacity:0.5">載入章節中…</p>' }}/>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 60, paddingTop: 30, borderTop: '0.5px solid rgba(0,0,0,0.08)' }}>
+          <button onClick={onPrev} disabled={!canPrev} style={{ ...btnStyle(), opacity: canPrev ? 1 : 0.3 }}>← 上一章</button>
+          <button onClick={onNext} disabled={!canNext} style={{ ...btnStyle(), opacity: canNext ? 1 : 0.3 }}>下一章 →</button>
+        </div>
       </div>
     </main>
   );
