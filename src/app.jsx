@@ -15,7 +15,13 @@ const initialState = {
 function appReducer(state, action) {
   switch (action.type) {
     case 'HYDRATE':
-      return { ...state, ...action.payload, ready: true };
+      return {
+        ...state,
+        settings: action.payload.settings,
+        roots: action.payload.roots,
+        books: action.payload.books,
+        ready: true,
+      };
     case 'SET_VIEW':
       return { ...state, view: action.view, activeBookId: action.bookId ?? null };
     case 'SET_SETTINGS':
@@ -65,9 +71,6 @@ function App() {
 }
 
 // Temporary stubs — will be replaced by real implementations in subsequent tasks
-window.settingsStore = window.settingsStore || { load: async () => ({ activeTheme: 'v1' }) };
-window.rootsStore = window.rootsStore || { list: async () => [] };
-window.booksStore = window.booksStore || { list: async () => [] };
 window.Library = window.Library || function Library() {
   return <div className="nr-root" style={{ padding: 40 }}>Library (stub)</div>;
 };
