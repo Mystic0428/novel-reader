@@ -137,7 +137,7 @@ function LibraryTopbar({ settings, dispatch }) {
   const supported = 'showDirectoryPicker' in window;
 
   async function addRoot() {
-    if (!supported) return;
+    if (busy || !supported) return;
     let dirHandle;
     try { dirHandle = await window.showDirectoryPicker(); }
     catch (_) { return; }
@@ -255,6 +255,8 @@ async function scanRoot(root, setBusy, dispatch) {
   // 2) parse metadata per file
   const existing = await booksStore.list();
   const existingPaths = new Set(existing.filter((b) => b.rootId === root.id).map((b) => b.relPath));
+  const keptBefore = existingPaths.size;
+  let added = 0;
   let done = 0;
   for (const { handle, relPath } of files) {
     done++;
@@ -274,15 +276,17 @@ async function scanRoot(root, setBusy, dispatch) {
         chaptersMeta: meta.chaptersMeta,
         wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
       });
+      added++;
     } catch (err) {
       console.warn('Failed to parse', relPath, err);
     }
   }
 
-  // 3) mark root scanned + update book count
+  // 3) mark root scanned. bookCount is indexed-books, not files-found, so parse failures
+  // aren't hidden as phantom entries in the sidebar.
   await rootsStore.update(root.id, {
     lastScannedAt: Date.now(),
-    bookCount: files.length,
+    bookCount: keptBefore + added,
   });
   setBusy(null);
 
