@@ -31,7 +31,8 @@ function BookMenu({ book, anchorPos, onClose, onChanged }) {
   async function deleteBook() {
     if (!confirm(`從書庫移除「${book.title}」？（檔案本身不會刪）`)) return;
     await booksStore.remove(book.id);
-    onChanged(); onClose();
+    await onChanged();
+    onClose();
   }
 
   const style = {

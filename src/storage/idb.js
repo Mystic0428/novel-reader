@@ -27,10 +27,6 @@
     return _dbPromise;
   }
 
-  function tx(storeName, mode = 'readonly') {
-    return openDB().then((db) => db.transaction(storeName, mode).objectStore(storeName));
-  }
-
   function wrap(req) {
     return new Promise((resolve, reject) => {
       req.onsuccess = () => resolve(req.result);
@@ -38,29 +34,48 @@
     });
   }
 
+  // For readwrite ops we wait for tx.oncomplete — req.onsuccess fires during the
+  // transaction, so a follow-up read opened right after can see stale state.
+  function waitTx(txObj) {
+    return new Promise((resolve, reject) => {
+      txObj.oncomplete = () => resolve();
+      txObj.onerror = () => reject(txObj.error);
+      txObj.onabort = () => reject(txObj.error);
+    });
+  }
+
   async function get(storeName, id) {
-    const store = await tx(storeName);
-    return wrap(store.get(id));
+    const db = await openDB();
+    const txObj = db.transaction(storeName, 'readonly');
+    return wrap(txObj.objectStore(storeName).get(id));
   }
 
   async function put(storeName, value) {
-    const store = await tx(storeName, 'readwrite');
-    return wrap(store.put(value));
+    const db = await openDB();
+    const txObj = db.transaction(storeName, 'readwrite');
+    txObj.objectStore(storeName).put(value);
+    await waitTx(txObj);
+    return value;
   }
 
   async function del(storeName, id) {
-    const store = await tx(storeName, 'readwrite');
-    return wrap(store.delete(id));
+    const db = await openDB();
+    const txObj = db.transaction(storeName, 'readwrite');
+    txObj.objectStore(storeName).delete(id);
+    await waitTx(txObj);
   }
 
   async function list(storeName) {
-    const store = await tx(storeName);
-    return wrap(store.getAll());
+    const db = await openDB();
+    const txObj = db.transaction(storeName, 'readonly');
+    return wrap(txObj.objectStore(storeName).getAll());
   }
 
   async function clear(storeName) {
-    const store = await tx(storeName, 'readwrite');
-    return wrap(store.clear());
+    const db = await openDB();
+    const txObj = db.transaction(storeName, 'readwrite');
+    txObj.objectStore(storeName).clear();
+    await waitTx(txObj);
   }
 
   window.idb = { openDB, get, put, del, list, clear };
