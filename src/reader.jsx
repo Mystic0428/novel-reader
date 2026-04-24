@@ -1,4 +1,28 @@
 // src/reader.jsx — reader view shell
+
+// T16: V4/V5 stub aliases — replaced by T17/T18
+window.V4Reader = window.V4Reader || V1Reader;
+window.V4Footer = window.V4Footer || V1Footer;
+window.V5Reader = window.V5Reader || V1Reader;
+window.V5Footer = window.V5Footer || V1Footer;
+
+function renderThemeContent(props) {
+  switch (props.settings.activeTheme) {
+    case 'v1': return <V1Reader {...props}/>;
+    case 'v4': return <V4Reader {...props}/>;
+    case 'v5': return <V5Reader {...props}/>;
+    default:   return <V1Reader {...props}/>;
+  }
+}
+function renderThemeFooter(props) {
+  switch (props.settings.activeTheme) {
+    case 'v1': return <V1Footer {...props}/>;
+    case 'v4': return <V4Footer {...props}/>;
+    case 'v5': return <V5Footer {...props}/>;
+    default:   return <V1Footer {...props}/>;
+  }
+}
+
 function Reader() {
   const { state, dispatch, chapterCacheRef } = React.useContext(AppContext);
   const { activeBookId, settings } = state;
@@ -147,19 +171,9 @@ function Reader() {
       <ReaderTopBar book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
         onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}/>
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex' }}>
-        <ReaderContent
-          book={book}
-          html={chapterHtml}
-          settings={settings}
-          scrollRef={scrollRef}
-          onScroll={onScroll}
-          onPrev={prevChapter}
-          onNext={nextChapter}
-          canPrev={chapterIdx > 0}
-          canNext={chapterIdx < book.chaptersMeta.length - 1}
-        />
+        {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
       </div>
-      <ReaderFooter book={book} chapterIdx={chapterIdx}/>
+      {renderThemeFooter({ book, chapterIdx, settings })}
       <TocDrawer book={book} currentChapterId={currentChapterId}
         open={tocOpen} onClose={() => setTocOpen(false)}
         onJump={(id) => openChapter(book, blob, id, 0)}/>
@@ -211,48 +225,6 @@ function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks }) {
       <div style={{ flex: 1 }}/>
       <button onClick={onOpenToc} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>目錄 (T)</button>
       <button onClick={onOpenTweaks} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>Aa (,)</button>
-    </div>
-  );
-}
-
-function ReaderContent({ book, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {
-  return (
-    <main
-      ref={scrollRef}
-      onScroll={onScroll}
-      className="scroll scroll-thin"
-      style={{ flex: 1, padding: '56px 0', background: '#FCFBF8' }}
-    >
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: '0 60px' }}>
-        <div className="reading-body" style={{
-          fontFamily: settings.tweaks.font === 'serif' ? 'var(--serif)' : 'var(--sans)',
-          fontSize: settings.tweaks.fontSize,
-          lineHeight: settings.tweaks.lineHeight,
-          color: '#2B241B',
-        }} dangerouslySetInnerHTML={{ __html: html || '<p style="opacity:0.5">載入章節中…</p>' }}/>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 60, paddingTop: 30, borderTop: '0.5px solid rgba(0,0,0,0.08)' }}>
-          <button onClick={onPrev} disabled={!canPrev} style={{ ...btnStyle(), opacity: canPrev ? 1 : 0.3 }}>← 上一章</button>
-          <button onClick={onNext} disabled={!canNext} style={{ ...btnStyle(), opacity: canNext ? 1 : 0.3 }}>下一章 →</button>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function ReaderFooter({ book, chapterIdx }) {
-  const total = book.chaptersMeta.length;
-  const progress = total ? (chapterIdx + 1) / total : 0;
-  return (
-    <div style={{
-      padding: '10px 40px', borderTop: '0.5px solid rgba(0,0,0,0.08)',
-      display: 'flex', alignItems: 'center', gap: 14,
-      fontFamily: 'var(--ui)', fontSize: 11, color: 'rgba(0,0,0,0.55)', flexShrink: 0,
-    }}>
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{chapterIdx + 1} / {total}</span>
-      <div style={{ flex: 1, height: 2, background: 'rgba(0,0,0,0.08)', borderRadius: 1, overflow: 'hidden' }}>
-        <div style={{ width: `${progress * 100}%`, height: '100%', background: '#8C3A2E' }}/>
-      </div>
-      <span>{Math.round(progress * 100)}%</span>
     </div>
   );
 }

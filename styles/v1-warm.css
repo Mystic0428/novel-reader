@@ -1,0 +1,13 @@
+.v1-root { --bg: #EDE4D2; --ink: #2B241B; --mute: rgba(43,36,27,0.55); --rule: rgba(43,36,27,0.12); --accent: #8C3A2E; }
+.v1-root { background: var(--bg); color: var(--ink); }
+.v1-topbar { padding: 18px 40px; border-bottom: 0.5px solid var(--rule); display: flex; align-items: center; gap: 18px; }
+.v1-content { flex: 1; padding: 56px 0; }
+.v1-column { max-width: 640px; margin: 0 auto; padding: 0 60px; }
+.v1-chaptertitle { text-align: center; margin-bottom: 40px; }
+.v1-chaptertitle-caption { font-family: var(--serif); font-size: 14px; color: var(--mute); margin-bottom: 8px; letter-spacing: 0.3em; }
+.v1-chaptertitle-heading { font-family: var(--serif); font-weight: 500; margin: 0; letter-spacing: 0.12em; }
+.v1-chaptertitle-rule { width: 60px; height: 0.5px; background: var(--ink); opacity: 0.4; margin: 24px auto 0; }
+.v1-dropcap { font-family: var(--serif); float: left; line-height: 0.95; margin-right: 6px; margin-top: 6px; color: var(--accent); }
+.v1-footer { padding: 12px 40px; border-top: 0.5px solid var(--rule); display: flex; align-items: center; gap: 18px; font-family: var(--ui); font-size: 11px; color: var(--mute); }
+.v1-progressbar { flex: 1; height: 1px; background: var(--rule); position: relative; }
+.v1-progressbar > div { position: absolute; top: -1px; height: 3px; background: var(--accent); }
