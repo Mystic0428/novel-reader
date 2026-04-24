@@ -99,6 +99,11 @@ function Reader() {
 
   const [tocOpen, setTocOpen] = React.useState(false);
   const [tweaksOpen, setTweaksOpen] = React.useState(false);
+  const [colorOpen, setColorOpen] = React.useState(false);
+
+  async function changeTheme(key) {
+    await setSettings({ activeTheme: key });
+  }
 
   async function setSettings(patch) {
     const next = await settingsStore.save(patch);
@@ -164,8 +169,12 @@ function Reader() {
       position: 'relative',
     }}>
       {chapterExtraCss && <style>{chapterExtraCss}</style>}
-      <ReaderTopBar book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
-        onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}/>
+      <ReaderTopBar
+        book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
+        onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}
+        onOpenColor={() => setColorOpen(true)}
+        settings={settings} onThemeChange={changeTheme}
+      />
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', position: 'relative' }}>
         {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
         {settings.activeTheme === 'v4' && renderThemeFooter({ book, chapterIdx, settings })}
@@ -177,6 +186,8 @@ function Reader() {
       <TweaksPanel book={book} settings={settings}
         open={tweaksOpen} onClose={() => setTweaksOpen(false)}
         onSettingsChange={setSettings} onBookChange={updateBook}/>
+      <ColorPicker settings={settings} open={colorOpen} onClose={() => setColorOpen(false)}
+        onChange={async (patch) => { await setSettings(patch); }}/>
     </div>
   );
 }
@@ -208,20 +219,22 @@ async function loadBookBlob(book, setPermIssue) {
   }
 }
 
-function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks }) {
+function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onOpenColor, settings, onThemeChange }) {
   return (
     <div style={{
       height: 44, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 12,
       borderBottom: '0.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)',
-      fontFamily: 'var(--ui)', fontSize: 12, flexShrink: 0,
+      fontFamily: 'var(--ui)', fontSize: 12, flexShrink: 0, zIndex: 5, position: 'relative',
     }}>
       <button onClick={onBack} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, padding: '4px 8px' }}>← 書庫</button>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 13, fontWeight: 500 }}>{book.title}</div>
       <div style={{ opacity: 0.5 }}>·</div>
       <div style={{ opacity: 0.7 }}>{chapterTitle}</div>
       <div style={{ flex: 1 }}/>
+      <ThemeSwitcher settings={settings} onChange={onThemeChange}/>
       <button onClick={onOpenToc} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>目錄 (T)</button>
       <button onClick={onOpenTweaks} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>Aa (,)</button>
+      <button onClick={onOpenColor} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>🎨</button>
     </div>
   );
 }
