@@ -36,7 +36,7 @@ function BookMenu({ book, anchorPos, onClose, onChanged }) {
 
   const style = {
     position: 'fixed', top: anchorPos.y, left: anchorPos.x,
-    background: '#fff', border: '0.5px solid rgba(0,0,0,0.12)',
+    background: '#fff', color: '#1A1A1A', border: '0.5px solid rgba(0,0,0,0.12)',
     borderRadius: 8, boxShadow: '0 8px 28px rgba(0,0,0,0.15)',
     padding: 6, zIndex: 1000, fontFamily: 'var(--ui)', fontSize: 13, minWidth: 220,
   };

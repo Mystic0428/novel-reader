@@ -24,12 +24,12 @@ function TweaksPanel({ book, settings, onSettingsChange, onBookChange, open, onC
         <div style={styleLabel}>排版</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <span style={{ width: 36, fontSize: 11 }}>字級</span>
-          {slider(12, 22, 1, tw.fontSize, (v) => set({ ...tw, fontSize: v }))}
+          {slider(10, 32, 1, tw.fontSize, (v) => set({ ...tw, fontSize: v }))}
           <span style={{ width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{tw.fontSize}px</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <span style={{ width: 36, fontSize: 11 }}>行距</span>
-          {slider(1.4, 2.4, 0.05, tw.lineHeight, (v) => set({ ...tw, lineHeight: Number(v.toFixed(2)) }))}
+          {slider(0.6, 2.4, 0.05, tw.lineHeight, (v) => set({ ...tw, lineHeight: Number(v.toFixed(2)) }))}
           <span style={{ width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{tw.lineHeight.toFixed(2)}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>

@@ -9,13 +9,13 @@ function V4Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, o
       <div className="v4-root">
         <div className="v4-reading-area">
           <main className="v4-glass scroll scroll-thin" ref={scrollRef} onScroll={onScroll} style={{ overflow: 'auto', minHeight: 0 }}>
-            <div style={{ maxWidth: 580, margin: '0 auto', padding: '56px 64px' }}>
+            <div style={{ maxWidth: 720, margin: '0 auto', padding: '56px 64px' }}>
               <div className="v4-chaptertitle">
                 <div className="v4-chaptertitle-caption" style={{ color: colors.accent }}>CHAPTER {chapterIdx + 1}</div>
                 <h1 className="v4-chaptertitle-heading" style={{ fontSize: settings.tweaks.fontSize + 16 }}>{stripChapterPrefix(chapterTitle)}</h1>
                 <div className="v4-chaptertitle-rule" style={{ background: colors.accent }}/>
               </div>
-              <div className="reading-body" style={{
+              <div className="reading-body" style={book.preserveOriginalCss ? undefined : {
                 fontFamily: settings.tweaks.font === 'serif' ? 'var(--serif)' : 'var(--sans)',
                 fontSize: settings.tweaks.fontSize,
                 lineHeight: settings.tweaks.lineHeight,

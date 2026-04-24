@@ -2,18 +2,46 @@
 
 function renderThemeContent(props) {
   switch (props.settings.activeTheme) {
-    case 'v1': return <V1Reader {...props}/>;
-    case 'v4': return <V4Reader {...props}/>;
-    case 'v5': return <V5Reader {...props}/>;
-    default:   return <V1Reader {...props}/>;
+    case 'v1':  return <V1Reader {...props}/>;
+    case 'v4':  return <V4Reader {...props}/>;
+    case 'v5':  return <V5Reader {...props}/>;
+    case 'v6':  return <V6Reader {...props}/>;
+    case 'v9':  return <V9Reader {...props}/>;
+    case 'v11': return <V11Reader {...props}/>;
+    case 'v17': return <V17Reader {...props}/>;
+    case 'v18': return <V18Reader {...props}/>;
+    case 'v19': return <V19Reader {...props}/>;
+    case 'v20': return <V20Reader {...props}/>;
+    case 'v21': return <V21Reader {...props}/>;
+    case 'v25': return <V25Reader {...props}/>;
+    case 'v30': return <V30Reader {...props}/>;
+    case 'v31': return <V31Reader {...props}/>;
+    case 'v32': return <V32Reader {...props}/>;
+    case 'v33': return <V33Reader {...props}/>;
+    case 'v37': return <V37Reader {...props}/>;
+    default:    return <V1Reader {...props}/>;
   }
 }
 function renderThemeFooter(props) {
   switch (props.settings.activeTheme) {
-    case 'v1': return <V1Footer {...props}/>;
-    case 'v4': return <V4Footer {...props}/>;
-    case 'v5': return <V5Footer {...props}/>;
-    default:   return <V1Footer {...props}/>;
+    case 'v1':  return <V1Footer {...props}/>;
+    case 'v4':  return <V4Footer {...props}/>;
+    case 'v5':  return <V5Footer {...props}/>;
+    case 'v6':  return <V6Footer {...props}/>;
+    case 'v9':  return <V9Footer {...props}/>;
+    case 'v11': return <V11Footer {...props}/>;
+    case 'v17': return <V17Footer {...props}/>;
+    case 'v18': return <V18Footer {...props}/>;
+    case 'v19': return <V19Footer {...props}/>;
+    case 'v20': return <V20Footer {...props}/>;
+    case 'v21': return <V21Footer {...props}/>;
+    case 'v25': return <V25Footer {...props}/>;
+    case 'v30': return <V30Footer {...props}/>;
+    case 'v31': return <V31Footer {...props}/>;
+    case 'v32': return <V32Footer {...props}/>;
+    case 'v33': return <V33Footer {...props}/>;
+    case 'v37': return <V37Footer {...props}/>;
+    default:    return <V1Footer {...props}/>;
   }
 }
 
@@ -27,18 +55,41 @@ function Reader() {
   const [permIssue, setPermIssue] = React.useState(false);
   const [blob, setBlob] = React.useState(null);
   const scrollRef = React.useRef(null);
+  const parsedRef = React.useRef(null);
 
   React.useEffect(() => {
     (async () => {
-      const b = await booksStore.get(activeBookId);
-      setBook(b);
-      const bl = await loadBookBlob(b, setPermIssue);
+      chapterCacheRef.current.clear();
+      parsedRef.current = null;
+      const stored = await booksStore.get(activeBookId);
+      setBook(stored);
+      const bl = await loadBookBlob(stored, setPermIssue);
       if (!bl) return;
       setBlob(bl);
-      const chId = b.lastChapterId || b.chaptersMeta[0]?.id;
-      if (chId) await openChapter(b, bl, chId, b.lastScroll || 0);
+      // Always re-parse the live file so external edits (added/removed chapters,
+      // retitled, new cover) show up without requiring a re-scan.
+      const parser = stored.sourceType === 'txt' ? txtParser : epubParser;
+      const parsed = await parser.parseMetadata(bl);
+      parsedRef.current = parsed;
+      // For legacy books with no baseline, treat current count as "known" so we
+      // don't badge every book with its entire chapter count on first open.
+      const baseline = stored.lastKnownChapterCount == null
+        ? parsed.chaptersMeta.length
+        : stored.lastKnownChapterCount;
+      const b = await booksStore.update(stored.id, {
+        chaptersMeta: parsed.chaptersMeta,
+        title: parsed.title || stored.title,
+        author: parsed.author || stored.author,
+        coverBlob: parsed.coverBlob || stored.coverBlob,
+        wordCount: parsed.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
+        lastKnownChapterCount: baseline,
+      });
+      setBook(b);
+      const hasStoredCh = b.lastChapterId && b.chaptersMeta.some(c => c.id === b.lastChapterId);
+      const chId = hasStoredCh ? b.lastChapterId : b.chaptersMeta[0]?.id;
+      if (chId) await openChapter(b, bl, chId, hasStoredCh ? (b.lastScroll || 0) : 0);
     })();
-    return () => { chapterCacheRef.current.clear(); };
+    return () => { chapterCacheRef.current.clear(); parsedRef.current = null; };
     // eslint-disable-next-line
   }, [activeBookId]);
 
@@ -48,7 +99,8 @@ function Reader() {
     let res = cache.get(key);
     if (!res) {
       const parser = b.sourceType === 'txt' ? txtParser : epubParser;
-      const parsed = await parser.parseMetadata(bl);
+      const parsed = parsedRef.current || await parser.parseMetadata(bl);
+      if (!parsedRef.current) parsedRef.current = parsed;
       res = await parser.getChapter(bl, parsed, chapterId, { preserveCss: b.preserveOriginalCss });
       cache.set(key, res);
     }
@@ -61,7 +113,16 @@ function Reader() {
         scrollRef.current.scrollTop = max * restoreScroll;
       }
     }, 0);
-    await booksStore.update(b.id, { lastChapterId: chapterId, lastScroll: restoreScroll, lastReadAt: Date.now() });
+    // Acknowledge exposure: user has now seen up to (chapter index + 1) entries.
+    // Badge = chaptersMeta.length - lastKnownChapterCount drops as they read further.
+    const idx = b.chaptersMeta.findIndex(c => c.id === chapterId);
+    const ackCount = idx >= 0 ? Math.max(b.lastKnownChapterCount || 0, idx + 1) : (b.lastKnownChapterCount || 0);
+    await booksStore.update(b.id, {
+      lastChapterId: chapterId,
+      lastScroll: restoreScroll,
+      lastReadAt: Date.now(),
+      lastKnownChapterCount: ackCount,
+    });
     const fresh = await booksStore.get(b.id);
     setBook(fresh);
   }
@@ -226,10 +287,12 @@ function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onO
       borderBottom: '0.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)',
       fontFamily: 'var(--ui)', fontSize: 12, flexShrink: 0, zIndex: 5, position: 'relative',
     }}>
-      <button onClick={onBack} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, padding: '4px 8px' }}>← 書庫</button>
-      <div style={{ fontFamily: 'var(--serif)', fontSize: 13, fontWeight: 500 }}>{book.title}</div>
-      <div style={{ opacity: 0.5 }}>·</div>
-      <div style={{ opacity: 0.7 }}>{chapterTitle}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, minWidth: 0 }}>
+        <button onClick={onBack} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 12, padding: 0, color: 'inherit', fontFamily: 'inherit', lineHeight: 1, opacity: 0.55 }}>← 書庫</button>
+        <div style={{ fontFamily: 'var(--serif)', fontSize: 13, fontWeight: 500, lineHeight: 1 }}>{book.title}</div>
+        <div style={{ opacity: 0.5, lineHeight: 1 }}>·</div>
+        <div style={{ opacity: 0.7, fontSize: 12, lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{chapterTitle}</div>
+      </div>
       <div style={{ flex: 1 }}/>
       <ThemeSwitcher settings={settings} onChange={onThemeChange}/>
       <button onClick={onOpenToc} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>目錄 (T)</button>

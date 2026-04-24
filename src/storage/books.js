@@ -19,7 +19,7 @@
       lastScroll: 0,
       tags: [],
       collections: [],
-      status: 'unread',
+      lastKnownChapterCount: null,
       preserveOriginalCss: false,
       addedAt: Date.now(),
       lastReadAt: null,
@@ -40,20 +40,6 @@
     const b = await idb.get('books', id);
     if (!b) return null;
     const merged = { ...b, ...patch };
-    // Derive status. lastScroll is a fractional position in [0, 1) within the current chapter.
-    if (Array.isArray(merged.chaptersMeta) && merged.chaptersMeta.length > 0) {
-      const rawIdx = merged.chaptersMeta.findIndex((c) => c.id === merged.lastChapterId);
-      if (merged.lastChapterId !== null && rawIdx === -1) {
-        // Stale chapter id (book was re-scanned); treat as unstarted.
-        merged.status = 'unread';
-      } else {
-        const idx = rawIdx === -1 ? 0 : rawIdx;
-        const prog = (idx + (merged.lastScroll || 0)) / merged.chaptersMeta.length;
-        if (prog >= 0.95) merged.status = 'finished';
-        else if (prog > 0) merged.status = 'reading';
-        else merged.status = 'unread';
-      }
-    }
     await idb.put('books', merged);
     return merged;
   }

@@ -28,6 +28,16 @@ html, body {
 }
 .reading-body p:first-child { margin-top: 0; }
 
+.reading-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1em auto;
+}
+.reading-body p:has(> img:only-child) {
+  text-align: center;
+}
+
 .scroll { overflow-y: auto; scrollbar-width: thin; }
 .scroll-hidden::-webkit-scrollbar { display: none; }
 .scroll-hidden { scrollbar-width: none; }

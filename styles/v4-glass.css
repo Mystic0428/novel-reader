@@ -3,6 +3,10 @@
 .v4-bg.dusk     { background: linear-gradient(135deg, #2D1B3D 0%, #7B4B6B 35%, #D4857E 65%, #F5C98E 100%); }
 .v4-bg.sky      { background: linear-gradient(135deg, #E0F2FF 0%, #B8D8E8 35%, #9EB8D4 65%, #7BA0C4 100%); }
 .v4-bg.ink      { background: linear-gradient(135deg, #F4F1EC 0%, #D4CFC4 35%, #A8A198 65%, #6E6A63 100%); }
+.v4-bg.sunset   { background: linear-gradient(135deg, #FFD3A5 0%, #F9A17E 30%, #D8647E 65%, #7A3B6B 100%); }
+.v4-bg.forest   { background: linear-gradient(135deg, #D4E4BC 0%, #9CBC8A 35%, #5E8564 65%, #2C4A3E 100%); }
+.v4-bg.ocean    { background: linear-gradient(135deg, #C9E4EC 0%, #88B8CE 35%, #4F83A5 65%, #1E3A5F 100%); }
+.v4-bg.rose     { background: linear-gradient(135deg, #FCE4E8 0%, #F5B3C0 35%, #D67B95 65%, #8C3A60 100%); }
 .v4-blob { position: absolute; border-radius: 50%; pointer-events: none; }
 .v4-blob-a { width: 420px; height: 420px; background: rgba(255,220,180,0.55); filter: blur(80px); left: -100px; top: -100px; }
 .v4-blob-b { width: 460px; height: 460px; background: rgba(180,200,255,0.5); filter: blur(100px); right: -120px; bottom: -140px; }

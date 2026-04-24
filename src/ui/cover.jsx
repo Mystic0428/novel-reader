@@ -1,6 +1,9 @@
 // src/ui/cover.jsx — spine-style vertical-title cover
 function Cover({ book, size = 'md' }) {
-  const dims = size === 'lg' ? { w: 120, h: 160 } : size === 'sm' ? { w: 44, h: 60 } : { w: 90, h: 120 };
+  const dims = size === 'xl' ? { w: 150, h: 225 }
+    : size === 'lg' ? { w: 120, h: 160 }
+    : size === 'sm' ? { w: 44, h: 60 }
+    : { w: 90, h: 120 };
   const [imgUrl, setImgUrl] = React.useState(null);
 
   React.useEffect(() => {

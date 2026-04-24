@@ -7,19 +7,17 @@ function V5Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, o
       className={`v5-root ${tone} scroll scroll-thin`}
       style={{ flex: 1, padding: '56px 0', position: 'relative' }}
     >
-      <div className="v5-decor-rule" style={{ left: 80, right: 80, top: 30 }}/>
-      <div className="v5-decor-rule" style={{ left: 80, right: 80, bottom: 30 }}/>
       <div className="v5-column">
         <div className="v5-chaptertitle">
           <div className="v5-chaptertitle-caption" style={{ color: colors.accent }}>{chapterNumberZhSpaced(chapterIdx + 1)}</div>
-          <h1 className="v5-chaptertitle-heading" style={{ fontSize: settings.tweaks.fontSize + 14 }}>{spaceChars(stripChapterPrefix(chapterTitle))}</h1>
+          <h1 className="v5-chaptertitle-heading" style={{ fontSize: settings.tweaks.fontSize + 14 }}>{stripChapterPrefix(chapterTitle)}</h1>
           <div className="v5-diamond-rule">
             <span className="line" style={{ background: colors.accent }}/>
             <span className="gem" style={{ background: colors.accent }}/>
             <span className="line" style={{ background: colors.accent }}/>
           </div>
         </div>
-        <div className="reading-body" style={{
+        <div className="reading-body" style={book.preserveOriginalCss ? undefined : {
           fontFamily: 'var(--serif)',
           fontSize: settings.tweaks.fontSize,
           lineHeight: settings.tweaks.lineHeight,
@@ -58,9 +56,5 @@ function chapterNumberZhSpaced(n) {
   const s = n <= 10 ? d[n] : String(n);
   return `第 　 ${s} 　 回`;
 }
-function spaceChars(s) {
-  return (s || '').split('').join('　');
-}
-
 window.V5Reader = V5Reader;
 window.V5Footer = V5Footer;

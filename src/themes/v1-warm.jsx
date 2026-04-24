@@ -14,11 +14,11 @@ function V1Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, o
             <h1 className="v1-chaptertitle-heading" style={{ fontSize: settings.tweaks.fontSize + 16 }}>{stripChapterPrefix(chapterTitle)}</h1>
             <div className="v1-chaptertitle-rule"/>
           </div>
-          <div className="reading-body" style={{
+          <div className="reading-body" style={book.preserveOriginalCss ? undefined : {
             fontFamily: settings.tweaks.font === 'serif' ? 'var(--serif)' : 'var(--sans)',
             fontSize: settings.tweaks.fontSize,
             lineHeight: settings.tweaks.lineHeight,
-          }} dangerouslySetInnerHTML={{ __html: injectDropCap(html, settings.tweaks.fontSize * 2.2) }}/>
+          }} dangerouslySetInnerHTML={{ __html: book.preserveOriginalCss ? html : injectDropCap(html, settings.tweaks.fontSize * 2.2) }}/>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 60, paddingTop: 30, borderTop: '0.5px solid var(--rule)' }}>
             <button onClick={onPrev} disabled={!canPrev} style={{ ...btnStyle(), opacity: canPrev ? 1 : 0.3 }}>← 上一章</button>
             <button onClick={onNext} disabled={!canNext} style={{ ...btnStyle(), opacity: canNext ? 1 : 0.3 }}>下一章 →</button>
@@ -49,10 +49,10 @@ function injectDropCap(html, size) {
   const m = html.match(/<p([^>]*)>(\s*)(.)/);
   if (!m) return html;
   const ch = m[3];
-  // Skip if first char is non-letter/ideograph (digits, punctuation, quotes, full-width
-  // brackets, etc.) — a drop cap on "1" of "10." or "「" looks wrong.
-  const isLetter = /[\p{L}]/u.test(ch);
-  if (!isLetter) return html;
+  // Drop cap only for Latin letters. CJK ideographs are already uniform-width full-size,
+  // so enlarging the first one disrupts the grid rhythm. Digits/punctuation also skipped.
+  const isLatin = /[A-Za-z]/.test(ch);
+  if (!isLatin) return html;
   // Also skip very short first paragraphs — drop cap on a single-word line is awkward.
   const firstPEnd = html.indexOf('</p>');
   const firstPText = firstPEnd > 0 ? html.slice(0, firstPEnd).replace(/<[^>]+>/g, '').trim() : '';
