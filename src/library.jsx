@@ -1,0 +1,208 @@
+// src/library.jsx — library view: sidebar + grid
+function Library() {
+  const { state, dispatch } = React.useContext(AppContext);
+  const { books, roots, settings } = state;
+
+  const tags = React.useMemo(() => booksStore.allTags(books), [books]);
+  const collections = React.useMemo(() => booksStore.allCollections(books), [books]);
+
+  const filtered = React.useMemo(() => filterBooks(books, settings), [books, settings]);
+
+  const hasLibrary = roots.length > 0 || books.length > 0;
+
+  return (
+    <div className="nr-root" style={{
+      display: 'grid', gridTemplateColumns: '240px 1fr', height: '100vh',
+      background: '#F7F5F0', color: '#2B241B',
+    }}>
+      <LibrarySidebar
+        settings={settings}
+        tags={tags}
+        collections={collections}
+        roots={roots}
+        books={books}
+        dispatch={dispatch}
+      />
+      <main style={{ overflow: 'auto', padding: '32px 40px' }} className="scroll-thin">
+        <LibraryTopbar settings={settings} dispatch={dispatch}/>
+        {!hasLibrary ? (
+          <LibraryEmpty dispatch={dispatch}/>
+        ) : (
+          <BookGrid books={filtered} dispatch={dispatch}/>
+        )}
+      </main>
+    </div>
+  );
+}
+window.Library = Library;
+
+function filterBooks(books, settings) {
+  let out = books;
+  if (settings.filterStatus && settings.filterStatus !== 'all') {
+    out = out.filter((b) => b.status === settings.filterStatus);
+  }
+  if (settings.filterTag) {
+    out = out.filter((b) => b.tags.includes(settings.filterTag));
+  }
+  if (settings.filterCollection) {
+    out = out.filter((b) => b.collections.includes(settings.filterCollection));
+  }
+  // Sort (Task 12 extends this)
+  const order = settings.sortOrder === 'asc' ? 1 : -1;
+  out = [...out].sort((a, b) => {
+    switch (settings.sortBy) {
+      case 'title': return a.title.localeCompare(b.title) * order;
+      case 'author': return (a.author || '').localeCompare(b.author || '') * order;
+      case 'addedAt': return (a.addedAt - b.addedAt) * order;
+      case 'lastRead':
+      default:
+        return ((b.lastReadAt || b.addedAt) - (a.lastReadAt || a.addedAt)) * order;
+    }
+  });
+  return out;
+}
+
+function LibrarySidebar({ settings, tags, collections, roots, books, dispatch }) {
+  const sec = { fontSize: 10, letterSpacing: '0.2em', color: 'rgba(43,36,27,0.5)', textTransform: 'uppercase', fontWeight: 600, margin: '18px 0 8px' };
+  const item = (active) => ({
+    padding: '6px 10px', borderRadius: 6, cursor: 'pointer', fontSize: 13,
+    background: active ? 'rgba(43,36,27,0.08)' : 'transparent',
+    fontWeight: active ? 600 : 400,
+  });
+
+  async function setFilter(patch) {
+    const next = await settingsStore.save(patch);
+    dispatch({ type: 'SET_SETTINGS', settings: next });
+  }
+
+  const statusOptions = [
+    { key: 'all', label: '全部' },
+    { key: 'reading', label: '正在讀' },
+    { key: 'finished', label: '已讀完' },
+    { key: 'unread', label: '未開始' },
+  ];
+
+  return (
+    <aside style={{
+      borderRight: '0.5px solid rgba(0,0,0,0.08)',
+      background: '#EFEBE2', padding: '24px 16px',
+      overflowY: 'auto',
+    }} className="scroll-thin">
+      <div style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Novel Reader</div>
+      <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.5)', marginBottom: 18 }}>{books.length} 本書</div>
+
+      <div style={sec}>狀態</div>
+      {statusOptions.map((o) => (
+        <div key={o.key} style={item(settings.filterStatus === o.key)}
+          onClick={() => setFilter({ filterStatus: o.key })}>
+          {o.label}
+        </div>
+      ))}
+
+      {tags.length > 0 && <>
+        <div style={sec}>Tags</div>
+        {tags.map((t) => (
+          <div key={t} style={item(settings.filterTag === t)}
+            onClick={() => setFilter({ filterTag: settings.filterTag === t ? null : t })}>
+            # {t}
+          </div>
+        ))}
+      </>}
+
+      {collections.length > 0 && <>
+        <div style={sec}>Collections</div>
+        {collections.map((c) => (
+          <div key={c} style={item(settings.filterCollection === c)}
+            onClick={() => setFilter({ filterCollection: settings.filterCollection === c ? null : c })}>
+            📁 {c}
+          </div>
+        ))}
+      </>}
+
+      <div style={sec}>根目錄</div>
+      {roots.map((r) => (
+        <div key={r.id} style={{ ...item(false), display: 'flex', alignItems: 'center', gap: 6 }} title={r.name}>
+          <span>📂</span>
+          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+          <span style={{ fontSize: 10, color: 'rgba(43,36,27,0.4)' }}>{r.bookCount}</span>
+        </div>
+      ))}
+    </aside>
+  );
+}
+
+function LibraryTopbar({ settings, dispatch }) {
+  // Search + sort + "+ Root" / "+ File" buttons
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+      <input placeholder="搜尋書名 / 作者 / tag" style={{
+        flex: 1, padding: '8px 14px', border: '0.5px solid rgba(0,0,0,0.1)',
+        borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#fff',
+      }} disabled title="TODO Task 12"/>
+      <button style={btnStyle()} disabled title="TODO Task 9">＋ 加根目錄</button>
+      <button style={btnStyle()} disabled title="TODO Task 10">＋ 加單檔</button>
+    </div>
+  );
+}
+
+function LibraryEmpty({ dispatch }) {
+  return (
+    <div style={{
+      textAlign: 'center', padding: '80px 0',
+      color: 'rgba(43,36,27,0.6)', fontFamily: 'var(--serif)',
+    }}>
+      <div style={{ fontSize: 28, marginBottom: 14, letterSpacing: '0.2em' }}>書架空無一物</div>
+      <div style={{ fontSize: 13, lineHeight: 2 }}>
+        點右上「加根目錄」掃描資料夾，或「加單檔」載入一本 EPUB / TXT。
+      </div>
+    </div>
+  );
+}
+
+function BookGrid({ books, dispatch }) {
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+      gap: 28,
+    }}>
+      {books.map((b) => (
+        <div key={b.id} style={{ cursor: 'pointer' }} onClick={() => openBook(b.id, dispatch)}>
+          <div style={{
+            width: '100%', aspectRatio: '3 / 4',
+            background: b.accent || '#8C3A2E',
+            borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            display: 'flex', alignItems: 'flex-end', padding: 10, color: '#F5EDE0',
+            fontFamily: 'var(--serif)', fontSize: 14,
+            writingMode: 'vertical-rl', textOrientation: 'upright',
+            letterSpacing: '0.15em',
+          }}>{b.title}</div>
+          <div style={{ fontSize: 12, fontWeight: 500, marginTop: 10 }}>{b.title}</div>
+          <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.55)' }}>{b.author || '—'}</div>
+          <div style={{
+            marginTop: 6, height: 2, background: 'rgba(0,0,0,0.08)', borderRadius: 1,
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              width: `${Math.max(0, Math.min(1, (b.lastChapterId && b.chaptersMeta.length) ? (b.chaptersMeta.findIndex((c) => c.id === b.lastChapterId) + (b.lastScroll || 0)) / b.chaptersMeta.length : 0)) * 100}%`,
+              background: b.accent || '#8C3A2E',
+            }}/>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function btnStyle() {
+  return {
+    padding: '8px 14px', background: '#fff',
+    border: '0.5px solid rgba(0,0,0,0.12)', borderRadius: 8,
+    fontSize: 13, fontFamily: 'inherit', cursor: 'pointer',
+  };
+}
+
+async function openBook(bookId, dispatch) {
+  dispatch({ type: 'SET_VIEW', view: 'reader', bookId });
+}

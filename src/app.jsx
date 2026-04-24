@@ -71,9 +71,6 @@ function App() {
 }
 
 // Temporary stubs — will be replaced by real implementations in subsequent tasks
-window.Library = window.Library || function Library() {
-  return <div className="nr-root" style={{ padding: 40 }}>Library (stub)</div>;
-};
 window.Reader = window.Reader || function Reader() {
   return <div className="nr-root" style={{ padding: 40 }}>Reader (stub)</div>;
 };
