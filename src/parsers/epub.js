@@ -159,7 +159,7 @@
 
   // --- sanitization ---
   const ALLOWED_TAGS = new Set([
-    'P','BR','HR','H1','H2','H3','H4','H5','H6','STRONG','B','EM','I',
+    'BODY','P','BR','HR','H1','H2','H3','H4','H5','H6','STRONG','B','EM','I',
     'U','S','SMALL','SUP','SUB','BLOCKQUOTE','UL','OL','LI','DL','DT','DD',
     'IMG','FIGURE','FIGCAPTION','SECTION','ARTICLE','DIV','SPAN','A','TABLE',
     'THEAD','TBODY','TR','TH','TD','PRE','CODE',
