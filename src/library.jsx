@@ -42,12 +42,13 @@ function filterBooks(books, settings) {
     out = out.filter((b) => b.status === settings.filterStatus);
   }
   if (settings.filterTag) {
-    out = out.filter((b) => b.tags.includes(settings.filterTag));
+    out = out.filter((b) => (b.tags || []).includes(settings.filterTag));
   }
   if (settings.filterCollection) {
-    out = out.filter((b) => b.collections.includes(settings.filterCollection));
+    out = out.filter((b) => (b.collections || []).includes(settings.filterCollection));
   }
-  // Sort (Task 12 extends this)
+  // Sort (Task 12 extends this). All comparators return natural ascending; `order` flips
+  // to descending when sortOrder === 'desc' (the default).
   const order = settings.sortOrder === 'asc' ? 1 : -1;
   out = [...out].sort((a, b) => {
     switch (settings.sortBy) {
@@ -56,7 +57,7 @@ function filterBooks(books, settings) {
       case 'addedAt': return (a.addedAt - b.addedAt) * order;
       case 'lastRead':
       default:
-        return ((b.lastReadAt || b.addedAt) - (a.lastReadAt || a.addedAt)) * order;
+        return ((a.lastReadAt || a.addedAt) - (b.lastReadAt || b.addedAt)) * order;
     }
   });
   return out;
@@ -185,7 +186,7 @@ function BookGrid({ books, dispatch }) {
           }}>
             <div style={{
               position: 'absolute', inset: 0,
-              width: `${Math.max(0, Math.min(1, (b.lastChapterId && b.chaptersMeta.length) ? (b.chaptersMeta.findIndex((c) => c.id === b.lastChapterId) + (b.lastScroll || 0)) / b.chaptersMeta.length : 0)) * 100}%`,
+              width: `${bookProgress(b) * 100}%`,
               background: b.accent || '#8C3A2E',
             }}/>
           </div>
@@ -205,4 +206,14 @@ function btnStyle() {
 
 async function openBook(bookId, dispatch) {
   dispatch({ type: 'SET_VIEW', view: 'reader', bookId });
+}
+
+// Fraction in [0, 1]. Returns 0 for unread, stale (chapter not in current TOC), or empty-meta books.
+function bookProgress(b) {
+  const meta = b.chaptersMeta || [];
+  if (!b.lastChapterId || meta.length === 0) return 0;
+  const idx = meta.findIndex((c) => c.id === b.lastChapterId);
+  if (idx === -1) return 0;
+  const raw = (idx + (b.lastScroll || 0)) / meta.length;
+  return Math.max(0, Math.min(1, raw));
 }
