@@ -37,7 +37,7 @@ html, body {
 .scroll-thin::-webkit-scrollbar-track { background: transparent; }
 
 .nr-root button { font-family: inherit; }
-.nr-root button:focus { outline: none; }
+.nr-root button:focus:not(:focus-visible) { outline: none; }
 
 .paper-tex {
   background-image:

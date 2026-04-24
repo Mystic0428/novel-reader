@@ -91,6 +91,8 @@ function LibrarySidebar({ settings, tags, collections, roots, books, dispatch })
     dispatch({ type: 'SET_SETTINGS', settings: next });
   }
 
+  const supportsFS = 'showDirectoryPicker' in window;
+
   const statusOptions = [
     { key: 'all', label: '全部' },
     { key: 'reading', label: '正在讀' },
@@ -106,6 +108,15 @@ function LibrarySidebar({ settings, tags, collections, roots, books, dispatch })
     }} className="scroll-thin">
       <div style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Novel Reader</div>
       <div style={{ fontSize: 11, color: 'rgba(43,36,27,0.5)', marginBottom: 18 }}>{books.length} 本書</div>
+
+      {!supportsFS && (
+        <div style={{
+          margin: '0 0 14px', padding: '10px 12px', background: 'rgba(179,38,30,0.08)',
+          borderRadius: 6, fontSize: 11, lineHeight: 1.6, color: '#7A1D14',
+        }}>
+          目前瀏覽器不支援「加根目錄」功能。請改用 Chrome / Edge / Brave 取得書庫掃描能力。你還是可以用「加單檔」逐本載入。
+        </div>
+      )}
 
       <div style={sec}>狀態</div>
       {statusOptions.map((o) => (

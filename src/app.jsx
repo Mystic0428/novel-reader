@@ -37,6 +37,28 @@ function appReducer(state, action) {
   }
 }
 
+class AppErrorBoundary extends React.Component {
+  constructor(p) { super(p); this.state = { err: null }; }
+  static getDerivedStateFromError(err) { return { err }; }
+  componentDidCatch(err, info) { console.error(err, info); }
+  render() {
+    if (this.state.err) {
+      return (
+        <div className="nr-root" style={{
+          width: '100%', height: '100vh', display: 'flex',
+          flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: 14, background: '#F7F5F0', color: '#2B241B', padding: 20,
+        }}>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 18 }}>出錯了</div>
+          <pre style={{ fontSize: 11, maxWidth: 520, background: '#fff', border: '0.5px solid rgba(0,0,0,0.1)', padding: 14, overflow: 'auto', borderRadius: 6 }}>{String(this.state.err && (this.state.err.stack || this.state.err.message))}</pre>
+          <button onClick={() => window.location.reload()} style={{ padding: '6px 14px', background: '#fff', border: '0.5px solid rgba(0,0,0,0.12)', borderRadius: 6, cursor: 'pointer' }}>重新整理</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   const [state, dispatch] = React.useReducer(appReducer, initialState);
   const chapterCacheRef = React.useRef(new Map());
@@ -70,4 +92,6 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <AppErrorBoundary><App/></AppErrorBoundary>
+);
