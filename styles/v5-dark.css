@@ -1,0 +1,13 @@
+.v5-root { --bg:#13201C; --bg2:#1A2925; --ink:#ECE3CF; --mute: rgba(236,227,207,0.5); --soft: rgba(236,227,207,0.75); --gold:#C9A86B; --rule: rgba(236,227,207,0.12); background: var(--bg); color: var(--ink); }
+.v5-root.mogreen { --bg:#13201C; --bg2:#1A2925; }
+.v5-root.xuanhei { --bg:#12100E; --bg2:#1A1816; }
+.v5-root.zhehe   { --bg:#211612; --bg2:#2A1E18; }
+.v5-column { max-width: 640px; margin: 0 auto; padding: 20px 80px; }
+.v5-decor-rule { position: absolute; height: 0.5px; background: var(--gold); opacity: 0.3; }
+.v5-chaptertitle { text-align: center; margin-bottom: 44px; }
+.v5-chaptertitle-caption { font-family: var(--serif); font-size: 13px; color: var(--gold); letter-spacing: 0.5em; margin-bottom: 12px; }
+.v5-chaptertitle-heading { font-family: var(--serif); font-weight: 400; margin: 0; letter-spacing: 0.15em; color: var(--ink); }
+.v5-chaptertitle-sub { font-family: var(--serif); font-weight: 400; margin: 10px 0 0; letter-spacing: 0.15em; color: var(--soft); }
+.v5-diamond-rule { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 24px 0 0; }
+.v5-diamond-rule span.line { width: 40px; height: 0.5px; background: var(--gold); opacity: 0.5; }
+.v5-diamond-rule span.gem  { width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }

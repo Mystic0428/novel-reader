@@ -1,9 +1,5 @@
 // src/reader.jsx — reader view shell
 
-// T16: V5 stub aliases — replaced by T18
-window.V5Reader = window.V5Reader || V1Reader;
-window.V5Footer = window.V5Footer || V1Footer;
-
 function renderThemeContent(props) {
   switch (props.settings.activeTheme) {
     case 'v1': return <V1Reader {...props}/>;
