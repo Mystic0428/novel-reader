@@ -177,6 +177,25 @@ function Reader() {
     // eslint-disable-next-line
   }, [activeBookId]);
 
+  // Best-effort background fetch of an adjacent chapter into the cache. Skips if
+  // already cached or if the user has navigated to a different book before the
+  // parse finished (parsedRef changes per book load).
+  async function prefetchChapter(b, bl, chapterId) {
+    if (!b || !bl || !chapterId) return;
+    const key = `${b.id}:${chapterId}`;
+    if (chapterCacheRef.current.has(key)) return;
+    const parsed = parsedRef.current;
+    if (!parsed) return;
+    try {
+      const parser = b.sourceType === 'txt' ? txtParser : epubParser;
+      const res = await parser.getChapter(bl, parsed, chapterId, { preserveCss: b.preserveOriginalCss });
+      if (parsedRef.current !== parsed) return; // navigated away mid-flight
+      chapterCacheRef.current.set(key, res);
+    } catch (err) {
+      console.warn('Prefetch failed for', chapterId, err);
+    }
+  }
+
   async function openChapter(b, bl, chapterId, restoreScroll = 0) {
     const key = `${b.id}:${chapterId}`;
     const cache = chapterCacheRef.current;
@@ -209,6 +228,14 @@ function Reader() {
     });
     const fresh = await booksStore.get(b.id);
     setBook(fresh);
+
+    // Prefetch the next chapter so forward navigation is instant. Use idle time
+    // to avoid contending with the current chapter's render/scroll-restore work.
+    const nextCh = b.chaptersMeta[idx + 1];
+    if (nextCh) {
+      const schedule = window.requestIdleCallback || ((cb) => setTimeout(cb, 200));
+      schedule(() => prefetchChapter(b, bl, nextCh.id));
+    }
   }
 
   // Debounced scroll save
