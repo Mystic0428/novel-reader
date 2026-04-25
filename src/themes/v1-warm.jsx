@@ -62,9 +62,19 @@ function injectDropCap(html, size) {
   );
 }
 function stripChapterPrefix(title) {
-  // Strip "第X話 ", "002. ", "01-", "1:" etc. — common chapter-number prefixes
-  // produced by various scrapers and TOC formats.
-  return (title || '').replace(/^(第.+?[　\s]+|\d+[.\-:、][\s　]*|\d+[\s　]+)/, '');
+  // Strip common chapter-number prefixes:
+  //  - "第N章：", "第十二章 ", "第N話", etc. — Chinese unit-prefix
+  //  - "002. ", "01-", "1:"                  — numeric + separator
+  //  - "001 "                                 — numeric + whitespace
+  // The Chinese branch is anchored to the actual unit char (章/回/節/節/話/…),
+  // not the first whitespace, otherwise titles like
+  //   "第12章：半路為盜，愈發兇狠 （1）"
+  // collapsed to just "（1）" because `第.+?[　\s]+` greedily ate up to the
+  // space *inside* the title.
+  return (title || '').replace(
+    /^(第[\d一二三四五六七八九十百千零兩\s　]+(?:章|節|节|回|卷|部|篇|話|话)[：:、，,.\s　]*|\d+[.\-:、][\s　]*|\d+[\s　]+)/,
+    ''
+  );
 }
 function chapterNumberZh(n) {
   const d = ['零','一','二','三','四','五','六','七','八','九','十'];
