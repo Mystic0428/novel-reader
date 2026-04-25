@@ -32,16 +32,35 @@ function TweaksPanel({ book, settings, onSettingsChange, onBookChange, open, onC
           {slider(0.6, 2.4, 0.05, tw.lineHeight, (v) => set({ ...tw, lineHeight: Number(v.toFixed(2)) }))}
           <span style={{ width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{tw.lineHeight.toFixed(2)}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <span style={{ width: 36, fontSize: 11 }}>字體</span>
           <button onClick={() => set({ ...tw, font: 'sans' })} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11, background: tw.font === 'sans' ? 'rgba(0,0,0,0.08)' : '#fff' }}>黑體</button>
           <button onClick={() => set({ ...tw, font: 'serif' })} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11, background: tw.font === 'serif' ? 'rgba(0,0,0,0.08)' : '#fff' }}>宋體</button>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <span style={{ width: 36, fontSize: 11 }}>段首</span>
+          {slider(0, 4, 1, tw.paragraphIndent ?? 2, (v) => set({ ...tw, paragraphIndent: v }))}
+          <span style={{ width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{tw.paragraphIndent ?? 2} 字</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <span style={{ width: 36, fontSize: 11 }}>段距</span>
+          {slider(0, 2, 0.1, tw.paragraphSpacing ?? 0.6, (v) => set({ ...tw, paragraphSpacing: Number(v.toFixed(1)) }))}
+          <span style={{ width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{(tw.paragraphSpacing ?? 0.6).toFixed(1)}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <span style={{ width: 36, fontSize: 11 }}>字重</span>
+          {slider(300, 700, 100, tw.fontWeight ?? 400, (v) => set({ ...tw, fontWeight: v }))}
+          <span style={{ width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{tw.fontWeight ?? 400}</span>
+        </div>
 
         <div style={styleLabel}>質感</div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
           <input type="checkbox" checked={!!tw.texture} onChange={(e) => set({ ...tw, texture: e.target.checked })}/>
           <span>紙張紋理（僅紙質風格主題顯示）</span>
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <input type="checkbox" checked={tw.immersive !== false} onChange={(e) => set({ ...tw, immersive: e.target.checked })}/>
+          <span>沉浸式（3 秒不動 toolbar 自動淡出）</span>
         </label>
 
         <div style={{ height: 0.5, background: 'rgba(0,0,0,0.08)', margin: '14px -18px' }}/>

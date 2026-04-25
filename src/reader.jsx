@@ -272,6 +272,39 @@ function Reader() {
   const [tocOpen, setTocOpen] = React.useState(false);
   const [tweaksOpen, setTweaksOpen] = React.useState(false);
   const [colorOpen, setColorOpen] = React.useState(false);
+  const [chromeVisible, setChromeVisible] = React.useState(true);
+  const idleTimerRef = React.useRef(null);
+  const immersive = settings.tweaks.immersive !== false;
+  const panelOpen = tocOpen || tweaksOpen || colorOpen;
+
+  // Immersive auto-hide: 3s of no input hides topbar/footer; any mouse/key/wheel/
+  // touch reveals them. While a panel is open we force-show and don't schedule a
+  // hide so the buttons that opened the panel don't disappear underneath it.
+  React.useEffect(() => {
+    if (!immersive) {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      setChromeVisible(true);
+      return;
+    }
+    function scheduleHide() {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (panelOpen) { setChromeVisible(true); return; }
+      idleTimerRef.current = setTimeout(() => setChromeVisible(false), 3000);
+    }
+    function bump() { setChromeVisible(true); scheduleHide(); }
+    scheduleHide();
+    window.addEventListener('mousemove', bump);
+    window.addEventListener('keydown', bump);
+    window.addEventListener('wheel', bump, { passive: true });
+    window.addEventListener('touchstart', bump);
+    return () => {
+      window.removeEventListener('mousemove', bump);
+      window.removeEventListener('keydown', bump);
+      window.removeEventListener('wheel', bump);
+      window.removeEventListener('touchstart', bump);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, [immersive, panelOpen]);
 
   async function changeTheme(key) {
     await setSettings({ activeTheme: key });
@@ -341,17 +374,48 @@ function Reader() {
       position: 'relative',
     }}>
       {chapterExtraCss && <style>{chapterExtraCss}</style>}
-      <ReaderTopBar
-        book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
-        onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}
-        onOpenColor={() => setColorOpen(true)}
-        settings={settings} onThemeChange={changeTheme} onSettingsChange={setSettings}
-      />
+      {!book.preserveOriginalCss && (
+        <style>{`
+          .nr-reading-scope .reading-body { font-weight: ${settings.tweaks.fontWeight ?? 400}; }
+          .nr-reading-scope .reading-body p {
+            text-indent: ${settings.tweaks.paragraphIndent ?? 2}em;
+            margin-top: ${settings.tweaks.paragraphSpacing ?? 0.6}em;
+            margin-bottom: 0;
+          }
+          .nr-reading-scope .reading-body p:first-child { margin-top: 0; }
+        `}</style>
+      )}
+      <div style={{
+        flexShrink: 0,
+        opacity: chromeVisible ? 1 : 0,
+        transition: 'opacity 220ms ease',
+        pointerEvents: chromeVisible ? 'auto' : 'none',
+      }}>
+        <ReaderTopBar
+          book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
+          onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}
+          onOpenColor={() => setColorOpen(true)}
+          settings={settings} onThemeChange={changeTheme} onSettingsChange={setSettings}
+        />
+      </div>
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', position: 'relative' }}>
         {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
-        {settings.activeTheme === 'v4' && renderThemeFooter({ book, chapterIdx, settings })}
+        {settings.activeTheme === 'v4' && (
+          <div style={{ opacity: chromeVisible ? 1 : 0, transition: 'opacity 220ms ease', pointerEvents: chromeVisible ? 'auto' : 'none' }}>
+            {renderThemeFooter({ book, chapterIdx, settings })}
+          </div>
+        )}
       </div>
-      {settings.activeTheme !== 'v4' && renderThemeFooter({ book, chapterIdx, settings })}
+      {settings.activeTheme !== 'v4' && (
+        <div style={{
+          flexShrink: 0,
+          opacity: chromeVisible ? 1 : 0,
+          transition: 'opacity 220ms ease',
+          pointerEvents: chromeVisible ? 'auto' : 'none',
+        }}>
+          {renderThemeFooter({ book, chapterIdx, settings })}
+        </div>
+      )}
       <TocDrawer book={book} currentChapterId={currentChapterId} settings={settings}
         open={tocOpen} onClose={() => setTocOpen(false)}
         onJump={(id) => openChapter(book, blob, id, 0)}/>

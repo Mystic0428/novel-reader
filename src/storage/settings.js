@@ -64,7 +64,10 @@
       v58: { accent: '#C8404A', bgTone: 'black' },
       v59: { accent: '#C8242C', bgTone: 'paper' },
     },
-    tweaks: { fontSize: 17, lineHeight: 1.9, font: 'sans', texture: true },
+    tweaks: {
+      fontSize: 17, lineHeight: 1.9, font: 'sans', texture: true,
+      paragraphIndent: 2, paragraphSpacing: 0.6, fontWeight: 400, immersive: true,
+    },
     preserveOriginalCssDefault: false,
     sortBy: 'lastRead',
     sortOrder: 'desc',
