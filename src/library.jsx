@@ -762,6 +762,10 @@ async function scanRoot(root, setBusy, dispatch) {
     }
   }
 
+  // Track which single-file (rootId=null) entries we've already promoted in this
+  // scan so two scraper-output paths for the same book don't both try to claim
+  // the same single-file entry.
+  const consumed = new Set();
   let added = 0;
   let done = 0;
   for (const { handle, relPath } of files) {
@@ -771,6 +775,30 @@ async function scanRoot(root, setBusy, dispatch) {
     try {
       const f = await handle.getFile();
       const meta = await epubParser.parseMetadata(f);
+
+      // Promote a matching single-file entry (added via 加單檔) into this root
+      // instead of creating a duplicate. Preserves reading state — lastChapterId,
+      // lastScroll, lastReadAt, tags, collections, lastKnownChapterCount.
+      const promote = existing.find((b) =>
+        !consumed.has(b.id) &&
+        b.rootId == null &&
+        b.title === meta.title &&
+        (b.author || null) === (meta.author || null)
+      );
+      if (promote) {
+        consumed.add(promote.id);
+        await booksStore.update(promote.id, {
+          rootId: root.id,
+          relPath,
+          fileHandle: handle,
+          sourceType: 'epub',
+          chaptersMeta: meta.chaptersMeta,
+          coverBlob: meta.coverBlob || promote.coverBlob,
+          wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
+        });
+        continue;
+      }
+
       await booksStore.add({
         rootId: root.id,
         relPath,
