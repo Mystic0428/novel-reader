@@ -54,7 +54,7 @@ function V13Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         {/* body — typewriter mono with subtle red emphasis on accent */}
         <div className="reading-body" style={book.preserveOriginalCss ? undefined : {
           fontFamily: '"JetBrains Mono","Courier New",monospace', color: ink,
-          fontSize: settings.tweaks.fontSize, lineHeight: 2,
+          fontSize: settings.tweaks.fontSize, lineHeight: settings.tweaks.lineHeight,
           textAlign: 'left',
           '--accent': ribbon,
         }} dangerouslySetInnerHTML={{ __html: html }}/>
