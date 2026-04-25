@@ -2,7 +2,7 @@
 (function () {
   function uuid() { return crypto.randomUUID(); }
 
-  async function add({ name, dirHandle }) {
+  async function add({ name, dirHandle, excludeDirs }) {
     const root = {
       id: uuid(),
       name,
@@ -10,6 +10,7 @@
       addedAt: Date.now(),
       lastScannedAt: null,
       bookCount: 0,
+      excludeDirs: excludeDirs || [],
     };
     await idb.put('roots', root);
     return root;

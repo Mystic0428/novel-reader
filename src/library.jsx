@@ -449,8 +449,27 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
     catch (_) { return; }
     const granted = await rootsStore.ensurePermission(dirHandle, 'read');
     if (!granted) { alert('需要讀取權限'); return; }
-    const root = await rootsStore.add({ name: dirHandle.name, dirHandle });
+    const excludeInput = window.prompt(
+      `要排除哪些子資料夾名稱？\n用逗號分隔，留空 = 不排除。\n例如：ko, ja, raw, 原文`,
+      ''
+    );
+    if (excludeInput === null) return;
+    const excludeDirs = excludeInput.split(',').map((s) => s.trim()).filter(Boolean);
+    const root = await rootsStore.add({ name: dirHandle.name, dirHandle, excludeDirs });
     await scanRoot(root, setBusy, dispatch);
+  }
+
+  async function editRootExcludes(root) {
+    if (busy) return;
+    const current = (root.excludeDirs || []).join(', ');
+    const next = window.prompt(
+      `排除子資料夾名稱（逗號分隔，留空 = 不排除）：\n例如：ko, ja, raw, 原文`,
+      current
+    );
+    if (next === null) return;
+    const excludeDirs = next.split(',').map((s) => s.trim()).filter(Boolean);
+    const updated = await rootsStore.update(root.id, { excludeDirs });
+    await scanRoot(updated, setBusy, dispatch);
   }
 
   async function addFile() {
@@ -511,7 +530,7 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
           background: 'rgba(22,22,28,0.85)', color: '#F4F4F6',
         }}/>
       <SortDropdown settings={settings} onSort={setSort}/>
-      <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} supported={supported}/>
+      <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} onEditRoot={editRootExcludes} supported={supported}/>
       <button onClick={addFile} style={addBtnStyleDark()}>＋ 加檔</button>
       {busy && (
         <div style={{
@@ -566,7 +585,7 @@ function SortDropdown({ settings, onSort }) {
   );
 }
 
-function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, supported }) {
+function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, onEditRoot, supported }) {
   const [open, setOpen] = React.useState(false);
   return (
     <div style={{ position: 'relative' }}>
@@ -577,7 +596,7 @@ function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, supported }) {
         <>
           <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 100 }}/>
           <div style={{
-            position: 'absolute', top: 'calc(100% + 6px)', right: 0, minWidth: 300, zIndex: 101,
+            position: 'absolute', top: 'calc(100% + 6px)', right: 0, minWidth: 320, zIndex: 101,
             background: '#16161C', border: '0.5px solid rgba(255,255,255,0.14)', borderRadius: 8,
             boxShadow: '0 10px 32px rgba(0,0,0,0.5)', padding: 8, fontFamily: 'var(--ui)', color: '#F4F4F6',
           }}>
@@ -586,18 +605,33 @@ function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, supported }) {
                 尚未加入任何根目錄
               </div>
             )}
-            {roots.map((r) => (
-              <div key={r.id} style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <span>📂</span>
-                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={r.name}>{r.name}</span>
-                <span style={{ fontSize: 10, color: 'rgba(244,244,246,0.4)' }}>{r.bookCount}</span>
-                <button onClick={() => onRemoveRoot(r.id)} title="移除此根目錄（不會刪除檔案）"
-                  style={{
-                    width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
-                    color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 14,
-                  }}>✕</button>
-              </div>
-            ))}
+            {roots.map((r) => {
+              const excludes = (r.excludeDirs || []).join(', ');
+              return (
+                <div key={r.id} style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+                  <span>📂</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={r.name}>{r.name}</div>
+                    {excludes && (
+                      <div style={{ fontSize: 10, color: 'rgba(244,244,246,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={`排除：${excludes}`}>
+                        排除：{excludes}
+                      </div>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 10, color: 'rgba(244,244,246,0.4)' }}>{r.bookCount}</span>
+                  <button onClick={() => onEditRoot(r)} title="編輯排除清單（會重新掃描）"
+                    style={{
+                      width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
+                      color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 12,
+                    }}>✎</button>
+                  <button onClick={() => onRemoveRoot(r.id)} title="移除此根目錄（不會刪除檔案）"
+                    style={{
+                      width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
+                      color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 14,
+                    }}>✕</button>
+                </div>
+              );
+            })}
             {supported && (
               <>
                 <div style={{ height: 0.5, background: 'rgba(255,255,255,0.1)', margin: '6px 0' }}/>
@@ -666,10 +700,12 @@ function sortLabel(settings) {
 }
 
 async function scanRoot(root, setBusy, dispatch) {
+  const excludes = new Set((root.excludeDirs || []).map((s) => s.toLowerCase()));
   const files = [];
   async function walk(dirHandle, path) {
     for await (const [name, handle] of dirHandle.entries()) {
       if (handle.kind === 'directory') {
+        if (excludes.has(name.toLowerCase())) continue;
         await walk(handle, path + name + '/');
       } else if (name.toLowerCase().endsWith('.epub')) {
         files.push({ handle, relPath: path + name });
@@ -680,8 +716,18 @@ async function scanRoot(root, setBusy, dispatch) {
   await walk(root.dirHandle, '');
 
   const existing = await booksStore.list();
-  const existingPaths = new Set(existing.filter((b) => b.rootId === root.id).map((b) => b.relPath));
-  const keptBefore = existingPaths.size;
+  const existingForRoot = existing.filter((b) => b.rootId === root.id);
+  const existingPaths = new Set(existingForRoot.map((b) => b.relPath));
+  const walkedPaths = new Set(files.map((f) => f.relPath));
+
+  // Drop books that are no longer reachable — file moved/deleted on disk OR
+  // newly excluded by edited excludeDirs. Keeps IDB in sync with disk state.
+  for (const b of existingForRoot) {
+    if (!walkedPaths.has(b.relPath)) {
+      await booksStore.remove(b.id);
+    }
+  }
+
   let added = 0;
   let done = 0;
   for (const { handle, relPath } of files) {
@@ -711,7 +757,7 @@ async function scanRoot(root, setBusy, dispatch) {
 
   await rootsStore.update(root.id, {
     lastScannedAt: Date.now(),
-    bookCount: keptBefore + added,
+    bookCount: walkedPaths.size,
   });
   setBusy(null);
 
