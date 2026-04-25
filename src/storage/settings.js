@@ -66,7 +66,7 @@
     },
     tweaks: {
       fontSize: 17, lineHeight: 1.9, font: 'sans', texture: true,
-      paragraphIndent: 2, paragraphSpacing: 0.6, fontWeight: 400, immersive: true,
+      paragraphIndent: 0, paragraphSpacing: 0.6, fontWeight: 400, immersive: true,
     },
     preserveOriginalCssDefault: false,
     sortBy: 'lastRead',
