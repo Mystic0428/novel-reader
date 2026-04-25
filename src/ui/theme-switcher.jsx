@@ -70,9 +70,13 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
     { key: 'v57', label: 'Cloth · 布面精裝',         group: '經典', swatch: { bg: 'linear-gradient(135deg,#1A3A28,#0F2418)' } },
     { key: 'v58', label: 'Notebook · 札記本',        group: '經典', swatch: { bg: 'linear-gradient(135deg,#1A1A1A,#0E0E0E)' } },
     { key: 'v59', label: 'Long-form · 長文雜誌',     group: '經典', swatch: { bg: '#FAFAF7' } },
+    { key: 'v60', label: 'Grimoire · 魔典',          group: '奇幻', swatch: { bg: 'radial-gradient(ellipse,#3A2818,#1F1408)' } },
+    { key: 'v61', label: "Adventurer's Codex · 冒險者手冊", group: '奇幻', swatch: { bg: 'radial-gradient(ellipse,#5A1F1F,#1F0A0A)' } },
+    { key: 'v62', label: 'Rune Stone · 符文石碑',     group: '奇幻', swatch: { bg: 'linear-gradient(180deg,#363A40,#2A2D32)' } },
+    { key: 'v63', label: 'Fae Codex · 精靈卷宗',      group: '奇幻', swatch: { bg: 'radial-gradient(ellipse,#1A2D24,#0F1F18)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
-  const groups = ['經典', '復古', '現代', '華麗', '東方'];
+  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻'];
   const favs = settings.favoriteThemes || [];
 
   const q = query.trim().toLowerCase();
