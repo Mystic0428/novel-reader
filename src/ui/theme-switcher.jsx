@@ -1,6 +1,15 @@
 // src/ui/theme-switcher.jsx — dropdown theme picker (scales to many themes)
-function ThemeSwitcher({ settings, onChange }) {
+function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
   const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState('');
+  const activeRef = React.useRef(null);
+
+  // Center the active theme in view when the dropdown first opens.
+  React.useLayoutEffect(() => {
+    if (open && activeRef.current) {
+      activeRef.current.scrollIntoView({ block: 'center' });
+    }
+  }, [open]);
   const themes = [
     { key: 'v1',  label: 'Warm · 書房',       group: '經典', swatch: { bg: '#EDE4D2' } },
     { key: 'v4',  label: 'Glass · 毛玻璃',    group: '經典', swatch: { bg: 'linear-gradient(135deg,#F5DEB3,#C9A5D4)' } },
@@ -64,6 +73,50 @@ function ThemeSwitcher({ settings, onChange }) {
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
+  const favs = settings.favoriteThemes || [];
+
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? themes.filter(t => t.label.toLowerCase().includes(q) || t.group.toLowerCase().includes(q))
+    : themes;
+  const filteredKeys = new Set(filtered.map(t => t.key));
+
+  function toggleFavorite(e, key) {
+    e.stopPropagation();
+    const next = favs.includes(key) ? favs.filter(k => k !== key) : [...favs, key];
+    if (onSettingsChange) onSettingsChange({ favoriteThemes: next });
+  }
+
+  function renderItem(t, attachActiveRef) {
+    const isActive = t.key === settings.activeTheme;
+    const isFav = favs.includes(t.key);
+    return (
+      <button key={t.key}
+        ref={attachActiveRef && isActive ? activeRef : null}
+        onClick={() => { onChange(t.key); setOpen(false); setQuery(''); }} style={{
+        display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+        padding: '6px 10px', border: 'none', borderRadius: 6,
+        background: isActive ? 'rgba(0,0,0,0.06)' : 'transparent',
+        cursor: 'pointer', fontFamily: 'inherit', fontSize: 12,
+        color: 'rgba(0,0,0,0.85)', textAlign: 'left',
+      }}>
+        <span style={{
+          width: 20, height: 20, borderRadius: 10, display: 'inline-block', flexShrink: 0,
+          background: t.swatch.bg,
+          boxShadow: `inset 0 0 0 2px ${settings.themeColors[t.key].accent}`,
+        }}/>
+        <span style={{ flex: 1 }}>{t.label}</span>
+        <span onClick={(e) => toggleFavorite(e, t.key)}
+          title={isFav ? '取消最愛' : '加入最愛'}
+          style={{
+            fontSize: 13, lineHeight: 1, padding: '2px 4px', borderRadius: 4,
+            color: isFav ? '#E8A93A' : 'rgba(0,0,0,0.25)',
+            cursor: 'pointer',
+          }}>{isFav ? '★' : '☆'}</span>
+        {isActive && <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.5)' }}>✓</span>}
+      </button>
+    );
+  }
 
   return (
     <div style={{ position: 'relative' }}>
@@ -82,45 +135,62 @@ function ThemeSwitcher({ settings, onChange }) {
         <span style={{ fontSize: 8, opacity: 0.6 }}>▾</span>
       </button>
       {open && <>
-        <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 850 }}/>
+        <div onClick={() => { setOpen(false); setQuery(''); }} style={{ position: 'fixed', inset: 0, zIndex: 850 }}/>
         <div style={{
-          position: 'absolute', right: 0, top: 34, width: 260, maxHeight: 420,
-          overflow: 'auto', background: '#fff',
+          position: 'absolute', right: 0, top: 34, width: 290, maxHeight: 460,
+          display: 'flex', flexDirection: 'column',
+          background: '#fff',
           border: '0.5px solid rgba(0,0,0,0.12)', borderRadius: 10,
           boxShadow: '0 10px 34px rgba(0,0,0,0.16)',
-          padding: 6, zIndex: 851, fontFamily: 'var(--ui)',
-        }} className="scroll-thin">
-          {groups.map(g => {
-            const items = themes.filter(t => t.group === g);
-            if (!items.length) return null;
-            return (
-              <div key={g}>
-                <div style={{ padding: '8px 10px 4px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 600, color: 'rgba(0,0,0,0.45)' }}>
-                  {g.toUpperCase()}
-                </div>
-                {items.map(t => {
-                  const isActive = t.key === settings.activeTheme;
-                  return (
-                    <button key={t.key} onClick={() => { onChange(t.key); setOpen(false); }} style={{
-                      display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-                      padding: '6px 10px', border: 'none', borderRadius: 6,
-                      background: isActive ? 'rgba(0,0,0,0.06)' : 'transparent',
-                      cursor: 'pointer', fontFamily: 'inherit', fontSize: 12,
-                      color: 'rgba(0,0,0,0.85)', textAlign: 'left',
-                    }}>
-                      <span style={{
-                        width: 20, height: 20, borderRadius: 10, display: 'inline-block', flexShrink: 0,
-                        background: t.swatch.bg,
-                        boxShadow: `inset 0 0 0 2px ${settings.themeColors[t.key].accent}`,
-                      }}/>
-                      <span style={{ flex: 1 }}>{t.label}</span>
-                      {isActive && <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.5)' }}>✓</span>}
-                    </button>
-                  );
-                })}
+          zIndex: 851, fontFamily: 'var(--ui)',
+        }}>
+          <div style={{ padding: 8, borderBottom: '0.5px solid rgba(0,0,0,0.06)' }}>
+            <input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Escape') { setOpen(false); setQuery(''); } }}
+              placeholder="搜尋風格…"
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                padding: '6px 10px', fontSize: 12, fontFamily: 'inherit',
+                border: '0.5px solid rgba(0,0,0,0.15)', borderRadius: 6,
+                background: 'rgba(0,0,0,0.03)', outline: 'none',
+              }}
+            />
+          </div>
+          <div className="scroll-thin" style={{ flex: 1, overflowY: 'auto', padding: 6 }}>
+            {filtered.length === 0 && (
+              <div style={{ padding: '18px 12px', fontSize: 11, color: 'rgba(0,0,0,0.45)', textAlign: 'center' }}>
+                找不到相符的風格
               </div>
-            );
-          })}
+            )}
+            {!q && favs.length > 0 && (() => {
+              const favItems = favs.map(k => themes.find(t => t.key === k)).filter(Boolean);
+              if (favItems.length === 0) return null;
+              return (
+                <div>
+                  <div style={{ padding: '8px 10px 4px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 600, color: '#C28A22' }}>
+                    ★ 最愛
+                  </div>
+                  {favItems.map(t => renderItem(t, false))}
+                  <div style={{ height: 0.5, background: 'rgba(0,0,0,0.06)', margin: '6px 6px' }}/>
+                </div>
+              );
+            })()}
+            {groups.map(g => {
+              const items = filtered.filter(t => t.group === g && filteredKeys.has(t.key));
+              if (!items.length) return null;
+              return (
+                <div key={g}>
+                  <div style={{ padding: '8px 10px 4px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 600, color: 'rgba(0,0,0,0.45)' }}>
+                    {g.toUpperCase()}
+                  </div>
+                  {items.map(t => renderItem(t, true))}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </>}
     </div>

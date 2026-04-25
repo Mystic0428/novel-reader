@@ -70,6 +70,7 @@
     sortOrder: 'desc',
     filterTag: null,
     filterCollection: null,
+    favoriteThemes: [],
   };
 
   function mergeDeep(base, patch) {
