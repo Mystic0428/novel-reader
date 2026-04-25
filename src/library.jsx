@@ -7,6 +7,28 @@ function Library() {
   const tags = React.useMemo(() => booksStore.allTags(books), [books]);
   const collections = React.useMemo(() => booksStore.allCollections(books), [books]);
 
+  // Auto-scan permitted roots on mount so newly-scraped books appear without
+  // manual action. Silent — no busy banner, no permission prompt (skip un-granted).
+  React.useEffect(() => {
+    if (roots.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      for (const root of roots) {
+        if (cancelled) return;
+        try {
+          if (!root.dirHandle || !root.dirHandle.queryPermission) continue;
+          const perm = await root.dirHandle.queryPermission({ mode: 'read' });
+          if (perm !== 'granted') continue;
+          await scanRoot(root, null, dispatch);
+        } catch (err) {
+          console.warn('Auto-scan failed for', root.name, err);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line
+  }, []);
+
   const filterActive = !!(settings.filterTag || settings.filterCollection || search.trim());
 
   const filtered = React.useMemo(() => {
@@ -449,7 +471,33 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
     catch (_) { return; }
     const granted = await rootsStore.ensurePermission(dirHandle, 'read');
     if (!granted) { alert('需要讀取權限'); return; }
-    const root = await rootsStore.add({ name: dirHandle.name, dirHandle });
+    const excludeInput = window.prompt(
+      `要排除哪些子資料夾名稱？\n用逗號分隔，留空 = 不排除。\n例如：ko, ja, raw, 原文`,
+      ''
+    );
+    if (excludeInput === null) return;
+    const excludeDirs = excludeInput.split(',').map((s) => s.trim()).filter(Boolean);
+    const root = await rootsStore.add({ name: dirHandle.name, dirHandle, excludeDirs });
+    await scanRoot(root, setBusy, dispatch);
+  }
+
+  async function editRootExcludes(root) {
+    if (busy) return;
+    const current = (root.excludeDirs || []).join(', ');
+    const next = window.prompt(
+      `排除子資料夾名稱（逗號分隔，留空 = 不排除）：\n例如：ko, ja, raw, 原文`,
+      current
+    );
+    if (next === null) return;
+    const excludeDirs = next.split(',').map((s) => s.trim()).filter(Boolean);
+    const updated = await rootsStore.update(root.id, { excludeDirs });
+    await scanRoot(updated, setBusy, dispatch);
+  }
+
+  async function rescanRoot(root) {
+    if (busy) return;
+    const granted = await rootsStore.ensurePermission(root.dirHandle, 'read');
+    if (!granted) { alert('需要讀取權限'); return; }
     await scanRoot(root, setBusy, dispatch);
   }
 
@@ -475,10 +523,21 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
   }
 
   async function removeRoot(id) {
-    if (!confirm('移除這個根目錄？（書本資料保留在書庫裡，但檔案連結可能失效）')) return;
+    const root = (await rootsStore.list()).find((r) => r.id === id);
+    const allBooks = await booksStore.list();
+    const fromRoot = allBooks.filter((b) => b.rootId === id);
+    const label = root ? `「${root.name}」` : '此根目錄';
+    const msg = fromRoot.length > 0
+      ? `移除${label}？\n會一併刪除 ${fromRoot.length} 本書（含閱讀進度、tags、collections）。\n磁碟上的檔案不會被刪除。`
+      : `移除${label}？`;
+    if (!confirm(msg)) return;
+    for (const b of fromRoot) {
+      await booksStore.remove(b.id);
+    }
     await rootsStore.remove(id);
-    const newRoots = await rootsStore.list();
+    const [newRoots, newBooks] = await Promise.all([rootsStore.list(), booksStore.list()]);
     dispatch({ type: 'SET_ROOTS', roots: newRoots });
+    dispatch({ type: 'SET_BOOKS', books: newBooks });
   }
 
   async function setSort(sortBy) {
@@ -511,7 +570,7 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
           background: 'rgba(22,22,28,0.85)', color: '#F4F4F6',
         }}/>
       <SortDropdown settings={settings} onSort={setSort}/>
-      <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} supported={supported}/>
+      <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} onEditRoot={editRootExcludes} onRescanRoot={rescanRoot} supported={supported}/>
       <button onClick={addFile} style={addBtnStyleDark()}>＋ 加檔</button>
       {busy && (
         <div style={{
@@ -566,7 +625,7 @@ function SortDropdown({ settings, onSort }) {
   );
 }
 
-function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, supported }) {
+function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, onEditRoot, onRescanRoot, supported }) {
   const [open, setOpen] = React.useState(false);
   return (
     <div style={{ position: 'relative' }}>
@@ -577,7 +636,7 @@ function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, supported }) {
         <>
           <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 100 }}/>
           <div style={{
-            position: 'absolute', top: 'calc(100% + 6px)', right: 0, minWidth: 300, zIndex: 101,
+            position: 'absolute', top: 'calc(100% + 6px)', right: 0, minWidth: 320, zIndex: 101,
             background: '#16161C', border: '0.5px solid rgba(255,255,255,0.14)', borderRadius: 8,
             boxShadow: '0 10px 32px rgba(0,0,0,0.5)', padding: 8, fontFamily: 'var(--ui)', color: '#F4F4F6',
           }}>
@@ -586,18 +645,38 @@ function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, supported }) {
                 尚未加入任何根目錄
               </div>
             )}
-            {roots.map((r) => (
-              <div key={r.id} style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <span>📂</span>
-                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={r.name}>{r.name}</span>
-                <span style={{ fontSize: 10, color: 'rgba(244,244,246,0.4)' }}>{r.bookCount}</span>
-                <button onClick={() => onRemoveRoot(r.id)} title="移除此根目錄（不會刪除檔案）"
-                  style={{
-                    width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
-                    color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 14,
-                  }}>✕</button>
-              </div>
-            ))}
+            {roots.map((r) => {
+              const excludes = (r.excludeDirs || []).join(', ');
+              return (
+                <div key={r.id} style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+                  <span>📂</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={r.name}>{r.name}</div>
+                    {excludes && (
+                      <div style={{ fontSize: 10, color: 'rgba(244,244,246,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={`排除：${excludes}`}>
+                        排除：{excludes}
+                      </div>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 10, color: 'rgba(244,244,246,0.4)' }}>{r.bookCount}</span>
+                  <button onClick={() => onRescanRoot(r)} title="重新掃描此根目錄"
+                    style={{
+                      width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
+                      color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 12,
+                    }}>🔄</button>
+                  <button onClick={() => onEditRoot(r)} title="編輯排除清單（會重新掃描）"
+                    style={{
+                      width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
+                      color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 12,
+                    }}>✎</button>
+                  <button onClick={() => onRemoveRoot(r.id)} title="移除此根目錄（不會刪除檔案）"
+                    style={{
+                      width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
+                      color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 14,
+                    }}>✕</button>
+                </div>
+              );
+            })}
             {supported && (
               <>
                 <div style={{ height: 0.5, background: 'rgba(255,255,255,0.1)', margin: '6px 0' }}/>
@@ -666,31 +745,71 @@ function sortLabel(settings) {
 }
 
 async function scanRoot(root, setBusy, dispatch) {
+  const excludes = new Set((root.excludeDirs || []).map((s) => s.toLowerCase()));
   const files = [];
   async function walk(dirHandle, path) {
     for await (const [name, handle] of dirHandle.entries()) {
       if (handle.kind === 'directory') {
+        if (excludes.has(name.toLowerCase())) continue;
         await walk(handle, path + name + '/');
       } else if (name.toLowerCase().endsWith('.epub')) {
         files.push({ handle, relPath: path + name });
       }
     }
   }
-  setBusy({ current: 0, total: 0, name: root.name });
+  if (setBusy) setBusy({ current: 0, total: 0, name: root.name });
   await walk(root.dirHandle, '');
 
   const existing = await booksStore.list();
-  const existingPaths = new Set(existing.filter((b) => b.rootId === root.id).map((b) => b.relPath));
-  const keptBefore = existingPaths.size;
+  const existingForRoot = existing.filter((b) => b.rootId === root.id);
+  const existingPaths = new Set(existingForRoot.map((b) => b.relPath));
+  const walkedPaths = new Set(files.map((f) => f.relPath));
+
+  // Drop books that are no longer reachable — file moved/deleted on disk OR
+  // newly excluded by edited excludeDirs. Keeps IDB in sync with disk state.
+  for (const b of existingForRoot) {
+    if (!walkedPaths.has(b.relPath)) {
+      await booksStore.remove(b.id);
+    }
+  }
+
+  // Track which single-file (rootId=null) entries we've already promoted in this
+  // scan so two scraper-output paths for the same book don't both try to claim
+  // the same single-file entry.
+  const consumed = new Set();
   let added = 0;
   let done = 0;
   for (const { handle, relPath } of files) {
     done++;
-    setBusy({ current: done, total: files.length, name: relPath });
+    if (setBusy) setBusy({ current: done, total: files.length, name: relPath });
     if (existingPaths.has(relPath)) continue;
     try {
       const f = await handle.getFile();
       const meta = await epubParser.parseMetadata(f);
+
+      // Promote a matching single-file entry (added via 加單檔) into this root
+      // instead of creating a duplicate. Preserves reading state — lastChapterId,
+      // lastScroll, lastReadAt, tags, collections, lastKnownChapterCount.
+      const promote = existing.find((b) =>
+        !consumed.has(b.id) &&
+        b.rootId == null &&
+        b.title === meta.title &&
+        (b.author || null) === (meta.author || null)
+      );
+      if (promote) {
+        consumed.add(promote.id);
+        await booksStore.update(promote.id, {
+          rootId: root.id,
+          relPath,
+          fileHandle: handle,
+          sourceType: 'epub',
+          chaptersMeta: meta.chaptersMeta,
+          coverBlob: meta.coverBlob || promote.coverBlob,
+          wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
+        });
+        continue;
+      }
+
       await booksStore.add({
         rootId: root.id,
         relPath,
@@ -711,9 +830,9 @@ async function scanRoot(root, setBusy, dispatch) {
 
   await rootsStore.update(root.id, {
     lastScannedAt: Date.now(),
-    bookCount: keptBefore + added,
+    bookCount: walkedPaths.size,
   });
-  setBusy(null);
+  if (setBusy) setBusy(null);
 
   const [newBooks, newRoots] = await Promise.all([booksStore.list(), rootsStore.list()]);
   dispatch({ type: 'SET_BOOKS', books: newBooks });
