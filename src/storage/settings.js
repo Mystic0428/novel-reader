@@ -63,6 +63,10 @@
       v57: { accent: '#D4AF5C', bgTone: 'forest' },
       v58: { accent: '#C8404A', bgTone: 'black' },
       v59: { accent: '#C8242C', bgTone: 'paper' },
+      v60: { accent: '#D4AF37', bgTone: 'ember' },
+      v61: { accent: '#C44A36', bgTone: 'crimson' },
+      v62: { accent: '#D4C896', bgTone: 'granite' },
+      v63: { accent: '#D4AF7C', bgTone: 'mosswood' },
     },
     tweaks: {
       fontSize: 17, lineHeight: 1.9, font: 'sans', texture: true,
