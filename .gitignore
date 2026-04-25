@@ -7,3 +7,6 @@ Thumbs.db
 dist/
 build/
 fixtures/
+# favicon — bring your own (any image at repo root as favicon.png)
+favicon.png
+favicon.ico
