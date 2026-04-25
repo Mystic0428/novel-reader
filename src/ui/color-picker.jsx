@@ -260,6 +260,51 @@ function ColorPicker({ settings, onChange, open, onClose }) {
       ],
       toneKey: 'bgTone',
     },
+    v38: {
+      accentPresets: ['#1A1A1A', '#3D2818', '#2C2C2C', '#5A4A2A', '#4A5D3A', '#8C3A2E'],
+      tonePresets: [
+        { key: 'bone',     label: '骨白' },
+        { key: 'cream',    label: '奶油' },
+        { key: 'linen',    label: '亞麻' },
+        { key: 'mist',     label: '薄霧' },
+        { key: 'ash',      label: '灰燼' },
+        { key: 'sepia',    label: '泛黃' },
+        { key: 'dusk',     label: '暮光' },
+        { key: 'night',    label: '夜墨' },
+        { key: 'graphite', label: '石墨' },
+      ],
+      toneKey: 'bgTone',
+    },
+    v39: {
+      accentPresets: ['#1B3A8C', '#0F2459', '#2C5BB4', '#4A6B96', '#6B3838', '#3E5A38'],
+      tonePresets: [
+        { key: 'paper',    label: '生成' },
+        { key: 'rice',     label: '米色' },
+        { key: 'moss',     label: '抹茶' },
+        { key: 'sky',      label: '藍染' },
+        { key: 'fuji',     label: '富士' },
+        { key: 'peach',    label: '桃色' },
+        { key: 'pine',     label: '松綠' },
+        { key: 'sand',     label: '砂色' },
+        { key: 'storm',    label: '雷雲' },
+      ],
+      toneKey: 'bgTone',
+    },
+    v40: {
+      accentPresets: ['#B22222', '#8B1A1A', '#C44A36', '#7A2418', '#A4391A', '#933224'],
+      tonePresets: [
+        { key: 'rice',     label: '宣紙' },
+        { key: 'cloud',    label: '雲紋' },
+        { key: 'ash',      label: '灰宣' },
+        { key: 'bamboo',   label: '竹綠' },
+        { key: 'ivory',    label: '象牙' },
+        { key: 'mist',     label: '薄霧' },
+        { key: 'dawn',     label: '晨光' },
+        { key: 'dusk',     label: '暮色' },
+        { key: 'moon',     label: '月白' },
+      ],
+      toneKey: 'bgTone',
+    },
   };
   const presets = presetsByTheme[theme];
   const hasTones = presets && presets.tonePresets;
