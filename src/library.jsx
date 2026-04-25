@@ -72,8 +72,12 @@ function Library() {
 
   // Data slices for Netflix rows. "繼續閱讀" and "有新章節" keep their purpose-specific
   // order (last read / new-chapter count). Other rows follow the user's sort choice.
+  // Any book the user has touched stays in 繼續閱讀, including ones at the last
+  // chapter — re-readers want quick access regardless of "100% done" math, and
+  // the row's lastReadAt-desc sort + 10-item cap means stale books fall off
+  // naturally.
   const currentlyReading = React.useMemo(() =>
-    books.filter((b) => b.lastReadAt && bookProgress(b) < 1)
+    books.filter((b) => b.lastReadAt)
       .sort((a, b) => (b.lastReadAt || 0) - (a.lastReadAt || 0)),
   [books]);
 
