@@ -57,6 +57,10 @@ function ThemeSwitcher({ settings, onChange }) {
     { key: 'v53', label: 'Claymorphism · 黏土',    group: '現代', swatch: { bg: '#FDBCB4' } },
     { key: 'v54', label: 'Mesh Aurora · 極光',     group: '現代', swatch: { bg: 'radial-gradient(at 30% 30%,#7C3AED,transparent),radial-gradient(at 70% 70%,#06B6D4,transparent),#EC4899' } },
     { key: 'v55', label: 'VisionOS · 空間',         group: '現代', swatch: { bg: 'radial-gradient(at 50% 30%,#2A1F4E,#1A0F2E)' } },
+    { key: 'v56', label: 'Bookshop · 書店',          group: '經典', swatch: { bg: 'radial-gradient(at 30% 20%,#C9A36833,#3E2818)' } },
+    { key: 'v57', label: 'Cloth · 布面精裝',         group: '經典', swatch: { bg: 'linear-gradient(135deg,#1A3A28,#0F2418)' } },
+    { key: 'v58', label: 'Notebook · 札記本',        group: '經典', swatch: { bg: 'linear-gradient(135deg,#1A1A1A,#0E0E0E)' } },
+    { key: 'v59', label: 'Long-form · 長文雜誌',     group: '經典', swatch: { bg: '#FAFAF7' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
