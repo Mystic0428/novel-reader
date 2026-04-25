@@ -42,6 +42,9 @@ function ThemeSwitcher({ settings, onChange }) {
     { key: 'v49', label: 'Cloisonné · 景泰藍',    group: '華麗', swatch: { bg: 'radial-gradient(ellipse at 40% 30%,#0B3A5E,#05233D)' } },
     { key: 'v50', label: 'Swiss · 編輯部',         group: '現代', swatch: { bg: '#F4F2ED' } },
     { key: 'v51', label: 'Rams · Braun T1000',    group: '現代', swatch: { bg: '#E8E6E1' } },
+    { key: 'v34', label: 'Frutiger Aero · Y2K',   group: '現代', swatch: { bg: 'linear-gradient(180deg,#B8E3FF,#7BD46B)' } },
+    { key: 'v35', label: 'Vaporwave · 1991',       group: '現代', swatch: { bg: 'linear-gradient(180deg,#1B0B3C,#FFB5D9)' } },
+    { key: 'v36', label: 'Solarpunk · 共生',       group: '現代', swatch: { bg: 'linear-gradient(180deg,#F7EBC4,#B8D08A)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
