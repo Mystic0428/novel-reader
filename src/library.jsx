@@ -104,6 +104,7 @@ function Library() {
 
   const [statsOpen, setStatsOpen] = React.useState(false);
   const [cardBookId, setCardBookId] = React.useState(null);
+  const [scanReport, setScanReport] = React.useState(null);
   const cardBook = cardBookId ? books.find((b) => b.id === cardBookId) : null;
   async function refreshBooks() {
     const next = await booksStore.list();
@@ -137,11 +138,13 @@ function Library() {
         search={search} onSearchChange={setSearch} searchInputRef={searchInputRef}
         books={books} roots={roots}
         onOpenStats={() => setStatsOpen(true)}
+        onScanReport={setScanReport}
       />
       <StatsPanel open={statsOpen} onClose={() => setStatsOpen(false)}
         books={books} onOpenBook={(id) => { setStatsOpen(false); openBook(id, dispatch); }}/>
       <BookCard book={cardBook} open={!!cardBook} onClose={() => setCardBookId(null)}
         onOpenBook={(id) => openBook(id, dispatch)} onChanged={refreshBooks}/>
+      <ScanReport report={scanReport} onClose={() => setScanReport(null)}/>
       <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, scrollbarGutter: 'stable' }} className="scroll-thin">
         {!hasLibrary ? (
           <HomeEmpty/>
@@ -527,7 +530,7 @@ function HomeEmpty() {
   );
 }
 
-function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef, books, roots, onOpenStats }) {
+function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef, books, roots, onOpenStats, onScanReport }) {
   const [busy, setBusy] = React.useState(null);
   const supported = 'showDirectoryPicker' in window;
 
@@ -570,9 +573,9 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
 
   // Wraps scanRoot so a NotReadableError / permission error / IDB hiccup
   // doesn't leave the busy banner stuck or surface as an "Uncaught (in
-  // promise)" in the console with no UI feedback. Also surfaces the per-file
-  // failure list (collected inside scanRoot) as a single summary alert so the
-  // user knows WHICH file failed and WHY without opening DevTools.
+  // promise)" in the console with no UI feedback. Surfaces per-file failures
+  // (collected inside scanRoot) via the ScanReport modal so the user knows
+  // WHICH file failed and WHY without opening DevTools.
   async function safeScan(root) {
     let failed = [];
     try {
@@ -580,21 +583,30 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
     } catch (err) {
       console.warn('Scan crashed:', err);
       setBusy(null);
-      alert(`掃描整體失敗：${explainFsaaError(err)}`);
+      onScanReport({
+        kind: 'crash',
+        title: '掃描失敗',
+        summary: explainFsaaError(err),
+        failures: [],
+        hints: [
+          '檢查 root 權限是否仍有效（瀏覽器重新整理後可能要重新授權）',
+          '如果是大量檔案 lock，等一會兒重試',
+        ],
+      });
       return;
     }
     if (failed.length === 0) return;
-    const list = failed.slice(0, 10).map(
-      (f) => `• ${f.relPath}\n  └ ${f.reason}`
-    ).join('\n\n');
-    const more = failed.length > 10 ? `\n\n（… 另外 ${failed.length - 10} 個未列出，DevTools console 看完整 list）` : '';
-    alert(
-      `掃描完成，${failed.length} 個檔案沒進來：\n\n${list}${more}\n\n` +
-      `常見對策：\n` +
-      `1. 檔案 > 2GB → Chromium FSAA 上限，用 Calibre 壓縮圖片重新打包\n` +
-      `2. 被防毒/雲端同步 lock → 等一會兒再重新掃描\n` +
-      `3. 權限變更 → 移除 root 重新加`
-    );
+    onScanReport({
+      kind: 'partial',
+      title: `掃描完成 — ${failed.length} 個檔案沒進來`,
+      summary: '其他書都正常進入書庫了，下面這些是讀不進來的檔。',
+      failures: failed,
+      hints: [
+        '檔案 > 2GB → Chromium FSAA 整數溢位 bug，用 Calibre 壓縮圖片重新打包',
+        '被防毒 / 雲端同步 / 爬蟲 lock → 等一會兒再重新掃描',
+        '權限變更 → 移除 root 後重新加一次',
+      ],
+    });
   }
 
   async function addFile() {
@@ -610,7 +622,16 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
         // AbortError = user cancelled the picker; stay silent for that.
         if (err && err.name === 'AbortError') return;
         console.warn('addFile picker/getFile failed:', err);
-        alert(`無法讀取檔案：${explainFsaaError(err)}`);
+        onScanReport({
+          kind: 'addFile',
+          title: '無法讀取這個檔案',
+          summary: '瀏覽器拿不到這個檔案的內容。',
+          failures: [{ relPath: '(picker 選擇的檔案)', reason: explainFsaaError(err) }],
+          hints: [
+            '檔案 > 2GB → Chromium FSAA 上限',
+            '檔案被防毒 / 雲端同步 / 爬蟲 lock → 等一會兒再試',
+          ],
+        });
         return;
       }
     } else {
@@ -625,7 +646,16 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
       await addFromFile(file, fileHandle, dispatch);
     } catch (err) {
       console.warn('addFromFile failed:', err);
-      alert(`無法解析這個檔案：${explainFsaaError(err)}\n\n常見對策：\n1. 檔案 > 2GB → Chromium FSAA 上限\n2. EPUB 結構異常 → 試著用 Calibre 重新轉換`);
+      onScanReport({
+        kind: 'addFile',
+        title: '無法解析這個檔案',
+        summary: file && file.name,
+        failures: [{ relPath: (file && file.name) || '檔案', reason: explainFsaaError(err) }],
+        hints: [
+          '檔案 > 2GB → Chromium FSAA 上限',
+          'EPUB 結構異常 → 試著用 Calibre 重新轉換',
+        ],
+      });
     }
   }
 
