@@ -3,9 +3,31 @@ function Library() {
   const { state, dispatch } = React.useContext(AppContext);
   const { books, roots, settings } = state;
   const [search, setSearch] = React.useState('');
+  const searchInputRef = React.useRef(null);
 
   const tags = React.useMemo(() => booksStore.allTags(books), [books]);
   const collections = React.useMemo(() => booksStore.allCollections(books), [books]);
+
+  // `/` shortcut to focus the search box (skipped when already typing).
+  React.useEffect(() => {
+    function onKey(e) {
+      if (e.key !== '/') return;
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+      e.preventDefault();
+      if (searchInputRef.current) searchInputRef.current.focus();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  async function clearAllFilters() {
+    setSearch('');
+    if (settings.filterTag || settings.filterCollection) {
+      const next = await settingsStore.save({ filterTag: null, filterCollection: null });
+      dispatch({ type: 'SET_SETTINGS', settings: next });
+    }
+  }
 
   // Auto-scan permitted roots on mount so newly-scraped books appear without
   // manual action. Silent — no busy banner, no permission prompt (skip un-granted).
@@ -92,14 +114,17 @@ function Library() {
         </div>
       )}
       <HomeTopBar
-        settings={settings} dispatch={dispatch} onSearchChange={setSearch}
+        settings={settings} dispatch={dispatch}
+        search={search} onSearchChange={setSearch} searchInputRef={searchInputRef}
         books={books} roots={roots}
       />
       <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, scrollbarGutter: 'stable' }} className="scroll-thin">
         {!hasLibrary ? (
           <HomeEmpty/>
         ) : filterActive ? (
-          <FilteredView books={filtered} tags={tags} collections={collections} settings={settings} dispatch={dispatch}/>
+          <FilteredView books={filtered} tags={tags} collections={collections}
+            search={search} settings={settings} dispatch={dispatch}
+            onClearAll={clearAllFilters}/>
         ) : (
           <>
             {hero && <Hero book={hero} dispatch={dispatch}/>}
@@ -398,11 +423,13 @@ function CategoryBrowse({ tags, collections, books, dispatch }) {
   );
 }
 
-function FilteredView({ books, tags, collections, settings, dispatch }) {
+function FilteredView({ books, tags, collections, search, settings, dispatch, onClearAll }) {
   async function setFilter(patch) {
     const next = await settingsStore.save(patch);
     dispatch({ type: 'SET_SETTINGS', settings: next });
   }
+  const hasFilter = !!(settings.filterTag || settings.filterCollection);
+  const hasSearch = !!(search && search.trim());
   return (
     <div style={{ padding: '24px 50px 60px' }}>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20, alignItems: 'center' }}>
@@ -416,14 +443,30 @@ function FilteredView({ books, tags, collections, settings, dispatch }) {
             📁 {c}
           </button>
         ))}
-        {(settings.filterTag || settings.filterCollection) && (
-          <button style={{ ...chipStyleDark(false), color: '#FF7A6F' }} onClick={() => setFilter({ filterTag: null, filterCollection: null })}>
-            ✕ 清除篩選
+        {hasSearch && (
+          <button style={chipStyleDark(true)} onClick={onClearAll}>
+            🔍 "{search.trim()}" ✕
+          </button>
+        )}
+        {(hasFilter || hasSearch) && (
+          <button style={{ ...chipStyleDark(false), color: '#FF7A6F' }} onClick={onClearAll}>
+            ✕ 清除全部
           </button>
         )}
       </div>
       {books.length === 0 ? (
-        <div style={{ padding: 60, textAlign: 'center', color: 'rgba(244,244,246,0.4)' }}>沒有符合條件的書</div>
+        <div style={{ padding: '80px 20px', textAlign: 'center', color: 'rgba(244,244,246,0.55)' }}>
+          <div style={{ fontSize: 28, marginBottom: 14, fontFamily: 'var(--serif)', color: '#F4F4F6' }}>沒有符合的書</div>
+          <div style={{ fontSize: 12, marginBottom: 20, color: 'rgba(244,244,246,0.45)' }}>
+            {hasSearch && hasFilter && `搜尋「${search.trim()}」+ 套用了篩選條件`}
+            {hasSearch && !hasFilter && `搜尋「${search.trim()}」找不到結果`}
+            {!hasSearch && hasFilter && '套用了篩選條件，但沒有書符合'}
+          </div>
+          <button onClick={onClearAll} style={{
+            padding: '8px 18px', borderRadius: 4, fontSize: 12, fontFamily: 'inherit',
+            background: '#E50914', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600,
+          }}>清除全部條件</button>
+        </div>
       ) : (
         <div style={{
           display: 'grid',
@@ -460,7 +503,7 @@ function HomeEmpty() {
   );
 }
 
-function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
+function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef, books, roots }) {
   const [busy, setBusy] = React.useState(null);
   const supported = 'showDirectoryPicker' in window;
 
@@ -561,14 +604,28 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
         <span style={{ fontSize: 12, fontWeight: 500, color: 'rgba(244,244,246,0.5)', lineHeight: 1, transform: 'translateY(4px)' }}>{books.length} 本藏書</span>
       </div>
       <div style={{ flex: 1 }}/>
-      <input placeholder="🔍 搜尋書名、作者、標籤…"
-        onChange={(e) => onSearchChange(e.target.value)}
-        style={{
-          width: 320, padding: '8px 14px',
-          border: '1px solid rgba(255,255,255,0.14)',
-          borderRadius: 4, fontSize: 12, fontFamily: 'inherit',
-          background: 'rgba(22,22,28,0.85)', color: '#F4F4F6',
-        }}/>
+      <div style={{ position: 'relative', width: 320 }}>
+        <input ref={searchInputRef} placeholder="🔍 搜尋書名、作者、標籤…  ( / )"
+          value={search || ''}
+          onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Escape' && search) { onSearchChange(''); e.currentTarget.blur(); } }}
+          style={{
+            width: '100%', boxSizing: 'border-box', padding: '8px 32px 8px 14px',
+            border: '1px solid rgba(255,255,255,0.14)',
+            borderRadius: 4, fontSize: 12, fontFamily: 'inherit',
+            background: 'rgba(22,22,28,0.85)', color: '#F4F4F6', outline: 'none',
+            cursor: 'text',
+          }}/>
+        {search && search.length > 0 && (
+          <button onClick={() => { onSearchChange(''); searchInputRef.current?.focus(); }} style={{
+            position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
+            width: 22, height: 22, borderRadius: 11, border: 'none',
+            background: 'rgba(255,255,255,0.12)', color: 'rgba(244,244,246,0.7)',
+            fontSize: 11, lineHeight: 1, cursor: 'pointer', padding: 0,
+            fontFamily: 'inherit',
+          }} title="清除搜尋">✕</button>
+        )}
+      </div>
       <SortDropdown settings={settings} onSort={setSort}/>
       <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} onEditRoot={editRootExcludes} onRescanRoot={rescanRoot} supported={supported}/>
       <button onClick={addFile} style={addBtnStyleDark()}>＋ 加檔</button>

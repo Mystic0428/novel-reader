@@ -156,6 +156,7 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
                 padding: '6px 10px', fontSize: 12, fontFamily: 'inherit',
                 border: '0.5px solid rgba(0,0,0,0.15)', borderRadius: 6,
                 background: 'rgba(0,0,0,0.03)', outline: 'none',
+                cursor: 'text',
               }}
             />
           </div>

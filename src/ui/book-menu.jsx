@@ -35,6 +35,13 @@ function BookMenu({ book, anchorPos, onClose, onChanged }) {
     onClose();
   }
 
+  async function clearProgress() {
+    if (!confirm(`清除「${book.title}」的閱讀進度？\n會回到第一章、未開始狀態。`)) return;
+    await booksStore.update(book.id, { lastChapterId: null, lastScroll: 0, lastReadAt: null });
+    await onChanged();
+    onClose();
+  }
+
   const style = {
     position: 'fixed', top: anchorPos.y, left: anchorPos.x,
     background: '#fff', color: '#1A1A1A', border: '0.5px solid rgba(0,0,0,0.12)',
@@ -62,6 +69,9 @@ function BookMenu({ book, anchorPos, onClose, onChanged }) {
       {mode === 'main' && <>
         <HoverRow onClick={() => setMode('tag')}># 編輯 Tags</HoverRow>
         <HoverRow onClick={() => setMode('collection')}>📁 加到 Collection</HoverRow>
+        {book.lastReadAt && (
+          <HoverRow onClick={clearProgress}>↺ 清除閱讀進度</HoverRow>
+        )}
         <div style={{ height: 0.5, background: 'rgba(0,0,0,0.08)', margin: '4px 0' }}/>
         <HoverRow onClick={deleteBook} style={{ color: '#B3261E' }}>🗑 從書庫移除</HoverRow>
       </>}
