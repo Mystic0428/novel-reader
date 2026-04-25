@@ -25,6 +25,17 @@ function ThemeSwitcher({ settings, onChange }) {
     { key: 'v41', label: 'Riso · 印刷',         group: '現代', swatch: { bg: 'linear-gradient(135deg,#FF5F95,#2E5BFF)' } },
     { key: 'v42', label: 'Classics · 經典書系', group: '經典', swatch: { bg: 'linear-gradient(180deg,#FF6800 0 30%,#F5F0E0 30% 70%,#FF6800 70%)' } },
     { key: 'v43', label: '侘寂 · 殘缺',         group: '東方', swatch: { bg: '#D9D2C5' } },
+    { key: 'v10', label: '直書 · 線裝古籍',     group: '東方', swatch: { bg: '#F3E8D0' } },
+    { key: 'v16', label: 'Art Nouveau · 新藝術', group: '華麗', swatch: { bg: '#F0E9D6' } },
+    { key: 'v22', label: '雕版 · 明清書版',      group: '東方', swatch: { bg: '#EDE0BE' } },
+    { key: 'v23', label: 'Rinpa · 和風金屏',     group: '東方', swatch: { bg: 'linear-gradient(135deg,#E8CB68,#8C6E28)' } },
+    { key: 'v24', label: '上海 · 1934 月份牌',   group: '華麗', swatch: { bg: 'radial-gradient(ellipse at top,#F4E6D0,#E8CFA8)' } },
+    { key: 'v26', label: 'Illuminated · 抄本',   group: '華麗', swatch: { bg: 'radial-gradient(ellipse,#F0E2B8,#E4D29A)' } },
+    { key: 'v27', label: 'First Folio · 對開本', group: '華麗', swatch: { bg: '#EDE0C4' } },
+    { key: 'v28', label: 'Byzantine · 拜占庭',   group: '華麗', swatch: { bg: 'radial-gradient(circle,#E8CF7A 0,#8C6B1E 90%)' } },
+    { key: 'v29', label: 'Ex Libris · 維多利亞', group: '華麗', swatch: { bg: 'linear-gradient(135deg,#1A3A2A,#0F2418)' } },
+    { key: 'v44', label: '敦煌 · 殘卷',          group: '東方', swatch: { bg: 'radial-gradient(ellipse at 40% 40%,#E0C898,#9A7A48)' } },
+    { key: 'v45', label: '蘇州 · 漏窗',          group: '東方', swatch: { bg: 'linear-gradient(180deg,#F4EEE0,#D6C9A8)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
