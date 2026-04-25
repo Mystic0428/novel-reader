@@ -7,6 +7,28 @@ function Library() {
   const tags = React.useMemo(() => booksStore.allTags(books), [books]);
   const collections = React.useMemo(() => booksStore.allCollections(books), [books]);
 
+  // Auto-scan permitted roots on mount so newly-scraped books appear without
+  // manual action. Silent — no busy banner, no permission prompt (skip un-granted).
+  React.useEffect(() => {
+    if (roots.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      for (const root of roots) {
+        if (cancelled) return;
+        try {
+          if (!root.dirHandle || !root.dirHandle.queryPermission) continue;
+          const perm = await root.dirHandle.queryPermission({ mode: 'read' });
+          if (perm !== 'granted') continue;
+          await scanRoot(root, null, dispatch);
+        } catch (err) {
+          console.warn('Auto-scan failed for', root.name, err);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line
+  }, []);
+
   const filterActive = !!(settings.filterTag || settings.filterCollection || search.trim());
 
   const filtered = React.useMemo(() => {
@@ -472,6 +494,13 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
     await scanRoot(updated, setBusy, dispatch);
   }
 
+  async function rescanRoot(root) {
+    if (busy) return;
+    const granted = await rootsStore.ensurePermission(root.dirHandle, 'read');
+    if (!granted) { alert('需要讀取權限'); return; }
+    await scanRoot(root, setBusy, dispatch);
+  }
+
   async function addFile() {
     let fileHandle, file;
     if ('showOpenFilePicker' in window) {
@@ -530,7 +559,7 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
           background: 'rgba(22,22,28,0.85)', color: '#F4F4F6',
         }}/>
       <SortDropdown settings={settings} onSort={setSort}/>
-      <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} onEditRoot={editRootExcludes} supported={supported}/>
+      <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} onEditRoot={editRootExcludes} onRescanRoot={rescanRoot} supported={supported}/>
       <button onClick={addFile} style={addBtnStyleDark()}>＋ 加檔</button>
       {busy && (
         <div style={{
@@ -585,7 +614,7 @@ function SortDropdown({ settings, onSort }) {
   );
 }
 
-function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, onEditRoot, supported }) {
+function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, onEditRoot, onRescanRoot, supported }) {
   const [open, setOpen] = React.useState(false);
   return (
     <div style={{ position: 'relative' }}>
@@ -619,6 +648,11 @@ function RootsDropdownDark({ roots, onAddRoot, onRemoveRoot, onEditRoot, support
                     )}
                   </div>
                   <span style={{ fontSize: 10, color: 'rgba(244,244,246,0.4)' }}>{r.bookCount}</span>
+                  <button onClick={() => onRescanRoot(r)} title="重新掃描此根目錄"
+                    style={{
+                      width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
+                      color: 'rgba(244,244,246,0.4)', cursor: 'pointer', fontSize: 12,
+                    }}>🔄</button>
                   <button onClick={() => onEditRoot(r)} title="編輯排除清單（會重新掃描）"
                     style={{
                       width: 20, height: 20, padding: 0, border: 'none', background: 'transparent',
@@ -712,7 +746,7 @@ async function scanRoot(root, setBusy, dispatch) {
       }
     }
   }
-  setBusy({ current: 0, total: 0, name: root.name });
+  if (setBusy) setBusy({ current: 0, total: 0, name: root.name });
   await walk(root.dirHandle, '');
 
   const existing = await booksStore.list();
@@ -732,7 +766,7 @@ async function scanRoot(root, setBusy, dispatch) {
   let done = 0;
   for (const { handle, relPath } of files) {
     done++;
-    setBusy({ current: done, total: files.length, name: relPath });
+    if (setBusy) setBusy({ current: done, total: files.length, name: relPath });
     if (existingPaths.has(relPath)) continue;
     try {
       const f = await handle.getFile();
@@ -759,7 +793,7 @@ async function scanRoot(root, setBusy, dispatch) {
     lastScannedAt: Date.now(),
     bookCount: walkedPaths.size,
   });
-  setBusy(null);
+  if (setBusy) setBusy(null);
 
   const [newBooks, newRoots] = await Promise.all([booksStore.list(), rootsStore.list()]);
   dispatch({ type: 'SET_BOOKS', books: newBooks });
