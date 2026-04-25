@@ -49,6 +49,10 @@ function renderThemeContent(props) {
     case 'v3':  return <V3Reader {...props}/>;
     case 'v7':  return <V7Reader {...props}/>;
     case 'v8':  return <V8Reader {...props}/>;
+    case 'v12': return <V12Reader {...props}/>;
+    case 'v13': return <V13Reader {...props}/>;
+    case 'v14': return <V14Reader {...props}/>;
+    case 'v15': return <V15Reader {...props}/>;
     default:    return <V1Reader {...props}/>;
   }
 }
@@ -101,6 +105,10 @@ function renderThemeFooter(props) {
     case 'v3':  return <V3Footer {...props}/>;
     case 'v7':  return <V7Footer {...props}/>;
     case 'v8':  return <V8Footer {...props}/>;
+    case 'v12': return <V12Footer {...props}/>;
+    case 'v13': return <V13Footer {...props}/>;
+    case 'v14': return <V14Footer {...props}/>;
+    case 'v15': return <V15Footer {...props}/>;
     default:    return <V1Footer {...props}/>;
   }
 }
