@@ -31,7 +31,7 @@ function TocDrawer({ book, currentChapterId, onJump, open, onClose }) {
                 display: 'flex', gap: 8, alignItems: 'baseline',
               }}>
                 <span style={{ fontSize: 10, color: 'rgba(0,0,0,0.4)', fontVariantNumeric: 'tabular-nums', minWidth: 20 }}>{i + 1}</span>
-                <span style={{ fontSize: 12.5, lineHeight: 1.4 }}>{c.title}</span>
+                <span style={{ fontSize: 12.5, lineHeight: 1.4 }}>{stripChapterPrefix(c.title)}</span>
               </div>
             );
           })}

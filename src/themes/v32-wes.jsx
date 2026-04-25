@@ -6,6 +6,9 @@ const V32_BG_TONES = {
   butter:   { bg: '#FBEFB0', ink: '#2E1E12' },
   blush:    { bg: '#F6D8D8', ink: '#2E1E12' },
   sage:     { bg: '#DDE5C8', ink: '#2E1E12' },
+  rose:     { bg: '#F4D2D8', ink: '#2E1E12' },
+  sky:      { bg: '#D9E6EE', ink: '#2E1E12' },
+  taupe:    { bg: '#E0D5C2', ink: '#2E1E12' },
 };
 
 const V32_BORDER_PALETTE = ['#F4A89A', '#9ECFB0', '#D4A02E', '#2E5A5E'];

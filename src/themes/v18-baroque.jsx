@@ -23,6 +23,9 @@ const V18_BG_TONES = {
   midnight: { bg: '#1A0F2B', bg2: '#281A3D', deep: '#0F0819' },
   emerald:  { bg: '#0F2E2A', bg2: '#1A3F3A', deep: '#081A17' },
   amber:    { bg: '#2D1A08', bg2: '#3D2613', deep: '#1A0E04' },
+  charcoal: { bg: '#161613', bg2: '#22221E', deep: '#0A0A09' },
+  oxblood:  { bg: '#260A0F', bg2: '#321319', deep: '#150508' },
+  plum:     { bg: '#1F0F26', bg2: '#2D1A37', deep: '#120814' },
 };
 
 function V18Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

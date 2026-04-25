@@ -6,6 +6,9 @@ const V11_BG_TONES = {
   ebony:    { wood: 'linear-gradient(135deg, #2C2218 0%, #1A130C 60%, #2C2218 100%)', paper: '#F4EEDF' },
   cherry:   { wood: 'linear-gradient(135deg, #7A2F26 0%, #4E1C16 60%, #7A2F26 100%)', paper: '#F9F2E4' },
   maple:    { wood: 'linear-gradient(135deg, #D4A674 0%, #A87541 60%, #D4A674 100%)', paper: '#FBF6EA' },
+  rosewood: { wood: 'linear-gradient(135deg, #6B342E 0%, #4A1F1A 60%, #6B342E 100%)', paper: '#F8EFE0' },
+  birch:    { wood: 'linear-gradient(135deg, #E0CFA0 0%, #C2A878 60%, #E0CFA0 100%)', paper: '#FCF7E8' },
+  teak:     { wood: 'linear-gradient(135deg, #9C6B3F 0%, #6B4A2E 60%, #9C6B3F 100%)', paper: '#F8F0DA' },
 };
 
 function V11Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

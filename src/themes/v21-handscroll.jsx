@@ -6,6 +6,9 @@ const V21_BG_TONES = {
   moss:    { bg: '#D9D8BC', bg2: '#C7C5A2', ink: '#1F2418' },
   cloud:   { bg: '#EFE9D8', bg2: '#E2D9BF', ink: '#231F18' },
   tea:     { bg: '#E2D6B8', bg2: '#D3C59C', ink: '#2D2318' },
+  bamboo:  { bg: '#D9CB9C', bg2: '#C9B985', ink: '#2A2418' },
+  antique: { bg: '#D8C5A0', bg2: '#C5AE85', ink: '#2A2418' },
+  ash:     { bg: '#DAD3BB', bg2: '#C8C0A2', ink: '#23231A' },
 };
 
 function V21FarMountains({ color, opacity = 0.22 }) {

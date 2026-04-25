@@ -6,6 +6,9 @@ const V30_BG_TONES = {
   moss:     { bg: '#0A1210', bg2: '#141D1A' },
   oxide:    { bg: '#120A06', bg2: '#1E130A' },
   midnight: { bg: '#07081A', bg2: '#0F112A' },
+  tomb:     { bg: '#0E0E10', bg2: '#1B1B1F' },
+  soot:     { bg: '#0A0908', bg2: '#1A1614' },
+  iron:     { bg: '#0E1014', bg2: '#1A1D24' },
 };
 
 function V30Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

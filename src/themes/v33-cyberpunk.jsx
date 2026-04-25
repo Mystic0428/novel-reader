@@ -6,6 +6,9 @@ const V33_BG_TONES = {
   blood:     { bg: '#120210', bg2: '#1A051A' },
   azure:     { bg: '#020818', bg2: '#0A142E' },
   smoke:     { bg: '#0A0A12', bg2: '#12121E' },
+  neon:      { bg: '#0E0218', bg2: '#180628' },
+  plasma:    { bg: '#0E0820', bg2: '#180D32' },
+  darkrose:  { bg: '#160510', bg2: '#22081A' },
 };
 
 function V33Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

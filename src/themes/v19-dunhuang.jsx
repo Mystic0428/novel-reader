@@ -30,6 +30,9 @@ const V19_BG_TONES = {
   qianjiang:{ bg: '#E8C7AE', bg2: '#F0D5BE' }, // 淺絳
   bajiao:   { bg: '#D8D4B0', bg2: '#E5E0C4' }, // 芭蕉
   xuebai:   { bg: '#F1EBD5', bg2: '#F7F2E1' }, // 雪白
+  shanhu:   { bg: '#F0CFB8', bg2: '#F8DDC9' }, // 珊瑚
+  tuhuang:  { bg: '#D8B888', bg2: '#E5C9A2' }, // 土黃
+  qingshi:  { bg: '#D7D4C2', bg2: '#E2E0CF' }, // 青石
 };
 
 function V19Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

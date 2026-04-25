@@ -30,14 +30,12 @@ function Library() {
   // order (last read / new-chapter count). Other rows follow the user's sort choice.
   const currentlyReading = React.useMemo(() =>
     books.filter((b) => b.lastReadAt && bookProgress(b) < 1)
-      .sort((a, b) => (b.lastReadAt || 0) - (a.lastReadAt || 0))
-      .slice(0, 10),
+      .sort((a, b) => (b.lastReadAt || 0) - (a.lastReadAt || 0)),
   [books]);
 
   const fresh = React.useMemo(() =>
     books.filter((b) => newChapterCount(b) > 0)
-      .sort((a, b) => newChapterCount(b) - newChapterCount(a))
-      .slice(0, 20),
+      .sort((a, b) => newChapterCount(b) - newChapterCount(a)),
   [books]);
 
   const allSorted = React.useMemo(() => sortBooks(books, settings), [books, settings.sortBy, settings.sortOrder]);
@@ -58,7 +56,7 @@ function Library() {
 
   return (
     <div className="nr-root" style={{
-      display: 'flex', flexDirection: 'column', minHeight: '100vh',
+      display: 'flex', flexDirection: 'column', height: '100vh',
       background: '#0B0B0E', color: '#F4F4F6',
       fontFamily: '"Inter","Noto Sans TC",sans-serif',
     }}>
@@ -75,7 +73,7 @@ function Library() {
         settings={settings} dispatch={dispatch} onSearchChange={setSearch}
         books={books} roots={roots}
       />
-      <main style={{ flex: 1 }} className="scroll-thin">
+      <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, scrollbarGutter: 'stable' }} className="scroll-thin">
         {!hasLibrary ? (
           <HomeEmpty/>
         ) : filterActive ? (
@@ -83,15 +81,15 @@ function Library() {
         ) : (
           <>
             {hero && <Hero book={hero} dispatch={dispatch}/>}
-            <div style={{ padding: '20px 0 60px' }}>
-              {fresh.length > 0 && <BookRow title="🔥 有新章節" tint="#D94A3E" books={fresh} dispatch={dispatch}/>}
-              {currentlyReading.length > 0 && <BookRow title="繼續閱讀" books={currentlyReading} dispatch={dispatch}/>}
-              <BookRow title={`全部藏書 · ${sortLabel(settings)}`} books={allSorted.slice(0, 20)} dispatch={dispatch}/>
+            <div style={{ padding: '20px 0 40px' }}>
+              {fresh.length > 0 && <BookRow title="🔥 有新章節" tint="#D94A3E" books={fresh.slice(0, 20)} total={fresh.length} dispatch={dispatch}/>}
+              {currentlyReading.length > 0 && <BookRow title="繼續閱讀" books={currentlyReading.slice(0, 10)} total={currentlyReading.length} dispatch={dispatch}/>}
+              <BookRow title={`全部藏書 · ${sortLabel(settings)}`} books={allSorted.slice(0, 20)} total={allSorted.length} dispatch={dispatch}/>
               {byCollection.map((g) => (
-                <BookRow key={`col-${g.name}`} title={`📁 ${g.name}`} books={g.books.slice(0, 16)} dispatch={dispatch}/>
+                <BookRow key={`col-${g.name}`} title={`📁 ${g.name}`} books={g.books.slice(0, 16)} total={g.books.length} dispatch={dispatch}/>
               ))}
               {byTag.map((g) => (
-                <BookRow key={`tag-${g.name}`} title={`# ${g.name}`} books={g.books.slice(0, 16)} dispatch={dispatch}/>
+                <BookRow key={`tag-${g.name}`} title={`# ${g.name}`} books={g.books.slice(0, 16)} total={g.books.length} dispatch={dispatch}/>
               ))}
               {(tags.length > 0 || collections.length > 0) && (
                 <CategoryBrowse tags={tags} collections={collections} books={books} dispatch={dispatch}/>
@@ -116,7 +114,8 @@ function Hero({ book, dispatch }) {
 
   const progress = bookProgress(book);
   const chapterIdx = (book.chaptersMeta || []).findIndex((c) => c.id === book.lastChapterId);
-  const chapterTitle = chapterIdx >= 0 ? (book.chaptersMeta[chapterIdx].title || '') : (book.chaptersMeta?.[0]?.title || '');
+  const rawChapterTitle = chapterIdx >= 0 ? (book.chaptersMeta[chapterIdx].title || '') : (book.chaptersMeta?.[0]?.title || '');
+  const chapterTitle = stripChapterPrefix(rawChapterTitle);
   const total = (book.chaptersMeta || []).length;
   const current = chapterIdx >= 0 ? chapterIdx + 1 : 0;
   const red = '#E50914', bg = '#0B0B0E';
@@ -124,7 +123,7 @@ function Hero({ book, dispatch }) {
   const lastReadLabel = book.lastReadAt ? relTime(book.lastReadAt) : '尚未開始';
 
   return (
-    <section style={{ position: 'relative', height: 480, overflow: 'hidden' }}>
+    <section style={{ position: 'relative', height: 380, overflow: 'hidden' }}>
       <div style={{
         position: 'absolute', inset: 0, background: coverBg,
         filter: 'blur(24px) brightness(0.45)', transform: 'scale(1.1)',
@@ -173,26 +172,103 @@ function Hero({ book, dispatch }) {
   );
 }
 
-function BookRow({ title, books, tint, dispatch }) {
+function BookRow({ title, books, tint, total, dispatch }) {
   const scrollRef = React.useRef(null);
+  const dragRef = React.useRef({
+    active: false, startX: 0, startLeft: 0, moved: 0,
+    lastX: 0, lastTime: 0, velocity: 0,
+  });
+  const animRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+
+  function cancelInertia() {
+    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
+  }
+  React.useEffect(() => () => cancelInertia(), []);
+
   const scroll = (dir) => {
+    cancelInertia();
     if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 600, behavior: 'smooth' });
   };
-  const red = '#E50914';
+
+  function onPointerDown(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    cancelInertia();
+    dragRef.current = {
+      active: true, startX: e.pageX, startLeft: el.scrollLeft, moved: 0,
+      lastX: e.pageX, lastTime: performance.now(), velocity: 0,
+      captured: false,
+    };
+    // Don't capture pointer or set dragging until movement crosses threshold —
+    // otherwise a plain click on a card/menu item would also trigger drag side effects.
+  }
+  function onPointerMove(e) {
+    const d = dragRef.current;
+    if (!d.active) return;
+    const dx = e.pageX - d.startX;
+    d.moved = Math.max(d.moved, Math.abs(dx));
+    if (d.moved <= 5) return; // still a click, not a drag
+    if (!d.captured) {
+      d.captured = true;
+      setDragging(true);
+      try { scrollRef.current.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    scrollRef.current.scrollLeft = d.startLeft - dx;
+    const now = performance.now();
+    const dt = now - d.lastTime;
+    if (dt > 0) {
+      const instVel = (e.pageX - d.lastX) / dt; // px/ms
+      d.velocity = d.velocity * 0.7 + instVel * 0.3; // low-pass smoothing
+    }
+    d.lastX = e.pageX;
+    d.lastTime = now;
+  }
+  function onPointerUp(e) {
+    const d = dragRef.current;
+    if (!d.active) return;
+    d.active = false;
+    if (!d.captured) return; // was a plain click, leave click event alone
+    setDragging(false);
+    const el = scrollRef.current;
+    try { if (el && el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId); } catch (_) {}
+    if (Math.abs(d.velocity) > 0.05) {
+      let vel = -d.velocity * 16;
+      const step = () => {
+        if (!scrollRef.current) { animRef.current = null; return; }
+        scrollRef.current.scrollLeft += vel;
+        vel *= 0.95;
+        if (Math.abs(vel) > 0.5) animRef.current = requestAnimationFrame(step);
+        else animRef.current = null;
+      };
+      animRef.current = requestAnimationFrame(step);
+    }
+  }
+  function onClickCapture(e) {
+    if (dragRef.current.moved > 5) { e.stopPropagation(); e.preventDefault(); }
+  }
+
   return (
     <div style={{ marginBottom: 36 }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 12, padding: '0 50px' }}>
         <div style={{ fontSize: 19, fontWeight: 700, color: tint || '#F4F4F6', letterSpacing: '-0.01em' }}>
           {title}
         </div>
-        <div style={{ fontSize: 11, color: 'rgba(244,244,246,0.4)' }}>{books.length} 本</div>
+        <div style={{ fontSize: 11, color: 'rgba(244,244,246,0.4)' }}>{total ?? books.length} 本</div>
         <div style={{ flex: 1 }}/>
         <button onClick={() => scroll(-1)} style={rowNavBtn()}>‹</button>
         <button onClick={() => scroll(1)} style={rowNavBtn()}>›</button>
       </div>
-      <div ref={scrollRef} className="scroll scroll-thin" style={{
-        display: 'flex', gap: 16, padding: '4px 50px 16px', overflowX: 'auto', scrollSnapType: 'x proximity',
-      }}>
+      <div ref={scrollRef} className="scroll-hidden"
+        onPointerDown={onPointerDown} onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
+        onClickCapture={onClickCapture}
+        onDragStart={(e) => e.preventDefault()}
+        style={{
+          display: 'flex', gap: 16, padding: '12px 50px 16px', overflowX: 'auto', scrollSnapType: 'x proximity',
+          cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none',
+        }}>
         {books.map((b) => <RowCard key={b.id} book={b} dispatch={dispatch}/>)}
       </div>
     </div>
