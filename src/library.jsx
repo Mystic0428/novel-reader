@@ -570,15 +570,31 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
 
   // Wraps scanRoot so a NotReadableError / permission error / IDB hiccup
   // doesn't leave the busy banner stuck or surface as an "Uncaught (in
-  // promise)" in the console with no UI feedback.
+  // promise)" in the console with no UI feedback. Also surfaces the per-file
+  // failure list (collected inside scanRoot) as a single summary alert so the
+  // user knows WHICH file failed and WHY without opening DevTools.
   async function safeScan(root) {
+    let failed = [];
     try {
-      await scanRoot(root, setBusy, dispatch);
+      failed = (await scanRoot(root, setBusy, dispatch)) || [];
     } catch (err) {
-      console.warn('Scan failed:', err);
+      console.warn('Scan crashed:', err);
       setBusy(null);
-      alert(`掃描遇到問題：${err.message || err}\n\n部分書可能沒讀進來，可能是檔案被防毒軟體 / 雲端同步 / 爬蟲 lock 住。等一下再點重新掃描試試。`);
+      alert(`掃描整體失敗：${explainFsaaError(err)}`);
+      return;
     }
+    if (failed.length === 0) return;
+    const list = failed.slice(0, 10).map(
+      (f) => `• ${f.relPath}\n  └ ${f.reason}`
+    ).join('\n\n');
+    const more = failed.length > 10 ? `\n\n（… 另外 ${failed.length - 10} 個未列出，DevTools console 看完整 list）` : '';
+    alert(
+      `掃描完成，${failed.length} 個檔案沒進來：\n\n${list}${more}\n\n` +
+      `常見對策：\n` +
+      `1. 檔案 > 2GB → Chromium FSAA 上限，用 Calibre 壓縮圖片重新打包\n` +
+      `2. 被防毒/雲端同步 lock → 等一會兒再重新掃描\n` +
+      `3. 權限變更 → 移除 root 重新加`
+    );
   }
 
   async function addFile() {
@@ -590,7 +606,13 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
         });
         fileHandle = fh;
         file = await fh.getFile();
-      } catch (_) { return; }
+      } catch (err) {
+        // AbortError = user cancelled the picker; stay silent for that.
+        if (err && err.name === 'AbortError') return;
+        console.warn('addFile picker/getFile failed:', err);
+        alert(`無法讀取檔案：${explainFsaaError(err)}`);
+        return;
+      }
     } else {
       const input = document.createElement('input');
       input.type = 'file';
@@ -599,7 +621,12 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
       if (!file) return;
       fileHandle = null;
     }
-    await addFromFile(file, fileHandle, dispatch);
+    try {
+      await addFromFile(file, fileHandle, dispatch);
+    } catch (err) {
+      console.warn('addFromFile failed:', err);
+      alert(`無法解析這個檔案：${explainFsaaError(err)}\n\n常見對策：\n1. 檔案 > 2GB → Chromium FSAA 上限\n2. EPUB 結構異常 → 試著用 Calibre 重新轉換`);
+    }
   }
 
   async function removeRoot(id) {
@@ -839,9 +866,25 @@ function sortLabel(settings) {
   return `${map[settings.sortBy] || '最近讀'} ${arrow}`;
 }
 
+// Translate an FSAA / parser error into a user-facing single-line reason.
+// Surfaced from safeScan and addFile so the user knows WHY a file didn't
+// import without having to open DevTools.
+function explainFsaaError(err) {
+  const name = err && err.name;
+  if (name === 'NotReadableError') {
+    return 'NotReadableError — 可能原因：檔案 > 2GB（Chromium FSAA 整數溢位 bug）／ 被防毒/雲端同步 lock ／ 檔案毀損 ／ 權限變更';
+  }
+  if (name === 'NotAllowedError') return 'NotAllowedError — 權限被拒，請重新授權 root';
+  if (name === 'NotFoundError') return 'NotFoundError — 檔案在掃描過程中消失了';
+  if (name === 'SecurityError') return 'SecurityError — 路徑被瀏覽器擋下（可能是系統目錄）';
+  if (name === 'TypeError') return `TypeError — ${err.message || ''}`;
+  return (err && (err.message || String(err))) || 'unknown';
+}
+
 async function scanRoot(root, setBusy, dispatch) {
   const excludes = new Set((root.excludeDirs || []).map((s) => s.toLowerCase()));
   const files = [];
+  const failed = []; // {relPath, reason} — surfaced by safeScan
   // Each directory walk is wrapped: a NotReadableError on one entry (file lock,
   // antivirus, OneDrive sync, broken symlink) used to throw out of the whole
   // scan because the for-await iterator dies mid-loop. Now it just skips that
@@ -858,6 +901,7 @@ async function scanRoot(root, setBusy, dispatch) {
       }
     } catch (err) {
       console.warn('Walk failed inside', path || '/', err);
+      failed.push({ relPath: (path || '/') + ' [目錄掃描中斷]', reason: explainFsaaError(err) });
     }
   }
   if (setBusy) setBusy({ current: 0, total: 0, name: root.name });
@@ -914,6 +958,7 @@ async function scanRoot(root, setBusy, dispatch) {
         }
       } catch (err) {
         console.warn('Failed to re-parse', relPath, err);
+        failed.push({ relPath, reason: explainFsaaError(err) });
       }
       continue;
     }
@@ -962,6 +1007,7 @@ async function scanRoot(root, setBusy, dispatch) {
       added++;
     } catch (err) {
       console.warn('Failed to parse', relPath, err);
+      failed.push({ relPath, reason: explainFsaaError(err) });
     }
   }
 
@@ -974,6 +1020,8 @@ async function scanRoot(root, setBusy, dispatch) {
   const [newBooks, newRoots] = await Promise.all([booksStore.list(), rootsStore.list()]);
   dispatch({ type: 'SET_BOOKS', books: newBooks });
   dispatch({ type: 'SET_ROOTS', roots: newRoots });
+
+  return failed;
 }
 
 async function addFromFile(file, fileHandle, dispatch) {
