@@ -22,6 +22,9 @@ function ThemeSwitcher({ settings, onChange }) {
     { key: 'v38', label: '紙墨 · 純讀',        group: '經典', swatch: { bg: '#FDFBF7' } },
     { key: 'v39', label: '浮世繪 · 北齋',      group: '東方', swatch: { bg: '#F4ECD8' } },
     { key: 'v40', label: '水墨 · 沉硯',        group: '東方', swatch: { bg: '#F2EBDB' } },
+    { key: 'v41', label: 'Riso · 印刷',         group: '現代', swatch: { bg: 'linear-gradient(135deg,#FF5F95,#2E5BFF)' } },
+    { key: 'v42', label: 'Classics · 經典書系', group: '經典', swatch: { bg: 'linear-gradient(180deg,#FF6800 0 30%,#F5F0E0 30% 70%,#FF6800 70%)' } },
+    { key: 'v43', label: '侘寂 · 殘缺',         group: '東方', swatch: { bg: '#D9D2C5' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];

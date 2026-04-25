@@ -305,6 +305,51 @@ function ColorPicker({ settings, onChange, open, onClose }) {
       ],
       toneKey: 'bgTone',
     },
+    v41: {
+      accentPresets: ['#FF5F95', '#2EC5E5', '#FF6B35', '#8B4FE8', '#39B85A', '#FFD21E'],
+      tonePresets: [
+        { key: 'oat',       label: '燕麥' },
+        { key: 'newsprint', label: '報紙' },
+        { key: 'mint',      label: '薄荷' },
+        { key: 'peach',     label: '蜜桃' },
+        { key: 'coral',     label: '珊瑚' },
+        { key: 'lavender',  label: '薰衣' },
+        { key: 'bone',      label: '骨白' },
+        { key: 'sage',      label: '鼠尾' },
+        { key: 'bubblegum', label: '泡泡糖' },
+      ],
+      toneKey: 'bgTone',
+    },
+    v42: {
+      accentPresets: ['#FF6800', '#006B43', '#003F7E', '#E84A8C', '#F5C618', '#6B1A1A'],
+      tonePresets: [
+        { key: 'orange',   label: '經典橘' },
+        { key: 'green',    label: '推理綠' },
+        { key: 'darkblue', label: '傳記藍' },
+        { key: 'pink',     label: '當代粉' },
+        { key: 'yellow',   label: '參考黃' },
+        { key: 'charcoal', label: '炭黑' },
+        { key: 'maroon',   label: '詩集紅' },
+        { key: 'teal',     label: '自然青' },
+        { key: 'sage',     label: '旅遊綠' },
+      ],
+      toneKey: 'bgTone',
+    },
+    v43: {
+      accentPresets: ['#B8956A', '#5A8270', '#8C3A2E', '#4A4438', '#6B6864', '#B85838'],
+      tonePresets: [
+        { key: 'linen',     label: '亞麻' },
+        { key: 'moss',      label: '青苔' },
+        { key: 'clay',      label: '陶土' },
+        { key: 'stone',     label: '石灰' },
+        { key: 'driftwood', label: '漂木' },
+        { key: 'ash',       label: '灰燼' },
+        { key: 'tea',       label: '茶染' },
+        { key: 'sand',      label: '砂色' },
+        { key: 'dusk',      label: '暮灰' },
+      ],
+      toneKey: 'bgTone',
+    },
   };
   const presets = presetsByTheme[theme];
   const hasTones = presets && presets.tonePresets;
