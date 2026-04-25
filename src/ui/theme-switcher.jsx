@@ -49,6 +49,10 @@ function ThemeSwitcher({ settings, onChange }) {
     { key: 'v3',  label: '8-bit · 像素',           group: '復古', swatch: { bg: '#2D1B69' } },
     { key: 'v7',  label: 'Diner · 50s 餐廳',       group: '復古', swatch: { bg: 'repeating-conic-gradient(#E8443A 0% 25%, #FAF0DC 0% 50%) 50%/14px 14px' } },
     { key: 'v8',  label: 'Newsprint · 老報紙',     group: '復古', swatch: { bg: '#F2E8D0' } },
+    { key: 'v12', label: 'Cassette · 卡帶',         group: '復古', swatch: { bg: 'linear-gradient(180deg,#5A3828 0 30%,#F5E6C8 30% 70%,#5A3828 70%)' } },
+    { key: 'v13', label: 'Typewriter · 打字機',    group: '復古', swatch: { bg: '#F5EAC8' } },
+    { key: 'v14', label: 'Pulp · 廉價小說',         group: '復古', swatch: { bg: 'radial-gradient(circle at 70% 30%,#E83A1F 0 28%,#F0DC9C 30%)' } },
+    { key: 'v15', label: 'Vinyl · 黑膠唱片',       group: '復古', swatch: { bg: 'radial-gradient(circle,#C8242C 0 35%,#1A1A1A 36%)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
