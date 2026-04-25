@@ -4,9 +4,21 @@
 <meta charset="UTF-8"/>
 <title>Novel Reader</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link rel="icon" href="favicon.png" type="image/png"/>
-<!-- fallback to emoji if favicon.png is absent (gitignored — bring your own) -->
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📚</text></svg>"/>
+<link rel="icon" id="nr-favicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📚</text></svg>"/>
+<script>
+  // Drop-in custom favicon: place `favicon.png` in repo root.
+  // The default 📚 emoji shows immediately; if favicon.png loads successfully
+  // we swap it in. Browsers don't reliably fall back across multiple
+  // <link rel="icon"> tags when the first 404s, so we do it explicitly here.
+  (function () {
+    var img = new Image();
+    img.onload = function () {
+      var link = document.getElementById('nr-favicon');
+      if (link) link.href = 'favicon.png?' + Date.now();
+    };
+    img.src = 'favicon.png?' + Date.now();
+  })();
+</script>
 <link rel="stylesheet" href="styles/shared.css"/>
 <link rel="stylesheet" href="styles/v1-warm.css"/>
 <link rel="stylesheet" href="styles/v4-glass.css"/>
