@@ -4,6 +4,45 @@ function TweaksPanel({ book, settings, onSettingsChange, onBookChange, open, onC
   const tw = settings.tweaks;
 
   function set(patch) { onSettingsChange({ tweaks: patch }); }
+  function setSlot(slot) {
+    onSettingsChange({ [slot]: settings.activeTheme });
+  }
+  function clearSlot(slot) {
+    onSettingsChange({ [slot]: null });
+  }
+
+  const slotRow = (label, slotKey, themeKey) => {
+    const sw = themeKey ? (window.nrThemeSwatch ? window.nrThemeSwatch(themeKey) : null) : null;
+    const themeLabel = themeKey
+      ? (window.nrThemeLabel ? window.nrThemeLabel(themeKey) : themeKey)
+      : '未設定';
+    const accent = themeKey ? (settings.themeColors[themeKey]?.accent || '#888') : 'rgba(0,0,0,0.2)';
+    const isCurrent = themeKey === settings.activeTheme;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <span style={{ width: 28, fontSize: 11 }}>{label}</span>
+        <span style={{
+          width: 18, height: 18, borderRadius: 9, flexShrink: 0,
+          background: sw?.bg || 'rgba(0,0,0,0.06)',
+          boxShadow: `inset 0 0 0 2px ${accent}`,
+        }}/>
+        <span style={{ flex: 1, fontSize: 11, color: themeKey ? 'inherit' : 'rgba(0,0,0,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {themeLabel}
+        </span>
+        <button onClick={() => setSlot(slotKey)} disabled={isCurrent}
+          title={isCurrent ? '當前主題已是此' : '把目前主題存為此 slot'}
+          style={{ ...btnStyle(), padding: '3px 8px', fontSize: 10, opacity: isCurrent ? 0.4 : 1 }}>
+          設為當前
+        </button>
+        {themeKey && (
+          <button onClick={() => clearSlot(slotKey)} title="清除"
+            style={{ ...btnStyle(), padding: '3px 6px', fontSize: 10, color: 'rgba(0,0,0,0.4)' }}>
+            ✕
+          </button>
+        )}
+      </div>
+    );
+  };
 
   const styleLabel = { fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.6)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.1em' };
   const slider = (min, max, step, val, on) => (
@@ -62,6 +101,15 @@ function TweaksPanel({ book, settings, onSettingsChange, onBookChange, open, onC
           <input type="checkbox" checked={tw.immersive !== false} onChange={(e) => set({ ...tw, immersive: e.target.checked })}/>
           <span>沉浸式（3 秒不動 toolbar 自動淡出）</span>
         </label>
+
+        <div style={{ height: 0.5, background: 'rgba(0,0,0,0.08)', margin: '14px -18px' }}/>
+
+        <div style={styleLabel}>日夜切換</div>
+        {slotRow('☀ 日', 'dayTheme', settings.dayTheme)}
+        {slotRow('🌙 夜', 'nightTheme', settings.nightTheme)}
+        <div style={{ fontSize: 10, color: 'rgba(0,0,0,0.45)', marginTop: 4, marginBottom: 12, lineHeight: 1.5 }}>
+          兩個都設定後，閱讀頁右上角會出現切換按鈕。
+        </div>
 
         <div style={{ height: 0.5, background: 'rgba(0,0,0,0.08)', margin: '14px -18px' }}/>
 

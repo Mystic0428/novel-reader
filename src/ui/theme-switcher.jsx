@@ -1,16 +1,5 @@
 // src/ui/theme-switcher.jsx — dropdown theme picker (scales to many themes)
-function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
-  const [open, setOpen] = React.useState(false);
-  const [query, setQuery] = React.useState('');
-  const activeRef = React.useRef(null);
-
-  // Center the active theme in view when the dropdown first opens.
-  React.useLayoutEffect(() => {
-    if (open && activeRef.current) {
-      activeRef.current.scrollIntoView({ block: 'center' });
-    }
-  }, [open]);
-  const themes = [
+const NR_THEME_LIST = [
     { key: 'v1',  label: 'Warm · 書房',       group: '經典', swatch: { bg: '#EDE4D2' } },
     { key: 'v4',  label: 'Glass · 毛玻璃',    group: '經典', swatch: { bg: 'linear-gradient(135deg,#F5DEB3,#C9A5D4)' } },
     { key: 'v5',  label: 'Dark · 典藏',       group: '經典', swatch: { bg: '#13201C' } },
@@ -70,7 +59,32 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
     { key: 'v57', label: 'Cloth · 布面精裝',         group: '經典', swatch: { bg: 'linear-gradient(135deg,#1A3A28,#0F2418)' } },
     { key: 'v58', label: 'Notebook · 札記本',        group: '經典', swatch: { bg: 'linear-gradient(135deg,#1A1A1A,#0E0E0E)' } },
     { key: 'v59', label: 'Long-form · 長文雜誌',     group: '經典', swatch: { bg: '#FAFAF7' } },
-  ];
+];
+
+function nrThemeLabel(key) {
+  const t = NR_THEME_LIST.find((x) => x.key === key);
+  return t ? t.label : key;
+}
+function nrThemeSwatch(key) {
+  const t = NR_THEME_LIST.find((x) => x.key === key);
+  return t ? t.swatch : null;
+}
+window.NR_THEME_LIST = NR_THEME_LIST;
+window.nrThemeLabel = nrThemeLabel;
+window.nrThemeSwatch = nrThemeSwatch;
+
+function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
+  const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState('');
+  const activeRef = React.useRef(null);
+
+  // Center the active theme in view when the dropdown first opens.
+  React.useLayoutEffect(() => {
+    if (open && activeRef.current) {
+      activeRef.current.scrollIntoView({ block: 'center' });
+    }
+  }, [open]);
+  const themes = NR_THEME_LIST;
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
   const favs = settings.favoriteThemes || [];

@@ -74,6 +74,8 @@
     filterTag: null,
     filterCollection: null,
     favoriteThemes: [],
+    dayTheme: null,
+    nightTheme: null,
   };
 
   function mergeDeep(base, patch) {
