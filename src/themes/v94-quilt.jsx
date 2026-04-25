@@ -35,7 +35,7 @@ function V94Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       flex: 1, background: bg, color: ink, padding: 0, position: 'relative',
       fontFamily: '"Cormorant Garamond","EB Garamond",var(--serif)',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', padding: '40px 30px 60px' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 30px 60px' }}>
         {/* quilt block + title */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 20, marginBottom: 22,

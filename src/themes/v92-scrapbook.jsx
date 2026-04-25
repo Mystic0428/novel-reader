@@ -32,7 +32,7 @@ function V92Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       flex: 1, background: bg, color: ink, padding: 0, position: 'relative',
       fontFamily: '"Caveat","Patrick Hand",cursive',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', padding: '40px 30px 60px', position: 'relative' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 30px 60px', position: 'relative' }}>
         {/* main scrapbook page */}
         <div style={{
           background: card, padding: '40px 36px 32px', position: 'relative',

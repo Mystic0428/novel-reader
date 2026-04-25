@@ -34,7 +34,7 @@ function V81Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       flex: 1, background: bg, color: ink, padding: 0, position: 'relative',
       fontFamily: '"Inter","Helvetica Neue",sans-serif',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', padding: '32px 30px 50px' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '32px 30px 50px' }}>
         {/* user-card header */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18,

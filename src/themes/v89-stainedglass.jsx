@@ -39,7 +39,7 @@ function V89Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         background: `radial-gradient(ellipse at top, ${jewel}26, transparent 70%)`,
       }}/>
 
-      <article style={{ maxWidth: 660, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
+      <article style={{ maxWidth: 760, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
         {/* gothic arch frame */}
         <div style={{
           background: card, color: ink,

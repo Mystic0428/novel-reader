@@ -21,7 +21,7 @@ function V82Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       flex: 1, background: bg, color: card, padding: 0, position: 'relative',
       fontFamily: '"Noto Serif TC","Songti TC",serif',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', padding: '40px 30px 60px' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 30px 60px' }}>
         {/* studio block */}
         <div style={{
           display: 'inline-block', padding: '4px 14px', background: accent2, color: bg,

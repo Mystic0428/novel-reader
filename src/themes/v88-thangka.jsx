@@ -33,7 +33,7 @@ function V88Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
     }}>
       <V88Mandala glow={glow} opacity={0.06}/>
 
-      <article style={{ maxWidth: 660, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
+      <article style={{ maxWidth: 760, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
         {/* outer frame — like a thangka mount */}
         <div style={{
           padding: 14, background: `linear-gradient(135deg, ${glow}, ${accent} 50%, ${glow})`,

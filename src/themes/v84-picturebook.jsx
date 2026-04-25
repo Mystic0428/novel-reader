@@ -27,7 +27,7 @@ function V84Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         background: wash,
       }}/>
 
-      <article style={{ maxWidth: 680, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
+      <article style={{ maxWidth: 760, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
         {/* hand-drawn frame */}
         <div style={{
           background: card, padding: '32px 36px', borderRadius: 16,

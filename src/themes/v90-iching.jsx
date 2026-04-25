@@ -31,7 +31,7 @@ function V90Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       flex: 1, background: bg, color: ink, padding: 0, position: 'relative',
       fontFamily: '"Noto Serif TC","Songti TC",serif',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', padding: '40px 50px 60px' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 50px 60px' }}>
         {/* hexagram + title block */}
         <div style={{
           display: 'flex', gap: 28, alignItems: 'center',

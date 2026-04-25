@@ -21,7 +21,7 @@ function V80Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       flex: 1, background: bg, color: '#E8DCB8', padding: '40px 30px 60px', position: 'relative',
       fontFamily: '"EB Garamond","Cormorant Garamond",var(--serif)',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', position: 'relative' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', position: 'relative' }}>
         {/* the intertitle card */}
         <div style={{
           background: card, color: ink,

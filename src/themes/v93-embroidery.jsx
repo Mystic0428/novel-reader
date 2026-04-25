@@ -37,7 +37,7 @@ function V93Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         backgroundImage: `repeating-linear-gradient(0deg, transparent 0 1px, ${ink}22 1px 2px), repeating-linear-gradient(90deg, transparent 0 1px, ${ink}22 1px 2px)`,
       }}/>
 
-      <article style={{ maxWidth: 680, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
+      <article style={{ maxWidth: 760, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
         {/* embroidery hoop frame */}
         <div style={{
           padding: '40px 36px 36px', background: card, color: ink,

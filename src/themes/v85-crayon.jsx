@@ -28,7 +28,7 @@ function V85Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
                           repeating-linear-gradient(-45deg, ${ink} 0 1px, transparent 1px 12px)`,
       }}/>
 
-      <article style={{ maxWidth: 700, margin: '0 auto', padding: '40px 50px 60px' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 50px 60px' }}>
         {/* sketchy title block */}
         <div style={{
           display: 'inline-block', padding: '8px 18px', marginBottom: 18,

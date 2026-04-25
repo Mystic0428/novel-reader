@@ -64,7 +64,7 @@ function V91Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
     }}>
       <V91Starfield accent={accent} opacity={0.7}/>
 
-      <article style={{ maxWidth: 700, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 50px 60px', position: 'relative', zIndex: 1 }}>
         {/* zodiac header */}
         <div style={{
           display: 'flex', gap: 24, alignItems: 'center', marginBottom: 24,

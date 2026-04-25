@@ -21,7 +21,7 @@ function V87Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       flex: 1, background: bg, color: ink, padding: 0, position: 'relative',
       fontFamily: '"Patrick Hand","Caveat",cursive',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', padding: '40px 30px 60px' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 30px 60px' }}>
         {/* layered paper stack — pop-up illusion */}
         <div style={{ position: 'relative', marginBottom: 22 }}>
           {/* back layer */}

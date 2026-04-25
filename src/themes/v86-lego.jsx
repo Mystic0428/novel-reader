@@ -25,7 +25,7 @@ function V86Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       backgroundImage: `radial-gradient(circle at 20px 20px, ${stud} 6px, transparent 7px)`,
       backgroundSize: '40px 40px',
     }}>
-      <article style={{ maxWidth: 720, margin: '0 auto', padding: '40px 30px 60px' }}>
+      <article style={{ maxWidth: 780, margin: '0 auto', padding: '40px 30px 60px' }}>
         {/* step header — like an instruction page */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18,

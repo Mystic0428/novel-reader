@@ -61,7 +61,7 @@ function V83Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         {/* sepia film card */}
         <article style={{
           background: card, color: ink, padding: '32px 36px',
-          maxWidth: 660, margin: '0 auto',
+          maxWidth: 760, margin: '0 auto',
           boxShadow: `inset 0 0 60px ${tint}22, 0 0 0 1px ${rule}`,
           position: 'relative',
         }}>
@@ -111,7 +111,7 @@ function V83Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         </article>
 
         {/* nav */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, maxWidth: 660, margin: '24px auto 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, maxWidth: 760, margin: '24px auto 0' }}>
           <button onClick={onPrev} disabled={!canPrev} style={{
             ...btnStyle(), opacity: canPrev ? 1 : 0.3, padding: '8px 16px', borderRadius: 0,
             background: 'transparent', color: tint, border: `1px solid ${tint}`,
