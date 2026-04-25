@@ -104,6 +104,7 @@ function Library() {
 
   const [statsOpen, setStatsOpen] = React.useState(false);
   const [cardBookId, setCardBookId] = React.useState(null);
+  const [scanReport, setScanReport] = React.useState(null);
   const cardBook = cardBookId ? books.find((b) => b.id === cardBookId) : null;
   async function refreshBooks() {
     const next = await booksStore.list();
@@ -137,11 +138,13 @@ function Library() {
         search={search} onSearchChange={setSearch} searchInputRef={searchInputRef}
         books={books} roots={roots}
         onOpenStats={() => setStatsOpen(true)}
+        onScanReport={setScanReport}
       />
       <StatsPanel open={statsOpen} onClose={() => setStatsOpen(false)}
         books={books} onOpenBook={(id) => { setStatsOpen(false); openBook(id, dispatch); }}/>
       <BookCard book={cardBook} open={!!cardBook} onClose={() => setCardBookId(null)}
         onOpenBook={(id) => openBook(id, dispatch)} onChanged={refreshBooks}/>
+      <ScanReport report={scanReport} onClose={() => setScanReport(null)}/>
       <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, scrollbarGutter: 'stable' }} className="scroll-thin">
         {!hasLibrary ? (
           <HomeEmpty/>
@@ -527,7 +530,7 @@ function HomeEmpty() {
   );
 }
 
-function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef, books, roots, onOpenStats }) {
+function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef, books, roots, onOpenStats, onScanReport }) {
   const [busy, setBusy] = React.useState(null);
   const supported = 'showDirectoryPicker' in window;
 
@@ -545,7 +548,7 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
     if (excludeInput === null) return;
     const excludeDirs = excludeInput.split(',').map((s) => s.trim()).filter(Boolean);
     const root = await rootsStore.add({ name: dirHandle.name, dirHandle, excludeDirs });
-    await scanRoot(root, setBusy, dispatch);
+    await safeScan(root);
   }
 
   async function editRootExcludes(root) {
@@ -558,14 +561,52 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
     if (next === null) return;
     const excludeDirs = next.split(',').map((s) => s.trim()).filter(Boolean);
     const updated = await rootsStore.update(root.id, { excludeDirs });
-    await scanRoot(updated, setBusy, dispatch);
+    await safeScan(updated);
   }
 
   async function rescanRoot(root) {
     if (busy) return;
     const granted = await rootsStore.ensurePermission(root.dirHandle, 'read');
     if (!granted) { alert('需要讀取權限'); return; }
-    await scanRoot(root, setBusy, dispatch);
+    await safeScan(root);
+  }
+
+  // Wraps scanRoot so a NotReadableError / permission error / IDB hiccup
+  // doesn't leave the busy banner stuck or surface as an "Uncaught (in
+  // promise)" in the console with no UI feedback. Surfaces per-file failures
+  // (collected inside scanRoot) via the ScanReport modal so the user knows
+  // WHICH file failed and WHY without opening DevTools.
+  async function safeScan(root) {
+    let failed = [];
+    try {
+      failed = (await scanRoot(root, setBusy, dispatch)) || [];
+    } catch (err) {
+      console.warn('Scan crashed:', err);
+      setBusy(null);
+      onScanReport({
+        kind: 'crash',
+        title: '掃描失敗',
+        summary: explainFsaaError(err),
+        failures: [],
+        hints: [
+          '檢查 root 權限是否仍有效（瀏覽器重新整理後可能要重新授權）',
+          '如果是大量檔案 lock，等一會兒重試',
+        ],
+      });
+      return;
+    }
+    if (failed.length === 0) return;
+    onScanReport({
+      kind: 'partial',
+      title: `掃描完成 — ${failed.length} 個檔案沒進來`,
+      summary: '其他書都正常進入書庫了，下面這些是讀不進來的檔。',
+      failures: failed,
+      hints: [
+        '檔案 > 2GB → Chromium FSAA 整數溢位 bug，用 Calibre 壓縮圖片重新打包',
+        '被防毒 / 雲端同步 / 爬蟲 lock → 等一會兒再重新掃描',
+        '權限變更 → 移除 root 後重新加一次',
+      ],
+    });
   }
 
   async function addFile() {
@@ -577,7 +618,22 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
         });
         fileHandle = fh;
         file = await fh.getFile();
-      } catch (_) { return; }
+      } catch (err) {
+        // AbortError = user cancelled the picker; stay silent for that.
+        if (err && err.name === 'AbortError') return;
+        console.warn('addFile picker/getFile failed:', err);
+        onScanReport({
+          kind: 'addFile',
+          title: '無法讀取這個檔案',
+          summary: '瀏覽器拿不到這個檔案的內容。',
+          failures: [{ relPath: '(picker 選擇的檔案)', reason: explainFsaaError(err) }],
+          hints: [
+            '檔案 > 2GB → Chromium FSAA 上限',
+            '檔案被防毒 / 雲端同步 / 爬蟲 lock → 等一會兒再試',
+          ],
+        });
+        return;
+      }
     } else {
       const input = document.createElement('input');
       input.type = 'file';
@@ -586,7 +642,21 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
       if (!file) return;
       fileHandle = null;
     }
-    await addFromFile(file, fileHandle, dispatch);
+    try {
+      await addFromFile(file, fileHandle, dispatch);
+    } catch (err) {
+      console.warn('addFromFile failed:', err);
+      onScanReport({
+        kind: 'addFile',
+        title: '無法解析這個檔案',
+        summary: file && file.name,
+        failures: [{ relPath: (file && file.name) || '檔案', reason: explainFsaaError(err) }],
+        hints: [
+          '檔案 > 2GB → Chromium FSAA 上限',
+          'EPUB 結構異常 → 試著用 Calibre 重新轉換',
+        ],
+      });
+    }
   }
 
   async function removeRoot(id) {
@@ -826,17 +896,42 @@ function sortLabel(settings) {
   return `${map[settings.sortBy] || '最近讀'} ${arrow}`;
 }
 
+// Translate an FSAA / parser error into a user-facing single-line reason.
+// Surfaced from safeScan and addFile so the user knows WHY a file didn't
+// import without having to open DevTools.
+function explainFsaaError(err) {
+  const name = err && err.name;
+  if (name === 'NotReadableError') {
+    return 'NotReadableError — 可能原因：檔案 > 2GB（Chromium FSAA 整數溢位 bug）／ 被防毒/雲端同步 lock ／ 檔案毀損 ／ 權限變更';
+  }
+  if (name === 'NotAllowedError') return 'NotAllowedError — 權限被拒，請重新授權 root';
+  if (name === 'NotFoundError') return 'NotFoundError — 檔案在掃描過程中消失了';
+  if (name === 'SecurityError') return 'SecurityError — 路徑被瀏覽器擋下（可能是系統目錄）';
+  if (name === 'TypeError') return `TypeError — ${err.message || ''}`;
+  return (err && (err.message || String(err))) || 'unknown';
+}
+
 async function scanRoot(root, setBusy, dispatch) {
   const excludes = new Set((root.excludeDirs || []).map((s) => s.toLowerCase()));
   const files = [];
+  const failed = []; // {relPath, reason} — surfaced by safeScan
+  // Each directory walk is wrapped: a NotReadableError on one entry (file lock,
+  // antivirus, OneDrive sync, broken symlink) used to throw out of the whole
+  // scan because the for-await iterator dies mid-loop. Now it just skips that
+  // directory and the parent's iteration continues.
   async function walk(dirHandle, path) {
-    for await (const [name, handle] of dirHandle.entries()) {
-      if (handle.kind === 'directory') {
-        if (excludes.has(name.toLowerCase())) continue;
-        await walk(handle, path + name + '/');
-      } else if (name.toLowerCase().endsWith('.epub')) {
-        files.push({ handle, relPath: path + name });
+    try {
+      for await (const [name, handle] of dirHandle.entries()) {
+        if (handle.kind === 'directory') {
+          if (excludes.has(name.toLowerCase())) continue;
+          await walk(handle, path + name + '/');
+        } else if (name.toLowerCase().endsWith('.epub')) {
+          files.push({ handle, relPath: path + name });
+        }
       }
+    } catch (err) {
+      console.warn('Walk failed inside', path || '/', err);
+      failed.push({ relPath: (path || '/') + ' [目錄掃描中斷]', reason: explainFsaaError(err) });
     }
   }
   if (setBusy) setBusy({ current: 0, total: 0, name: root.name });
@@ -893,6 +988,7 @@ async function scanRoot(root, setBusy, dispatch) {
         }
       } catch (err) {
         console.warn('Failed to re-parse', relPath, err);
+        failed.push({ relPath, reason: explainFsaaError(err) });
       }
       continue;
     }
@@ -941,6 +1037,7 @@ async function scanRoot(root, setBusy, dispatch) {
       added++;
     } catch (err) {
       console.warn('Failed to parse', relPath, err);
+      failed.push({ relPath, reason: explainFsaaError(err) });
     }
   }
 
@@ -953,6 +1050,8 @@ async function scanRoot(root, setBusy, dispatch) {
   const [newBooks, newRoots] = await Promise.all([booksStore.list(), rootsStore.list()]);
   dispatch({ type: 'SET_BOOKS', books: newBooks });
   dispatch({ type: 'SET_ROOTS', roots: newRoots });
+
+  return failed;
 }
 
 async function addFromFile(file, fileHandle, dispatch) {
