@@ -98,6 +98,8 @@ function Library() {
 
   const hero = currentlyReading[0] || allSorted[0];
 
+  const [statsOpen, setStatsOpen] = React.useState(false);
+
   return (
     <div className="nr-root" style={{
       display: 'flex', flexDirection: 'column', height: '100vh',
@@ -117,7 +119,10 @@ function Library() {
         settings={settings} dispatch={dispatch}
         search={search} onSearchChange={setSearch} searchInputRef={searchInputRef}
         books={books} roots={roots}
+        onOpenStats={() => setStatsOpen(true)}
       />
+      <StatsPanel open={statsOpen} onClose={() => setStatsOpen(false)}
+        books={books} onOpenBook={(id) => { setStatsOpen(false); openBook(id, dispatch); }}/>
       <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, scrollbarGutter: 'stable' }} className="scroll-thin">
         {!hasLibrary ? (
           <HomeEmpty/>
@@ -503,7 +508,7 @@ function HomeEmpty() {
   );
 }
 
-function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef, books, roots }) {
+function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef, books, roots, onOpenStats }) {
   const [busy, setBusy] = React.useState(null);
   const supported = 'showDirectoryPicker' in window;
 
@@ -627,6 +632,7 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
         )}
       </div>
       <SortDropdown settings={settings} onSort={setSort}/>
+      <button onClick={onOpenStats} style={addBtnStyleDark()} title="閱讀統計">📊</button>
       <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} onEditRoot={editRootExcludes} onRescanRoot={rescanRoot} supported={supported}/>
       <button onClick={addFile} style={addBtnStyleDark()}>＋ 加檔</button>
       {busy && (
