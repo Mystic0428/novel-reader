@@ -1,5 +1,8 @@
 // src/ui/book-menu.jsx — right-click menu for a book card
 function BookMenu({ book, anchorPos, onClose, onChanged }) {
+  // Library mounts `window.openBookCard` so the card can be triggered from any
+  // BookMenu instance without threading callbacks through 4 layers of components.
+  const openInfo = window.openBookCard;
   const ref = React.useRef(null);
   const [mode, setMode] = React.useState('main');   // 'main' | 'tag' | 'collection'
   const [inputVal, setInputVal] = React.useState('');
@@ -64,16 +67,29 @@ function BookMenu({ book, anchorPos, onClose, onChanged }) {
     );
   }
 
+  // Fixed-width icon slot so emoji + text rows line up despite emoji being
+  // visually wider than glyphs like # or ↺.
+  const iconSlot = { display: 'inline-block', width: 18, textAlign: 'center', flexShrink: 0 };
+  const Item = ({ icon, children, onClick, style: extraStyle }) => (
+    <HoverRow onClick={onClick} style={extraStyle}>
+      <span style={iconSlot}>{icon}</span>
+      <span>{children}</span>
+    </HoverRow>
+  );
+
   return (
     <div ref={ref} style={style}>
       {mode === 'main' && <>
-        <HoverRow onClick={() => setMode('tag')}># 編輯 Tags</HoverRow>
-        <HoverRow onClick={() => setMode('collection')}>📁 加到 Collection</HoverRow>
+        {openInfo && (
+          <Item icon="📋" onClick={() => { openInfo(book); onClose(); }}>書本資訊</Item>
+        )}
+        <Item icon="#" onClick={() => setMode('tag')}>編輯 Tags</Item>
+        <Item icon="📁" onClick={() => setMode('collection')}>加到 Collection</Item>
         {book.lastReadAt && (
-          <HoverRow onClick={clearProgress}>↺ 清除閱讀進度</HoverRow>
+          <Item icon="↺" onClick={clearProgress}>清除閱讀進度</Item>
         )}
         <div style={{ height: 0.5, background: 'rgba(0,0,0,0.08)', margin: '4px 0' }}/>
-        <HoverRow onClick={deleteBook} style={{ color: '#B3261E' }}>🗑 從書庫移除</HoverRow>
+        <Item icon="🗑" onClick={deleteBook} style={{ color: '#B3261E' }}>從書庫移除</Item>
       </>}
       {mode === 'tag' && <>
         <div style={{ padding: '8px 12px', fontWeight: 600, fontSize: 11, color: 'rgba(0,0,0,0.5)' }}>TAGS</div>

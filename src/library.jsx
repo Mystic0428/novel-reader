@@ -99,6 +99,19 @@ function Library() {
   const hero = currentlyReading[0] || allSorted[0];
 
   const [statsOpen, setStatsOpen] = React.useState(false);
+  const [cardBookId, setCardBookId] = React.useState(null);
+  const cardBook = cardBookId ? books.find((b) => b.id === cardBookId) : null;
+  async function refreshBooks() {
+    const next = await booksStore.list();
+    dispatch({ type: 'SET_BOOKS', books: next });
+  }
+  // Expose card opener globally so BookMenu instances (rendered deep inside
+  // RowCards across multiple BookRows / FilteredView) can trigger it without
+  // prop-drilling through 4 layers.
+  React.useEffect(() => {
+    window.openBookCard = (book) => setCardBookId(book.id);
+    return () => { delete window.openBookCard; };
+  }, []);
 
   return (
     <div className="nr-root" style={{
@@ -123,6 +136,8 @@ function Library() {
       />
       <StatsPanel open={statsOpen} onClose={() => setStatsOpen(false)}
         books={books} onOpenBook={(id) => { setStatsOpen(false); openBook(id, dispatch); }}/>
+      <BookCard book={cardBook} open={!!cardBook} onClose={() => setCardBookId(null)}
+        onOpenBook={(id) => openBook(id, dispatch)} onChanged={refreshBooks}/>
       <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0, scrollbarGutter: 'stable' }} className="scroll-thin">
         {!hasLibrary ? (
           <HomeEmpty/>
