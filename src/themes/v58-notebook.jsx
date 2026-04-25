@@ -16,8 +16,9 @@ function V58Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
   const { cover, cover2, paper, ruled, ink } = tone;
   const ribbon = settings.themeColors.v58.accent;
   const total = book.chaptersMeta.length;
-  // Ruled paper background — horizontal lines like a notebook
-  const rules = `repeating-linear-gradient(0deg, transparent 0 ${settings.tweaks.fontSize * 1.6 - 1}px, ${ruled} ${settings.tweaks.fontSize * 1.6 - 1}px ${settings.tweaks.fontSize * 1.6}px)`;
+  // Ruled paper background — horizontal lines aligned to actual body line-height
+  const lineSpacing = settings.tweaks.fontSize * settings.tweaks.lineHeight;
+  const rules = `repeating-linear-gradient(0deg, transparent 0 ${lineSpacing - 1}px, ${ruled} ${lineSpacing - 1}px ${lineSpacing}px)`;
   return (
     <main ref={scrollRef} onScroll={onScroll} className="scroll scroll-thin" style={{
       flex: 1, fontFamily: 'var(--serif)', padding: 0, position: 'relative', color: '#F5EDD8',
@@ -88,7 +89,7 @@ function V58Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
 
               <div className="reading-body" style={book.preserveOriginalCss ? undefined : {
                 fontFamily: 'var(--serif)', color: ink,
-                fontSize: settings.tweaks.fontSize, lineHeight: 1.6,
+                fontSize: settings.tweaks.fontSize, lineHeight: settings.tweaks.lineHeight,
                 '--accent': ribbon,
               }} dangerouslySetInnerHTML={{ __html: html }}/>
 
