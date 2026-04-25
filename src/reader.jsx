@@ -65,6 +65,14 @@ function renderThemeContent(props) {
     case 'v61': return <V61Reader {...props}/>;
     case 'v62': return <V62Reader {...props}/>;
     case 'v63': return <V63Reader {...props}/>;
+    case 'v64': return <V64Reader {...props}/>;
+    case 'v65': return <V65Reader {...props}/>;
+    case 'v66': return <V66Reader {...props}/>;
+    case 'v67': return <V67Reader {...props}/>;
+    case 'v68': return <V68Reader {...props}/>;
+    case 'v69': return <V69Reader {...props}/>;
+    case 'v70': return <V70Reader {...props}/>;
+    case 'v71': return <V71Reader {...props}/>;
     default:    return <V1Reader {...props}/>;
   }
 }
@@ -133,6 +141,14 @@ function renderThemeFooter(props) {
     case 'v61': return <V61Footer {...props}/>;
     case 'v62': return <V62Footer {...props}/>;
     case 'v63': return <V63Footer {...props}/>;
+    case 'v64': return <V64Footer {...props}/>;
+    case 'v65': return <V65Footer {...props}/>;
+    case 'v66': return <V66Footer {...props}/>;
+    case 'v67': return <V67Footer {...props}/>;
+    case 'v68': return <V68Footer {...props}/>;
+    case 'v69': return <V69Footer {...props}/>;
+    case 'v70': return <V70Footer {...props}/>;
+    case 'v71': return <V71Footer {...props}/>;
     default:    return <V1Footer {...props}/>;
   }
 }

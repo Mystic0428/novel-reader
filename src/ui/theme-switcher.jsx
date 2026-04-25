@@ -74,9 +74,17 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
     { key: 'v61', label: "Adventurer's Codex · 冒險者手冊", group: '奇幻', swatch: { bg: 'radial-gradient(ellipse,#5A1F1F,#1F0A0A)' } },
     { key: 'v62', label: 'Rune Stone · 符文石碑',     group: '奇幻', swatch: { bg: 'linear-gradient(180deg,#363A40,#2A2D32)' } },
     { key: 'v63', label: 'Fae Codex · 精靈卷宗',      group: '奇幻', swatch: { bg: 'radial-gradient(ellipse,#1A2D24,#0F1F18)' } },
+    { key: 'v64', label: 'Mourning · 維多利亞遺照',     group: '暗黑', swatch: { bg: 'radial-gradient(ellipse,#241522,#1A0F18)' } },
+    { key: 'v65', label: 'Dossier · 命案檔案',          group: '暗黑', swatch: { bg: '#E8D89C' } },
+    { key: 'v66', label: 'Ghost Story · 鬼故事筆記',    group: '暗黑', swatch: { bg: 'radial-gradient(circle,#1A1208 40%,#0F0A05)' } },
+    { key: 'v67', label: 'Bestiary · 怪物百科',         group: '暗黑', swatch: { bg: '#E8DCB8' } },
+    { key: 'v68', label: 'RPG Textbox · RPG 對話框',    group: '遊戲', swatch: { bg: 'linear-gradient(135deg,#102050,#0A1638)' } },
+    { key: 'v69', label: 'Visual Novel · 視覺小說',     group: '遊戲', swatch: { bg: 'linear-gradient(180deg,#FFD0E0,#F8C0D0)' } },
+    { key: 'v70', label: 'Board Game · 桌遊規則書',     group: '遊戲', swatch: { bg: '#E8D8A8' } },
+    { key: 'v71', label: 'Steam Deck · 掌機介面',       group: '遊戲', swatch: { bg: 'linear-gradient(135deg,#2A3F5F,#1B2838)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
-  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻'];
+  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻', '暗黑', '遊戲'];
   const favs = settings.favoriteThemes || [];
 
   const q = query.trim().toLowerCase();
