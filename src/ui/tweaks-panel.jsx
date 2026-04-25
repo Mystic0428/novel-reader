@@ -41,7 +41,7 @@ function TweaksPanel({ book, settings, onSettingsChange, onBookChange, open, onC
         <div style={styleLabel}>質感</div>
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
           <input type="checkbox" checked={!!tw.texture} onChange={(e) => set({ ...tw, texture: e.target.checked })}/>
-          <span>紙張紋理（僅 V1 風格會顯示）</span>
+          <span>紙張紋理（僅紙質風格主題顯示）</span>
         </label>
 
         <div style={{ height: 0.5, background: 'rgba(0,0,0,0.08)', margin: '14px -18px' }}/>
