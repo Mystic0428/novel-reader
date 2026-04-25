@@ -82,9 +82,17 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
     { key: 'v69', label: 'Visual Novel · 視覺小說',     group: '遊戲', swatch: { bg: 'linear-gradient(180deg,#FFD0E0,#F8C0D0)' } },
     { key: 'v70', label: 'Board Game · 桌遊規則書',     group: '遊戲', swatch: { bg: '#E8D8A8' } },
     { key: 'v71', label: 'Steam Deck · 掌機介面',       group: '遊戲', swatch: { bg: 'linear-gradient(135deg,#2A3F5F,#1B2838)' } },
+    { key: 'v72', label: 'Mountain Cabin · 山屋木紋',    group: '自然', swatch: { bg: 'repeating-linear-gradient(90deg,#3A2818 0 8px,#2A1808 8px 10px)' } },
+    { key: 'v73', label: 'Tide Pool · 潮間',             group: '自然', swatch: { bg: 'linear-gradient(180deg,#D0E2DE,#7CB8B0)' } },
+    { key: 'v74', label: 'Pressed Botanical · 壓花標本', group: '自然', swatch: { bg: '#F0E8D0' } },
+    { key: 'v75', label: 'Campfire · 營火',              group: '自然', swatch: { bg: 'radial-gradient(ellipse at bottom,#FF6838 0%,#1A0F08 70%)' } },
+    { key: 'v76', label: 'Bulletin · 公報',              group: '檔案', swatch: { bg: '#F5EFE0' } },
+    { key: 'v77', label: 'Transcript · 法庭逐字',        group: '檔案', swatch: { bg: '#F8F4D8' } },
+    { key: 'v78', label: 'Field Journal · 田野筆記',     group: '檔案', swatch: { bg: '#F8E89C' } },
+    { key: 'v79', label: 'Library Card · 圖書館卡',      group: '檔案', swatch: { bg: '#F4ECD8' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
-  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻', '暗黑', '遊戲'];
+  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻', '暗黑', '遊戲', '自然', '檔案'];
   const favs = settings.favoriteThemes || [];
 
   const q = query.trim().toLowerCase();
