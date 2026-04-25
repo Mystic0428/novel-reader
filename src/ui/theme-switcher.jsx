@@ -90,9 +90,25 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
     { key: 'v77', label: 'Transcript · 法庭逐字',        group: '檔案', swatch: { bg: '#F8F4D8' } },
     { key: 'v78', label: 'Field Journal · 田野筆記',     group: '檔案', swatch: { bg: '#F8E89C' } },
     { key: 'v79', label: 'Library Card · 圖書館卡',      group: '檔案', swatch: { bg: '#F4ECD8' } },
+    { key: 'v80', label: 'Silent Film · 默片字卡',         group: '影視', swatch: { bg: 'linear-gradient(135deg,#08080A 0 50%,#E8DCB8 50%)' } },
+    { key: 'v81', label: 'Letterboxd · 影評卡',            group: '影視', swatch: { bg: 'linear-gradient(135deg,#1C2228,#14181C)' } },
+    { key: 'v82', label: 'HK Cinema · 港片海報',           group: '影視', swatch: { bg: 'linear-gradient(135deg,#1A0808 0 60%,#FFD24A 60%)' } },
+    { key: 'v83', label: 'Film Reel · 膠卷邊孔',           group: '影視', swatch: { bg: 'repeating-linear-gradient(0deg,#0F0A05 0 8px,#28201A 8px 12px)' } },
+    { key: 'v84', label: 'Picture Book · 童書水彩',        group: '童趣', swatch: { bg: 'radial-gradient(circle at 30% 30%,#FFD0E0,#FFF4E8)' } },
+    { key: 'v85', label: 'Crayon · 蠟筆塗鴉',              group: '童趣', swatch: { bg: 'linear-gradient(45deg,#FF4848 0 25%,#FFCC00 25% 50%,#4878FF 50% 75%,#48C848 75%)' } },
+    { key: 'v86', label: 'LEGO · 樂高說明書',              group: '童趣', swatch: { bg: 'radial-gradient(circle at 50% 50%,#E0E0E0 6px,#FAFAFA 7px)' } },
+    { key: 'v87', label: 'Pop-up · 彈跳書',                group: '童趣', swatch: { bg: 'linear-gradient(135deg,#FAEEDC,#E8D8B8)' } },
+    { key: 'v88', label: 'Thangka · 唐卡',                 group: '靈性', swatch: { bg: 'radial-gradient(ellipse,#FF9038,#3A1808)' } },
+    { key: 'v89', label: 'Stained Glass · 教堂彩繪玻璃',   group: '靈性', swatch: { bg: 'linear-gradient(135deg,#3858E8 0 33%,#E848A8 33% 66%,#FFC848 66%)' } },
+    { key: 'v90', label: 'I Ching · 易經卦象',             group: '靈性', swatch: { bg: '#1A1A1F' } },
+    { key: 'v91', label: 'Astrology · 占星天宮',           group: '靈性', swatch: { bg: 'radial-gradient(ellipse at top,#FFC848,#04081A 70%)' } },
+    { key: 'v92', label: 'Scrapbook · 拼貼剪貼簿',         group: '手工', swatch: { bg: 'linear-gradient(135deg,#FFD848,#FF98AC,#88E0F0)' } },
+    { key: 'v93', label: 'Embroidery · 北歐刺繡',          group: '手工', swatch: { bg: '#E8DCC0' } },
+    { key: 'v94', label: 'Quilt · 美國拼布',                group: '手工', swatch: { bg: 'linear-gradient(135deg,#A85838 0 50%,#3A6B4E 50%)' } },
+    { key: 'v95', label: 'Paper Lace · 紙蕾絲剪紙',         group: '手工', swatch: { bg: 'radial-gradient(circle,#C8242C 30%,#FAFAF4 32%)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
-  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻', '暗黑', '遊戲', '自然', '檔案'];
+  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻', '暗黑', '遊戲', '自然', '檔案', '影視', '童趣', '靈性', '手工'];
   const favs = settings.favoriteThemes || [];
 
   const q = query.trim().toLowerCase();

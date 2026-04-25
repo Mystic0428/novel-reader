@@ -81,6 +81,22 @@ function renderThemeContent(props) {
     case 'v77': return <V77Reader {...props}/>;
     case 'v78': return <V78Reader {...props}/>;
     case 'v79': return <V79Reader {...props}/>;
+    case 'v80': return <V80Reader {...props}/>;
+    case 'v81': return <V81Reader {...props}/>;
+    case 'v82': return <V82Reader {...props}/>;
+    case 'v83': return <V83Reader {...props}/>;
+    case 'v84': return <V84Reader {...props}/>;
+    case 'v85': return <V85Reader {...props}/>;
+    case 'v86': return <V86Reader {...props}/>;
+    case 'v87': return <V87Reader {...props}/>;
+    case 'v88': return <V88Reader {...props}/>;
+    case 'v89': return <V89Reader {...props}/>;
+    case 'v90': return <V90Reader {...props}/>;
+    case 'v91': return <V91Reader {...props}/>;
+    case 'v92': return <V92Reader {...props}/>;
+    case 'v93': return <V93Reader {...props}/>;
+    case 'v94': return <V94Reader {...props}/>;
+    case 'v95': return <V95Reader {...props}/>;
     default:    return <V1Reader {...props}/>;
   }
 }
@@ -165,6 +181,22 @@ function renderThemeFooter(props) {
     case 'v77': return <V77Footer {...props}/>;
     case 'v78': return <V78Footer {...props}/>;
     case 'v79': return <V79Footer {...props}/>;
+    case 'v80': return <V80Footer {...props}/>;
+    case 'v81': return <V81Footer {...props}/>;
+    case 'v82': return <V82Footer {...props}/>;
+    case 'v83': return <V83Footer {...props}/>;
+    case 'v84': return <V84Footer {...props}/>;
+    case 'v85': return <V85Footer {...props}/>;
+    case 'v86': return <V86Footer {...props}/>;
+    case 'v87': return <V87Footer {...props}/>;
+    case 'v88': return <V88Footer {...props}/>;
+    case 'v89': return <V89Footer {...props}/>;
+    case 'v90': return <V90Footer {...props}/>;
+    case 'v91': return <V91Footer {...props}/>;
+    case 'v92': return <V92Footer {...props}/>;
+    case 'v93': return <V93Footer {...props}/>;
+    case 'v94': return <V94Footer {...props}/>;
+    case 'v95': return <V95Footer {...props}/>;
     default:    return <V1Footer {...props}/>;
   }
 }
