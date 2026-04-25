@@ -6,6 +6,9 @@ const V25_BG_TONES = {
   dove:     { bg: '#EAEAE0', bg2: '#DEDED4', porcelain: '#F4F4EA' },
   willow:   { bg: '#E9ECD6', bg2: '#DDE0CA', porcelain: '#F3F5E0' },
   shell:    { bg: '#F4EBDF', bg2: '#ECE1D2', porcelain: '#FAF2E6' },
+  mist:     { bg: '#EFE9D8', bg2: '#E5DEC5', porcelain: '#F6F0DD' },
+  pearl:    { bg: '#F2EAD6', bg2: '#E8DFC2', porcelain: '#F8F2DF' },
+  rice:     { bg: '#F4ECD2', bg2: '#ECE2BF', porcelain: '#FAF4DA' },
 };
 
 function V25Vine({ color, width = 800 }) {

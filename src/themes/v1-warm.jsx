@@ -62,7 +62,9 @@ function injectDropCap(html, size) {
   );
 }
 function stripChapterPrefix(title) {
-  return (title || '').replace(/^第.+?[　\s]+/, '');
+  // Strip "第X話 ", "002. ", "01-", "1:" etc. — common chapter-number prefixes
+  // produced by various scrapers and TOC formats.
+  return (title || '').replace(/^(第.+?[　\s]+|\d+[.\-:、][\s　]*|\d+[\s　]+)/, '');
 }
 function chapterNumberZh(n) {
   const d = ['零','一','二','三','四','五','六','七','八','九','十'];

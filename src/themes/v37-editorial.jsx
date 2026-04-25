@@ -6,6 +6,9 @@ const V37_BG_TONES = {
   rust:     { bg: '#1A0706', ink: '#F0E4D8' },
   navy:     { bg: '#060A1A', ink: '#F0F0F4' },
   olive:    { bg: '#131308', ink: '#F0EEDC' },
+  forest:   { bg: '#08130C', ink: '#E8F0DC' },
+  plum:     { bg: '#0F0512', ink: '#F0E8F0' },
+  concrete: { bg: '#1A1A1A', ink: '#E8E8E8' },
 };
 
 function V37Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {
@@ -38,8 +41,8 @@ function V37Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
       <div style={{ padding: '30px 40px 60px', maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 40 }}>
         {/* left: giant chapter slug */}
         <div style={{ borderRight: `1px solid ${ink}`, paddingRight: 30 }}>
-          <div style={{ fontSize: Math.min(180, settings.tweaks.fontSize * 9), fontWeight: 900, color: ink, lineHeight: 0.85, letterSpacing: '-0.07em', fontFamily: 'var(--serif)', wordBreak: 'break-word' }}>
-            {rawTitle.slice(0, 3)}
+          <div style={{ fontSize: Math.min(220, settings.tweaks.fontSize * 11), fontWeight: 900, color: ink, lineHeight: 0.85, letterSpacing: '-0.07em', fontFamily: 'var(--serif)', fontVariantNumeric: 'tabular-nums' }}>
+            {String(chapterIdx + 1).padStart(2, '0')}
           </div>
           <div style={{ fontSize: 12, color: gray, letterSpacing: '0.3em', fontWeight: 700, marginTop: 24 }}>
             § CHAPTER {String(chapterIdx + 1).padStart(2, '0')}

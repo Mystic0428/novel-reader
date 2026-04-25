@@ -1,9 +1,14 @@
 // src/themes/v6-terminal.jsx — Retro terminal / CRT
 const V6_BG_TONES = {
-  amber:  { bg: '#0C0A06', fg: '#FFB454', dim: 'rgba(255,180,84,0.55)', faint: 'rgba(255,180,84,0.22)' },
-  green:  { bg: '#030806', fg: '#6FE89B', dim: 'rgba(111,232,155,0.55)', faint: 'rgba(111,232,155,0.22)' },
-  blue:   { bg: '#04060F', fg: '#7FB6FF', dim: 'rgba(127,182,255,0.55)', faint: 'rgba(127,182,255,0.22)' },
-  paper:  { bg: '#F4ECD8', fg: '#2A2418', dim: 'rgba(42,36,24,0.55)', faint: 'rgba(42,36,24,0.22)' },
+  amber:   { bg: '#0C0A06', fg: '#FFB454', dim: 'rgba(255,180,84,0.55)',  faint: 'rgba(255,180,84,0.22)' },
+  green:   { bg: '#030806', fg: '#6FE89B', dim: 'rgba(111,232,155,0.55)', faint: 'rgba(111,232,155,0.22)' },
+  blue:    { bg: '#04060F', fg: '#7FB6FF', dim: 'rgba(127,182,255,0.55)', faint: 'rgba(127,182,255,0.22)' },
+  paper:   { bg: '#F4ECD8', fg: '#2A2418', dim: 'rgba(42,36,24,0.55)',    faint: 'rgba(42,36,24,0.22)' },
+  red:     { bg: '#0C0606', fg: '#FF4555', dim: 'rgba(255,69,85,0.55)',   faint: 'rgba(255,69,85,0.22)' },
+  cyan:    { bg: '#04090C', fg: '#58E6FF', dim: 'rgba(88,230,255,0.55)',  faint: 'rgba(88,230,255,0.22)' },
+  magenta: { bg: '#0A040A', fg: '#FF6BCB', dim: 'rgba(255,107,203,0.55)', faint: 'rgba(255,107,203,0.22)' },
+  mono:    { bg: '#050505', fg: '#E0E0E0', dim: 'rgba(224,224,224,0.55)', faint: 'rgba(224,224,224,0.22)' },
+  ivory:   { bg: '#F1E8D0', fg: '#1F1810', dim: 'rgba(31,24,16,0.55)',    faint: 'rgba(31,24,16,0.22)' },
 };
 
 function V6Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

@@ -32,12 +32,15 @@ function DecoRays({ color }) {
 }
 
 const V17_BG_TONES = {
-  onyx:    { bg: '#0A0A0A', bg2: '#141414' },
-  navy:    { bg: '#0B1532', bg2: '#14203F' },
-  wine:    { bg: '#1A0A0E', bg2: '#241318' },
-  forest:  { bg: '#0A1A12', bg2: '#142A1F' },
-  plum:    { bg: '#1A0F1F', bg2: '#241930' },
-  oxblood: { bg: '#1F0A0A', bg2: '#2B1313' },
+  onyx:     { bg: '#0A0A0A', bg2: '#141414' },
+  navy:     { bg: '#0B1532', bg2: '#14203F' },
+  wine:     { bg: '#1A0A0E', bg2: '#241318' },
+  forest:   { bg: '#0A1A12', bg2: '#142A1F' },
+  plum:     { bg: '#1A0F1F', bg2: '#241930' },
+  oxblood:  { bg: '#1F0A0A', bg2: '#2B1313' },
+  graphite: { bg: '#0F1418', bg2: '#171C20' },
+  cobalt:   { bg: '#0A1438', bg2: '#15214E' },
+  teal:     { bg: '#0A1A1F', bg2: '#142A30' },
 };
 
 function V17Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

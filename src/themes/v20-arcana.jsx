@@ -29,6 +29,9 @@ const V20_BG_TONES = {
   obsidian: { bg: '#0A0B14', bg2: '#14161F', edge: '#050608' }, // 黑曜
   rubyabyss:{ bg: '#240B14', bg2: '#3A1523', edge: '#1A050B' }, // 血紅深淵
   aurora:   { bg: '#0B2833', bg2: '#154554', edge: '#041620' }, // 極光
+  amethyst: { bg: '#1A0E33', bg2: '#281A52', edge: '#0E0620' }, // 紫晶
+  twilight: { bg: '#1A1130', bg2: '#2A1F4A', edge: '#0E0820' }, // 暮光
+  voidblack:{ bg: '#070710', bg2: '#10101F', edge: '#02020A' }, // 虛空
 };
 
 function V20Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

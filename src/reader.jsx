@@ -221,7 +221,7 @@ function Reader() {
   if (permIssue) return <PermissionBanner book={book} onRetry={() => window.location.reload()} onBack={backToLibrary}/>;
 
   const chapterIdx = Math.max(0, book.chaptersMeta.findIndex((c) => c.id === currentChapterId));
-  const chapterTitle = book.chaptersMeta[chapterIdx]?.title || '';
+  const chapterTitle = stripChapterPrefix(book.chaptersMeta[chapterIdx]?.title || '');
 
   return (
     <div className="nr-root nr-reading-scope" style={{

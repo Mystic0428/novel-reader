@@ -1,11 +1,14 @@
 // src/themes/v9-brutalist.jsx — Brutalist grotesk: bold black frame, lime accent
 const V9_BG_TONES = {
-  bone:   { bg: '#EEEBE4', ink: '#0A0A0A' },
-  cream:  { bg: '#F5F1E5', ink: '#0A0A0A' },
-  gray:   { bg: '#D8D5CC', ink: '#0A0A0A' },
-  black:  { bg: '#0A0A0A', ink: '#EEEBE4' },
-  navy:   { bg: '#0D1B2A', ink: '#EEEBE4' },
-  pink:   { bg: '#F5D8DC', ink: '#0A0A0A' },
+  bone:    { bg: '#EEEBE4', ink: '#0A0A0A' },
+  cream:   { bg: '#F5F1E5', ink: '#0A0A0A' },
+  gray:    { bg: '#D8D5CC', ink: '#0A0A0A' },
+  black:   { bg: '#0A0A0A', ink: '#EEEBE4' },
+  navy:    { bg: '#0D1B2A', ink: '#EEEBE4' },
+  pink:    { bg: '#F5D8DC', ink: '#0A0A0A' },
+  olive:   { bg: '#A8A872', ink: '#0A0A0A' },
+  rust:    { bg: '#C7572F', ink: '#0A0A0A' },
+  mustard: { bg: '#DCA73C', ink: '#0A0A0A' },
 };
 
 function V9Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }) {

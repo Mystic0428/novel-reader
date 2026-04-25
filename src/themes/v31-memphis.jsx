@@ -6,6 +6,9 @@ const V31_BG_TONES = {
   sky:      { bg: '#E0F0FC', ink: '#111' },
   lilac:    { bg: '#F0E4F7', ink: '#111' },
   ink:      { bg: '#121212', ink: '#FFF4E0' },
+  coral:    { bg: '#FFD9D2', ink: '#111' },
+  lemon:    { bg: '#FFF5B0', ink: '#111' },
+  aqua:     { bg: '#D4EEEB', ink: '#111' },
 };
 
 const MEMPHIS_COLORS = ['#FF4E9E', '#2EC5E5', '#FFD21E', '#6EE05A', '#8B4FE8'];

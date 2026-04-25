@@ -5,6 +5,9 @@
 .v5-root.dianqing{ --bg:#0F2028; --bg2:#162B35; }
 .v5-root.ganguo  { --bg:#1F1A0E; --bg2:#2B2518; }
 .v5-root.zaose   { --bg:#1A1410; --bg2:#241C17; }
+.v5-root.jinghuang{ --bg:#1A1505; --bg2:#25200B; }
+.v5-root.moziju  { --bg:#150E1F; --bg2:#1F1729; }
+.v5-root.gulan   { --bg:#0E1820; --bg2:#16242C; }
 .v5-column { max-width: 720px; margin: 0 auto; padding: 20px 80px; }
 .v5-decor-rule { position: absolute; height: 0.5px; background: var(--gold); opacity: 0.3; }
 .v5-chaptertitle { text-align: center; margin-bottom: 44px; }

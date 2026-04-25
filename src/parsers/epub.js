@@ -345,23 +345,29 @@
   }
 
   function stripDuplicateLeadingHeading(body, chapterTitle) {
-    if (!chapterTitle) return;
     const norm = (s) => (s || '').replace(/\s+/g, '').trim();
     const want = norm(chapterTitle);
-    if (!want) return;
-    for (const child of Array.from(body.children)) {
+    // Pure chapter-number heading: "002.", "01", "Chapter 1", "第三章" etc.
+    // These are redundant with the displayed chapter title and should be stripped
+    // even if they don't textually match the TOC title.
+    const isNumericHeading = (s) =>
+      /^(chapter\s*)?\d+[.\-:、\s]*$/i.test(s) ||
+      /^第[一二三四五六七八九十百千零〇0-9]+[章回節卷部篇話话]$/.test(s);
+    // Loop so a sequence like <h1>002.</h1><h2>簡介</h2> both get removed.
+    while (body.children.length) {
+      const child = body.children[0];
       const tag = child.tagName;
-      if (tag === 'H1' || tag === 'H2' || tag === 'H3') {
-        const got = norm(child.textContent);
-        // Match if the body heading is a superset or subset of the chapter title.
-        // EPUB authors often include a chapter number that's absent from the title in TOC.
-        if (got && (got === want || got.includes(want) || want.includes(got))) {
-          child.remove();
-        }
-        return;
+      // Skip empty leading paragraphs (whitespace, &nbsp;, etc.)
+      if (tag === 'P' && !child.textContent.trim()) { child.remove(); continue; }
+      if (tag !== 'H1' && tag !== 'H2' && tag !== 'H3') return;
+      const got = norm(child.textContent);
+      if (!got) { child.remove(); continue; }
+      // Title match (equal or substring either way — handles "002. 簡介" vs "簡介")
+      if (want && (got === want || got.includes(want) || want.includes(got))) {
+        child.remove(); continue;
       }
-      // Skip whitespace-only text nodes that precede the heading
-      if (child.tagName === 'P' && !child.textContent.trim()) continue;
+      // Standalone chapter-number heading
+      if (isNumericHeading(got)) { child.remove(); continue; }
       return;
     }
   }
