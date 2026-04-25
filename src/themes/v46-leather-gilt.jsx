@@ -22,37 +22,39 @@ function V46Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
   return (
     <main ref={scrollRef} onScroll={onScroll} className="scroll scroll-thin" style={{
       flex: 1, background: `radial-gradient(ellipse at 30% 30%, ${bg3} 0%, ${bg1} 45%, ${bg2} 100%)`,
-      color: ink, fontFamily: '"Noto Serif TC",serif', position: 'relative', padding: '32px 40px',
+      color: ink, fontFamily: '"Noto Serif TC",serif', padding: 0,
     }}>
-      {/* leather noise */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'multiply', opacity: 0.7,
-        backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence baseFrequency='0.35' numOctaves='4'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.05  0 0 0 0 0.02  0 0 0 0.20 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`,
-      }}/>
-      {/* gilt frame */}
-      <div style={{
-        position: 'absolute', inset: 18, border: `2px solid ${gold}`,
-        boxShadow: `inset 0 0 0 3px ${bg2}, inset 0 0 0 4px ${goldD}`, pointerEvents: 'none',
-      }}/>
-      <div style={{ position: 'absolute', inset: 26, border: `0.5px solid ${gold}`, opacity: 0.6, pointerEvents: 'none' }}/>
-      {/* corner curls */}
-      {[[26, 26, 0], [26, null, 90], [null, 26, -90], [null, null, 180]].map((p, i) => (
-        <div key={i} style={{
-          position: 'absolute', width: 50, height: 50, transform: `rotate(${p[2]}deg)`, pointerEvents: 'none',
-          top: p[0] !== null ? 26 : undefined, bottom: p[0] === null ? 26 : undefined,
-          left: p[1] !== null ? 26 : undefined, right: p[1] === null ? 26 : undefined,
-        }}>
-          <svg viewBox="0 0 50 50" width="50" height="50">
-            <g fill={gold} stroke={goldD} strokeWidth="0.5" opacity="0.92">
-              <path d="M4,25 Q4,4 25,4 L25,9 Q9,9 9,25 Z"/>
-              <path d="M14,25 Q14,14 25,14 L25,18 Q18,18 18,25 Z"/>
-              <circle cx="25" cy="25" r="2.5"/>
-            </g>
-          </svg>
-        </div>
-      ))}
+      {/* relative wrapper so the gilt frame + corner curls scroll with content */}
+      <div style={{ position: 'relative', minHeight: '100%', padding: '32px 40px', boxSizing: 'border-box' }}>
+        {/* leather noise */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'multiply', opacity: 0.7,
+          backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence baseFrequency='0.35' numOctaves='4'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.05  0 0 0 0 0.02  0 0 0 0.20 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`,
+        }}/>
+        {/* gilt frame — inside relative wrapper so it scrolls with content */}
+        <div style={{
+          position: 'absolute', inset: 18, border: `2px solid ${gold}`,
+          boxShadow: `inset 0 0 0 3px ${bg2}, inset 0 0 0 4px ${goldD}`, pointerEvents: 'none',
+        }}/>
+        <div style={{ position: 'absolute', inset: 26, border: `0.5px solid ${gold}`, opacity: 0.6, pointerEvents: 'none' }}/>
+        {/* corner curls */}
+        {[[26, 26, 0], [26, null, 90], [null, 26, -90], [null, null, 180]].map((p, i) => (
+          <div key={i} style={{
+            position: 'absolute', width: 50, height: 50, transform: `rotate(${p[2]}deg)`, pointerEvents: 'none',
+            top: p[0] !== null ? 26 : undefined, bottom: p[0] === null ? 26 : undefined,
+            left: p[1] !== null ? 26 : undefined, right: p[1] === null ? 26 : undefined,
+          }}>
+            <svg viewBox="0 0 50 50" width="50" height="50">
+              <g fill={gold} stroke={goldD} strokeWidth="0.5" opacity="0.92">
+                <path d="M4,25 Q4,4 25,4 L25,9 Q9,9 9,25 Z"/>
+                <path d="M14,25 Q14,14 25,14 L25,18 Q18,18 18,25 Z"/>
+                <circle cx="25" cy="25" r="2.5"/>
+              </g>
+            </svg>
+          </div>
+        ))}
 
-      <div style={{ position: 'relative', maxWidth: 720, margin: '0 auto', padding: '20px 24px', textAlign: 'center' }}>
+        <div style={{ position: 'relative', maxWidth: 720, margin: '0 auto', padding: '20px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: 11, color: gold, letterSpacing: '0.6em', fontWeight: 700, textShadow: `0 1px 0 ${bg2}` }}>
           ❦ FROM THE LIBRARY ❦
         </div>
@@ -105,6 +107,7 @@ function V46Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 18, paddingTop: 14, borderTop: `1px solid ${goldD}` }}>
           <button onClick={onPrev} disabled={!canPrev} style={{ ...btnStyle(), opacity: canPrev ? 1 : 0.3, background: 'transparent', color: goldL, border: `1px solid ${gold}`, fontFamily: 'var(--serif)', letterSpacing: '0.18em' }}>‹ PRECEDING</button>
           <button onClick={onNext} disabled={!canNext} style={{ ...btnStyle(), opacity: canNext ? 1 : 0.3, background: gold, color: bg1, border: `1px solid ${gold}`, fontFamily: 'var(--serif)', letterSpacing: '0.18em', fontWeight: 700 }}>FOLLOWING ›</button>
+        </div>
         </div>
       </div>
     </main>

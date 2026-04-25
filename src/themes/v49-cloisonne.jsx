@@ -42,18 +42,19 @@ function V49Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
   return (
     <main ref={scrollRef} onScroll={onScroll} className="scroll scroll-thin" style={{
       flex: 1, background: `radial-gradient(ellipse at 40% 30%, ${bg1} 0%, ${bg2} 100%)`,
-      color: ivory, fontFamily: '"Noto Serif TC",serif', position: 'relative', padding: '32px 40px',
+      color: ivory, fontFamily: '"Noto Serif TC",serif', padding: 0,
     }}>
-      {/* enamel sheen */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: `radial-gradient(ellipse at 25% 20%, rgba(120,200,230,0.18) 0%, transparent 40%), radial-gradient(ellipse at 80% 85%, rgba(0,0,0,0.3) 0%, transparent 50%)`,
-      }}/>
-      {/* gilt frame */}
-      <div style={{ position: 'absolute', inset: 12, border: `3px solid ${gold}`, boxShadow: `inset 0 0 0 1px ${goldL}, inset 0 0 0 3px ${goldD}, inset 0 0 0 5px ${gold}`, pointerEvents: 'none' }}/>
-      <div style={{ position: 'absolute', inset: 22, border: `1px solid ${goldL}`, opacity: 0.6, pointerEvents: 'none' }}/>
+      <div style={{ position: 'relative', minHeight: '100%', padding: '32px 40px', boxSizing: 'border-box' }}>
+        {/* enamel sheen */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: `radial-gradient(ellipse at 25% 20%, rgba(120,200,230,0.18) 0%, transparent 40%), radial-gradient(ellipse at 80% 85%, rgba(0,0,0,0.3) 0%, transparent 50%)`,
+        }}/>
+        {/* gilt frame — inside relative wrapper so it scrolls with content */}
+        <div style={{ position: 'absolute', inset: 12, border: `3px solid ${gold}`, boxShadow: `inset 0 0 0 1px ${goldL}, inset 0 0 0 3px ${goldD}, inset 0 0 0 5px ${gold}`, pointerEvents: 'none' }}/>
+        <div style={{ position: 'absolute', inset: 22, border: `1px solid ${goldL}`, opacity: 0.6, pointerEvents: 'none' }}/>
 
-      {/* top lotus scroll */}
+        {/* top lotus scroll */}
       <div style={{ position: 'relative', margin: '20px 80px 0', height: 50 }}>
         <V49Lotus width={1000} gold={gold} goldL={goldL} goldD={goldD} turq={turq} coral={coral} amber={amber} ivory={ivory}/>
       </div>
@@ -124,9 +125,10 @@ function V49Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
         </div>
       </div>
 
-      {/* bottom lotus scroll, flipped */}
-      <div style={{ position: 'relative', margin: '0 80px 20px', height: 50, transform: 'scaleY(-1)' }}>
-        <V49Lotus width={1000} gold={gold} goldL={goldL} goldD={goldD} turq={turq} coral={coral} amber={amber} ivory={ivory}/>
+        {/* bottom lotus scroll, flipped */}
+        <div style={{ position: 'relative', margin: '0 80px 20px', height: 50, transform: 'scaleY(-1)' }}>
+          <V49Lotus width={1000} gold={gold} goldL={goldL} goldD={goldD} turq={turq} coral={coral} amber={amber} ivory={ivory}/>
+        </div>
       </div>
     </main>
   );
