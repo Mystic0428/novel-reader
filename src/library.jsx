@@ -614,6 +614,7 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
             border: '1px solid rgba(255,255,255,0.14)',
             borderRadius: 4, fontSize: 12, fontFamily: 'inherit',
             background: 'rgba(22,22,28,0.85)', color: '#F4F4F6', outline: 'none',
+            cursor: 'text',
           }}/>
         {search && search.length > 0 && (
           <button onClick={() => { onSearchChange(''); searchInputRef.current?.focus(); }} style={{
