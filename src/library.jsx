@@ -523,10 +523,21 @@ function HomeTopBar({ settings, dispatch, onSearchChange, books, roots }) {
   }
 
   async function removeRoot(id) {
-    if (!confirm('移除這個根目錄？（書本資料保留在書庫裡，但檔案連結可能失效）')) return;
+    const root = (await rootsStore.list()).find((r) => r.id === id);
+    const allBooks = await booksStore.list();
+    const fromRoot = allBooks.filter((b) => b.rootId === id);
+    const label = root ? `「${root.name}」` : '此根目錄';
+    const msg = fromRoot.length > 0
+      ? `移除${label}？\n會一併刪除 ${fromRoot.length} 本書（含閱讀進度、tags、collections）。\n磁碟上的檔案不會被刪除。`
+      : `移除${label}？`;
+    if (!confirm(msg)) return;
+    for (const b of fromRoot) {
+      await booksStore.remove(b.id);
+    }
     await rootsStore.remove(id);
-    const newRoots = await rootsStore.list();
+    const [newRoots, newBooks] = await Promise.all([rootsStore.list(), booksStore.list()]);
     dispatch({ type: 'SET_ROOTS', roots: newRoots });
+    dispatch({ type: 'SET_BOOKS', books: newBooks });
   }
 
   async function setSort(sortBy) {
