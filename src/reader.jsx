@@ -269,6 +269,12 @@ function Reader() {
     const fresh = await booksStore.get(b.id);
     setBook(fresh);
 
+    // Log a reading event for stats. Idempotent per (book, chapter, day) so
+    // re-opening the same chapter doesn't inflate counts.
+    const chMeta = b.chaptersMeta[idx] || {};
+    readingEventsStore.log({ bookId: b.id, chapterId, words: chMeta.wordCount || 0 })
+      .catch((err) => console.warn('reading-event log failed', err));
+
     // Prefetch the next chapter so forward navigation is instant. Use idle time
     // to avoid contending with the current chapter's render/scroll-restore work.
     const nextCh = b.chaptersMeta[idx + 1];
