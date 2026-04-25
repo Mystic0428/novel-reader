@@ -36,6 +36,12 @@ function ThemeSwitcher({ settings, onChange }) {
     { key: 'v29', label: 'Ex Libris · 維多利亞', group: '華麗', swatch: { bg: 'linear-gradient(135deg,#1A3A2A,#0F2418)' } },
     { key: 'v44', label: '敦煌 · 殘卷',          group: '東方', swatch: { bg: 'radial-gradient(ellipse at 40% 40%,#E0C898,#9A7A48)' } },
     { key: 'v45', label: '蘇州 · 漏窗',          group: '東方', swatch: { bg: 'linear-gradient(180deg,#F4EEE0,#D6C9A8)' } },
+    { key: 'v46', label: 'Leather & Gilt · 燙金皮革', group: '華麗', swatch: { bg: 'radial-gradient(ellipse at 30% 30%,#5A3020,#2A1308)' } },
+    { key: 'v47', label: 'Marbled · 大理石扉頁',  group: '華麗', swatch: { bg: 'linear-gradient(135deg,#1A3B6B,#C9A84A)' } },
+    { key: 'v48', label: 'Ivory · 象牙雕刻',      group: '華麗', swatch: { bg: 'radial-gradient(ellipse,#FAF4E4,#C7B58A)' } },
+    { key: 'v49', label: 'Cloisonné · 景泰藍',    group: '華麗', swatch: { bg: 'radial-gradient(ellipse at 40% 30%,#0B3A5E,#05233D)' } },
+    { key: 'v50', label: 'Swiss · 編輯部',         group: '現代', swatch: { bg: '#F4F2ED' } },
+    { key: 'v51', label: 'Rams · Braun T1000',    group: '現代', swatch: { bg: '#E8E6E1' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
