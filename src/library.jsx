@@ -545,7 +545,7 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
     if (excludeInput === null) return;
     const excludeDirs = excludeInput.split(',').map((s) => s.trim()).filter(Boolean);
     const root = await rootsStore.add({ name: dirHandle.name, dirHandle, excludeDirs });
-    await scanRoot(root, setBusy, dispatch);
+    await safeScan(root);
   }
 
   async function editRootExcludes(root) {
@@ -558,14 +558,27 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
     if (next === null) return;
     const excludeDirs = next.split(',').map((s) => s.trim()).filter(Boolean);
     const updated = await rootsStore.update(root.id, { excludeDirs });
-    await scanRoot(updated, setBusy, dispatch);
+    await safeScan(updated);
   }
 
   async function rescanRoot(root) {
     if (busy) return;
     const granted = await rootsStore.ensurePermission(root.dirHandle, 'read');
     if (!granted) { alert('需要讀取權限'); return; }
-    await scanRoot(root, setBusy, dispatch);
+    await safeScan(root);
+  }
+
+  // Wraps scanRoot so a NotReadableError / permission error / IDB hiccup
+  // doesn't leave the busy banner stuck or surface as an "Uncaught (in
+  // promise)" in the console with no UI feedback.
+  async function safeScan(root) {
+    try {
+      await scanRoot(root, setBusy, dispatch);
+    } catch (err) {
+      console.warn('Scan failed:', err);
+      setBusy(null);
+      alert(`掃描遇到問題：${err.message || err}\n\n部分書可能沒讀進來，可能是檔案被防毒軟體 / 雲端同步 / 爬蟲 lock 住。等一下再點重新掃描試試。`);
+    }
   }
 
   async function addFile() {
@@ -829,14 +842,22 @@ function sortLabel(settings) {
 async function scanRoot(root, setBusy, dispatch) {
   const excludes = new Set((root.excludeDirs || []).map((s) => s.toLowerCase()));
   const files = [];
+  // Each directory walk is wrapped: a NotReadableError on one entry (file lock,
+  // antivirus, OneDrive sync, broken symlink) used to throw out of the whole
+  // scan because the for-await iterator dies mid-loop. Now it just skips that
+  // directory and the parent's iteration continues.
   async function walk(dirHandle, path) {
-    for await (const [name, handle] of dirHandle.entries()) {
-      if (handle.kind === 'directory') {
-        if (excludes.has(name.toLowerCase())) continue;
-        await walk(handle, path + name + '/');
-      } else if (name.toLowerCase().endsWith('.epub')) {
-        files.push({ handle, relPath: path + name });
+    try {
+      for await (const [name, handle] of dirHandle.entries()) {
+        if (handle.kind === 'directory') {
+          if (excludes.has(name.toLowerCase())) continue;
+          await walk(handle, path + name + '/');
+        } else if (name.toLowerCase().endsWith('.epub')) {
+          files.push({ handle, relPath: path + name });
+        }
       }
+    } catch (err) {
+      console.warn('Walk failed inside', path || '/', err);
     }
   }
   if (setBusy) setBusy({ current: 0, total: 0, name: root.name });
