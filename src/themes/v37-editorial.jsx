@@ -15,8 +15,10 @@ function V37Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
   const tone = V37_BG_TONES[settings.themeColors.v37.bgTone] || V37_BG_TONES.black;
   const accent = settings.themeColors.v37.accent;
   const { bg, ink } = tone;
-  const ghost = ink === '#FFF' ? '#1A1A1A' : 'rgba(0,0,0,0.08)';
-  const gray = ink === '#FFF' ? '#888' : 'rgba(10,10,10,0.55)';
+  // Light ink == dark background → ghost must be light-on-dark (was black-on-dark, invisible).
+  const lightInk = ink !== '#0A0A0A';
+  const ghost = lightInk ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const gray = lightInk ? '#888' : 'rgba(10,10,10,0.55)';
   const rawTitle = stripChapterPrefix(chapterTitle) || '';
   const bgWord = rawTitle.slice(0, 2) || (book.title || '').slice(0, 2);
   return (
