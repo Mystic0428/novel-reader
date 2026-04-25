@@ -455,23 +455,6 @@ async function loadBookBlob(book, setPermIssue) {
   }
 }
 
-function DayNightToggle({ settings, onThemeChange }) {
-  const day = settings.dayTheme;
-  const night = settings.nightTheme;
-  if (!day || !night) return null;
-  const onDay = settings.activeTheme === day;
-  const onNight = settings.activeTheme === night;
-  // Icon shows the destination — flipping to the *other* slot.
-  const icon = onDay ? '🌙' : onNight ? '☀' : '🌗';
-  const target = onDay ? night : onNight ? day : day;
-  const label = onDay ? '切到夜間' : onNight ? '切到日間' : '切到日間';
-  return (
-    <button onClick={() => onThemeChange(target)} title={label} style={{
-      ...btnStyle(), padding: '4px 8px', fontSize: 13, lineHeight: 1,
-    }}>{icon}</button>
-  );
-}
-
 function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onOpenColor, settings, onThemeChange, onSettingsChange }) {
   return (
     <div style={{
@@ -486,7 +469,6 @@ function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onO
         <div style={{ opacity: 0.7, fontSize: 12, lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{chapterTitle}</div>
       </div>
       <div style={{ flex: 1 }}/>
-      <DayNightToggle settings={settings} onThemeChange={onThemeChange}/>
       <ThemeSwitcher settings={settings} onChange={onThemeChange} onSettingsChange={onSettingsChange}/>
       <button onClick={onOpenToc} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>目錄 (T)</button>
       <button onClick={onOpenTweaks} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>Aa (,)</button>
