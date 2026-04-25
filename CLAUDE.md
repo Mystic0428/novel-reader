@@ -64,7 +64,7 @@ Per-root `excludeDirs` (e.g. `['ko', 'raw']`) filter out subfolders during scan 
 Every time a book is opened, `epubParser.parseMetadata` runs against the live file. This means new chapters appended to an EPUB on disk show up immediately. `lastKnownChapterCount` snapshots what the user has acknowledged — the diff drives the `+N` badge in the library.
 
 ### Chinese reader focus
-This tool exists to read zh-TW web-novel EPUBs scraped from sites like esjzone / novelpia. Defaults reflect that:
+Built primarily for reading zh-TW web-novel EPUBs. Defaults reflect that:
 - Heavy use of CJK serif fonts (Noto Serif TC, Songti TC)
 - `stripChapterPrefix` regex covers `第十二章：` / `第N回` / `第N話` patterns
 - `txtParser` detects CJK chapter markers
