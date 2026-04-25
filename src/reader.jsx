@@ -318,14 +318,14 @@ function Reader() {
         book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
         onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}
         onOpenColor={() => setColorOpen(true)}
-        settings={settings} onThemeChange={changeTheme}
+        settings={settings} onThemeChange={changeTheme} onSettingsChange={setSettings}
       />
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', position: 'relative' }}>
         {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
         {settings.activeTheme === 'v4' && renderThemeFooter({ book, chapterIdx, settings })}
       </div>
       {settings.activeTheme !== 'v4' && renderThemeFooter({ book, chapterIdx, settings })}
-      <TocDrawer book={book} currentChapterId={currentChapterId}
+      <TocDrawer book={book} currentChapterId={currentChapterId} settings={settings}
         open={tocOpen} onClose={() => setTocOpen(false)}
         onJump={(id) => openChapter(book, blob, id, 0)}/>
       <TweaksPanel book={book} settings={settings}
@@ -364,7 +364,7 @@ async function loadBookBlob(book, setPermIssue) {
   }
 }
 
-function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onOpenColor, settings, onThemeChange }) {
+function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onOpenColor, settings, onThemeChange, onSettingsChange }) {
   return (
     <div style={{
       height: 44, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 12,
@@ -378,7 +378,7 @@ function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onO
         <div style={{ opacity: 0.7, fontSize: 12, lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{chapterTitle}</div>
       </div>
       <div style={{ flex: 1 }}/>
-      <ThemeSwitcher settings={settings} onChange={onThemeChange}/>
+      <ThemeSwitcher settings={settings} onChange={onThemeChange} onSettingsChange={onSettingsChange}/>
       <button onClick={onOpenToc} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>目錄 (T)</button>
       <button onClick={onOpenTweaks} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>Aa (,)</button>
       <button onClick={onOpenColor} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>🎨</button>
