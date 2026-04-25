@@ -782,7 +782,39 @@ async function scanRoot(root, setBusy, dispatch) {
   for (const { handle, relPath } of files) {
     done++;
     if (setBusy) setBusy({ current: done, total: files.length, name: relPath });
-    if (existingPaths.has(relPath)) continue;
+
+    // Existing book on this root: re-parse only if file mtime changed since
+    // last scan. This is what makes "+N 新章節" badges appear automatically
+    // when the scraper rebuilds the EPUB on disk — without this branch the
+    // loop used to skip existing entries entirely so chaptersMeta stayed
+    // stale until the user manually opened the book.
+    if (existingPaths.has(relPath)) {
+      const prev = existingForRoot.find((b) => b.relPath === relPath);
+      if (!prev) continue;
+      try {
+        const f = await handle.getFile();
+        const sameMtime = prev.fileLastModified != null && f.lastModified === prev.fileLastModified;
+        if (sameMtime) continue;
+        const meta = await epubParser.parseMetadata(f);
+        const lenChanged = meta.chaptersMeta.length !== (prev.chaptersMeta || []).length;
+        if (lenChanged) {
+          await booksStore.update(prev.id, {
+            chaptersMeta: meta.chaptersMeta,
+            wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
+            coverBlob: meta.coverBlob || prev.coverBlob,
+            fileLastModified: f.lastModified,
+          });
+        } else {
+          // Chapter count unchanged — just persist the new mtime so we
+          // skip the parse next scan.
+          await booksStore.update(prev.id, { fileLastModified: f.lastModified });
+        }
+      } catch (err) {
+        console.warn('Failed to re-parse', relPath, err);
+      }
+      continue;
+    }
+
     try {
       const f = await handle.getFile();
       const meta = await epubParser.parseMetadata(f);
@@ -806,6 +838,7 @@ async function scanRoot(root, setBusy, dispatch) {
           chaptersMeta: meta.chaptersMeta,
           coverBlob: meta.coverBlob || promote.coverBlob,
           wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
+          fileLastModified: f.lastModified,
         });
         continue;
       }
@@ -821,6 +854,7 @@ async function scanRoot(root, setBusy, dispatch) {
         chaptersMeta: meta.chaptersMeta,
         wordCount: meta.chaptersMeta.reduce((s, c) => s + (c.wordCount || 0), 0),
         lastKnownChapterCount: meta.chaptersMeta.length,
+        fileLastModified: f.lastModified,
       });
       added++;
     } catch (err) {
