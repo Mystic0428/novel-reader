@@ -1,5 +1,8 @@
 // src/ui/book-menu.jsx — right-click menu for a book card
 function BookMenu({ book, anchorPos, onClose, onChanged }) {
+  // Library mounts `window.openBookCard` so the card can be triggered from any
+  // BookMenu instance without threading callbacks through 4 layers of components.
+  const openInfo = window.openBookCard;
   const ref = React.useRef(null);
   const [mode, setMode] = React.useState('main');   // 'main' | 'tag' | 'collection'
   const [inputVal, setInputVal] = React.useState('');
@@ -67,6 +70,9 @@ function BookMenu({ book, anchorPos, onClose, onChanged }) {
   return (
     <div ref={ref} style={style}>
       {mode === 'main' && <>
+        {openInfo && (
+          <HoverRow onClick={() => { openInfo(book); onClose(); }}>📋 書本資訊</HoverRow>
+        )}
         <HoverRow onClick={() => setMode('tag')}># 編輯 Tags</HoverRow>
         <HoverRow onClick={() => setMode('collection')}>📁 加到 Collection</HoverRow>
         {book.lastReadAt && (
