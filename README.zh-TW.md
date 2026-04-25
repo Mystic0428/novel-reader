@@ -5,7 +5,7 @@
 一個在瀏覽器裡跑、不需編譯、本機優先的桌面小說閱讀器，支援 **EPUB** 與 **TXT**。原本是為了中文連載網路小說（zh-TW / zh-CN）設計的，但其他內容也一樣能讀。
 
 - **以書庫為主的 UX** — Netflix 風格首頁：大張 hero 看板、橫向捲動書列（繼續閱讀 / 有新章節 / 依 tag & collection 分組）、`/` 快捷鍵聚焦搜尋、深色 grid 篩選檢視
-- **約 75 種閱讀主題**，分 10 個分類（經典 / 復古 / 現代 / 華麗 / 東方 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案），每個主題有 4–9 種背景色變體 + 6 種 accent 預設，主題切換器有搜尋框 + ★ 最愛
+- **約 95 種閱讀主題**，分 14 個分類（經典 / 復古 / 現代 / 華麗 / 東方 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案 / 影視 / 童趣 / 靈性 / 手工），每個主題有 4–9 種背景色變體 + 6 種 accent 預設，主題切換器有搜尋框 + ★ 最愛
 - **閱讀統計**（📊 modal）— Lv.N reader 等級徽章、連續天數、GitHub 風格 365 天活動熱圖、總章節 / 總字數 / 累計天數
 - **書本資訊卡** — 右鍵任一書 → 📋 書本資訊 → 圖書館借閱卡風格的 overlay，含借閱記錄、最近活動、tags、collections、操作列
 - **Tachiyomi 式 "+N" 徽章** — EPUB 檔在磁碟上新增章節時，自動顯示紅色數字
@@ -76,7 +76,7 @@ python -m http.server 8080
 
 ## 主題
 
-約 **75 個閱讀主題**，分 **10 個分類**。每個主題有 **4–9 種背景變體** 和 **6 種 accent 預設**（🎨 顏色面板）。主題切換器有搜尋框（中英 label / 分類名稱都比對）+ ★ 最愛置頂。
+約 **95 個閱讀主題**，分 **14 個分類**。每個主題有 **4–9 種背景變體** 和 **6 種 accent 預設**（🎨 顏色面板）。主題切換器有搜尋框（中英 label / 分類名稱都比對）+ ★ 最愛置頂。
 
 | 分類 | 風格 | 例子 |
 | ---- | ---- | ---- |
@@ -90,6 +90,10 @@ python -m http.server 8080
 | **遊戲** | 遊戲 UI 仿造 | RPG Textbox 對話框 / Visual Novel 視覺小說 / Board Game 桌遊規則書 / Steam Deck 掌機介面 |
 | **自然** | 戶外 / 植物 | Mountain Cabin 山屋木紋 / Tide Pool 潮間 / Pressed Botanical 壓花標本 / Campfire 營火 |
 | **檔案** | 官僚 / 法庭 | Bulletin 公報 / Transcript 法庭逐字 / Field Journal 田野筆記 / Library Card 圖書館卡 |
+| **影視** | 電影 | Silent Film 默片字卡 / Letterboxd 影評卡 / HK Cinema 港片海報 / Film Reel 膠卷邊孔 |
+| **童趣** | 兒童 / 玩心 | Picture Book 童書水彩 / Crayon 蠟筆塗鴉 / LEGO 樂高說明書 / Pop-up 彈跳書 |
+| **靈性** | 靈修 / 占卜 | Thangka 唐卡 / Stained Glass 教堂彩繪玻璃 / I Ching 易經卦象 / Astrology 占星天宮 |
+| **手工** | 手作 / 織品 | Scrapbook 拼貼剪貼簿 / Embroidery 北歐刺繡 / Quilt 美國拼布 / Paper Lace 紙蕾絲剪紙 |
 
 主題只會影響**閱讀區**；書庫首頁、目錄抽屜的外觀在所有主題下維持一致。每個主題的 accent 與背景色獨立記在 settings 裡，切換主題時會記得你之前的選擇。
 

@@ -5,7 +5,7 @@
 A local-first, zero-build, desktop novel reader for **EPUB** and **TXT**, designed for Chinese serialized web novels (zh-TW / zh-CN) but works for anything.
 
 - **Library-first UX** — Netflix-style home with hero, horizontal rows (繼續閱讀 / 有新章節 / per-tag / per-collection), search with `/` shortcut, dark filtered grid
-- **~75 atmospheric reader themes** across 10 groups (經典 / 復古 / 現代 / 華麗 / 東方 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案), each with 4–9 background variants and 6 accent presets, ★ favorites + search in the picker
+- **~95 atmospheric reader themes** across 14 groups (經典 / 復古 / 現代 / 華麗 / 東方 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案 / 影視 / 童趣 / 靈性 / 手工), each with 4–9 background variants and 6 accent presets, ★ favorites + search in the picker
 - **Reading stats** — 📊 modal with Lv.N reader badge, current/longest streak, GitHub-style 365-day activity heatmap, totals (chapters / words / active days)
 - **Book detail card** — right-click any cover → 📋 書本資訊 → manila library-card overlay with circulation record, recent activity, tags, collections, actions
 - **Tachiyomi-style "+N" badges** for newly added chapters when an EPUB updates on disk
@@ -76,7 +76,7 @@ The library auto-scans permitted roots on load, so newly-scraped books appear wi
 
 ## Themes
 
-About **75 reader themes** across **10 groups**. Each theme has **4–9 background variants** and **6 accent presets** (color picker 🎨). The theme picker has a search box (matches Chinese label or group name) and ★ favorites that pin to the top.
+About **95 reader themes** across **14 groups**. Each theme has **4–9 background variants** and **6 accent presets** (color picker 🎨). The theme picker has a search box (matches Chinese label or group name) and ★ favorites that pin to the top.
 
 | Group | Vibe | Example themes |
 | ----- | ---- | -------------- |
@@ -90,6 +90,10 @@ About **75 reader themes** across **10 groups**. Each theme has **4–9 backgrou
 | **遊戲** | Game UI imitations | RPG Textbox 對話框 / Visual Novel 視覺小說 / Board Game 桌遊規則書 / Steam Deck 掌機介面 |
 | **自然** | Outdoor / botanical | Mountain Cabin 山屋木紋 / Tide Pool 潮間 / Pressed Botanical 壓花標本 / Campfire 營火 |
 | **檔案** | Bureaucratic / forensic | Bulletin 公報 / Transcript 法庭逐字 / Field Journal 田野筆記 / Library Card 圖書館卡 |
+| **影視** | Cinema | Silent Film 默片字卡 / Letterboxd 影評卡 / HK Cinema 港片海報 / Film Reel 膠卷邊孔 |
+| **童趣** | Kids / playful | Picture Book 童書水彩 / Crayon 蠟筆塗鴉 / LEGO 樂高說明書 / Pop-up 彈跳書 |
+| **靈性** | Spiritual / divinatory | Thangka 唐卡 / Stained Glass 教堂彩繪玻璃 / I Ching 易經卦象 / Astrology 占星天宮 |
+| **手工** | Crafts / textile | Scrapbook 拼貼剪貼簿 / Embroidery 北歐刺繡 / Quilt 美國拼布 / Paper Lace 紙蕾絲剪紙 |
 
 Every theme affects only the **reading area**; the library home and TOC drawer stay consistent across themes. Per-book accent and background are stored in settings, so switching theme remembers your last picks.
 
