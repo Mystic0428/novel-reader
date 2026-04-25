@@ -19,6 +19,9 @@ function ThemeSwitcher({ settings, onChange }) {
     { key: 'v32', label: 'Wes · 對稱',         group: '現代', swatch: { bg: '#F7ECD8' } },
     { key: 'v33', label: 'Cyberpunk · 霓虹',   group: '現代', swatch: { bg: 'radial-gradient(ellipse at 20% 20%,#8E3DF033,#050218)' } },
     { key: 'v37', label: 'Editorial · 極黑',   group: '現代', swatch: { bg: '#000' } },
+    { key: 'v38', label: '紙墨 · 純讀',        group: '經典', swatch: { bg: '#FDFBF7' } },
+    { key: 'v39', label: '浮世繪 · 北齋',      group: '東方', swatch: { bg: '#F4ECD8' } },
+    { key: 'v40', label: '水墨 · 沉硯',        group: '東方', swatch: { bg: '#F2EBDB' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
   const groups = ['經典', '復古', '現代', '華麗', '東方'];
