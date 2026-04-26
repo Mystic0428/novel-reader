@@ -1,7 +1,8 @@
 // src/themes/v38-eink.jsx — E-Ink Paper: pure reading, monochrome, paper grain
 const V38_BG_TONES = {
-  bone:     { bg: '#FAF8F3', ink: '#1A1A1A', mute: 'rgba(26,26,26,0.55)',   rule: 'rgba(26,26,26,0.18)' },
-  cream:    { bg: '#F8F2E2', ink: '#1A1A1A', mute: 'rgba(26,26,26,0.55)',   rule: 'rgba(26,26,26,0.18)' },
+  bone:       { bg: '#FAF8F3', ink: '#1A1A1A', mute: 'rgba(26,26,26,0.55)', rule: 'rgba(26,26,26,0.18)' },
+  paperwhite: { bg: '#FDFBF7', ink: '#1A1A1A', mute: 'rgba(26,26,26,0.55)', rule: 'rgba(26,26,26,0.18)' },
+  cream:      { bg: '#F8F2E2', ink: '#1A1A1A', mute: 'rgba(26,26,26,0.55)', rule: 'rgba(26,26,26,0.18)' },
   linen:    { bg: '#F2EDE0', ink: '#1A1A1A', mute: 'rgba(26,26,26,0.55)',   rule: 'rgba(26,26,26,0.18)' },
   mist:     { bg: '#EFEFEC', ink: '#2A2A2A', mute: 'rgba(42,42,42,0.55)',   rule: 'rgba(42,42,42,0.18)' },
   ash:      { bg: '#DDD8CD', ink: '#1A1A1A', mute: 'rgba(26,26,26,0.55)',   rule: 'rgba(26,26,26,0.20)' },

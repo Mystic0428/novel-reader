@@ -263,8 +263,9 @@ function ColorPicker({ settings, onChange, open, onClose }) {
     v38: {
       accentPresets: ['#1A1A1A', '#3D2818', '#2C2C2C', '#5A4A2A', '#4A5D3A', '#8C3A2E'],
       tonePresets: [
-        { key: 'bone',     label: '骨白' },
-        { key: 'cream',    label: '奶油' },
+        { key: 'bone',       label: '骨白' },
+        { key: 'paperwhite', label: '紙白' },
+        { key: 'cream',      label: '奶油' },
         { key: 'linen',    label: '亞麻' },
         { key: 'mist',     label: '薄霧' },
         { key: 'ash',      label: '灰燼' },
