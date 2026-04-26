@@ -29,8 +29,6 @@ function V106Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef,
   const { from, to, ink } = tone;
   const accent = settings.themeColors.v106.accent;
   const total = book.chaptersMeta.length;
-  // Wider line-height for "dreamy" feel
-  const dreamyLh = Math.max(settings.tweaks.lineHeight, 2.0);
   return (
     <main ref={scrollRef} onScroll={onScroll} className="scroll scroll-thin" style={{
       flex: 1, color: ink, padding: '64px 24px', position: 'relative',
@@ -71,7 +69,7 @@ function V106Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef,
         }}/>
         <div className="reading-body" style={book.preserveOriginalCss ? undefined : {
           fontFamily: 'var(--serif)', color: ink, fontStyle: 'italic',
-          fontSize: settings.tweaks.fontSize, lineHeight: dreamyLh, letterSpacing: '0.005em',
+          fontSize: settings.tweaks.fontSize, lineHeight: settings.tweaks.lineHeight,
           '--accent': accent,
         }} dangerouslySetInnerHTML={{ __html: html }}/>
         {/* Closing fade */}
