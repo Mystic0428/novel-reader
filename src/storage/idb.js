@@ -1,7 +1,7 @@
 // src/storage/idb.js — thin IndexedDB wrapper, no deps
 (function () {
   const DB_NAME = 'novel-reader';
-  const DB_VERSION = 2;
+  const DB_VERSION = 3;
   // Per-store config so we can mix keyPath stores (most things) with
   // autoIncrement append-only stores (readingEvents).
   const STORE_CONFIG = {
