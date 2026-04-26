@@ -100,6 +100,14 @@ function renderThemeContent(props) {
     case 'v96': return <V96Reader {...props}/>;
     case 'v97': return <V97Reader {...props}/>;
     case 'v98': return <V98Reader {...props}/>;
+    case 'v99': return <V99Reader {...props}/>;
+    case 'v100': return <V100Reader {...props}/>;
+    case 'v101': return <V101Reader {...props}/>;
+    case 'v102': return <V102Reader {...props}/>;
+    case 'v103': return <V103Reader {...props}/>;
+    case 'v104': return <V104Reader {...props}/>;
+    case 'v105': return <V105Reader {...props}/>;
+    case 'v106': return <V106Reader {...props}/>;
     default:    return <V1Reader {...props}/>;
   }
 }
@@ -203,6 +211,14 @@ function renderThemeFooter(props) {
     case 'v96': return <V96Footer {...props}/>;
     case 'v97': return <V97Footer {...props}/>;
     case 'v98': return <V98Footer {...props}/>;
+    case 'v99': return <V99Footer {...props}/>;
+    case 'v100': return <V100Footer {...props}/>;
+    case 'v101': return <V101Footer {...props}/>;
+    case 'v102': return <V102Footer {...props}/>;
+    case 'v103': return <V103Footer {...props}/>;
+    case 'v104': return <V104Footer {...props}/>;
+    case 'v105': return <V105Footer {...props}/>;
+    case 'v106': return <V106Footer {...props}/>;
     default:    return <V1Footer {...props}/>;
   }
 }
@@ -218,6 +234,10 @@ function Reader() {
   const [blob, setBlob] = React.useState(null);
   const scrollRef = React.useRef(null);
   const parsedRef = React.useRef(null);
+  const [previewTheme, setPreviewTheme] = React.useState(null);
+  const effectiveSettings = previewTheme && previewTheme !== settings.activeTheme
+    ? { ...settings, activeTheme: previewTheme }
+    : settings;
 
   React.useEffect(() => {
     (async () => {
@@ -391,6 +411,7 @@ function Reader() {
   }, [immersive, panelOpen]);
 
   async function changeTheme(key) {
+    setPreviewTheme(null);
     await setSettings({ activeTheme: key });
   }
 
@@ -480,24 +501,25 @@ function Reader() {
           onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}
           onOpenColor={() => setColorOpen(true)}
           settings={settings} onThemeChange={changeTheme} onSettingsChange={setSettings}
+          onPreview={setPreviewTheme}
         />
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', position: 'relative' }}>
-        {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
-        {settings.activeTheme === 'v4' && (
+        {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings: effectiveSettings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
+        {effectiveSettings.activeTheme === 'v4' && (
           <div style={{ opacity: chromeVisible ? 1 : 0, transition: 'opacity 220ms ease', pointerEvents: chromeVisible ? 'auto' : 'none' }}>
-            {renderThemeFooter({ book, chapterIdx, settings })}
+            {renderThemeFooter({ book, chapterIdx, settings: effectiveSettings })}
           </div>
         )}
       </div>
-      {settings.activeTheme !== 'v4' && (
+      {effectiveSettings.activeTheme !== 'v4' && (
         <div style={{
           flexShrink: 0,
           opacity: chromeVisible ? 1 : 0,
           transition: 'opacity 220ms ease',
           pointerEvents: chromeVisible ? 'auto' : 'none',
         }}>
-          {renderThemeFooter({ book, chapterIdx, settings })}
+          {renderThemeFooter({ book, chapterIdx, settings: effectiveSettings })}
         </div>
       )}
       <TocDrawer book={book} currentChapterId={currentChapterId} settings={settings}
@@ -539,7 +561,7 @@ async function loadBookBlob(book, setPermIssue) {
   }
 }
 
-function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onOpenColor, settings, onThemeChange, onSettingsChange }) {
+function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onOpenColor, settings, onThemeChange, onSettingsChange, onPreview }) {
   return (
     <div style={{
       height: 44, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 12,
@@ -553,7 +575,7 @@ function ReaderTopBar({ book, chapterTitle, onBack, onOpenToc, onOpenTweaks, onO
         <div style={{ opacity: 0.7, fontSize: 12, lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{chapterTitle}</div>
       </div>
       <div style={{ flex: 1 }}/>
-      <ThemeSwitcher settings={settings} onChange={onThemeChange} onSettingsChange={onSettingsChange}/>
+      <ThemeSwitcher settings={settings} onChange={onThemeChange} onSettingsChange={onSettingsChange} onPreview={onPreview}/>
       <button onClick={onOpenToc} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>目錄 (T)</button>
       <button onClick={onOpenTweaks} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>Aa (,)</button>
       <button onClick={onOpenColor} style={{ ...btnStyle(), padding: '4px 10px', fontSize: 11 }}>🎨</button>
