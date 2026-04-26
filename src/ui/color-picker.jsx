@@ -6,7 +6,7 @@ function ColorPicker({ settings, onChange, open, onClose }) {
 
   const presetsByTheme = {
     v1: {
-      accentPresets: ['#8C3A2E', '#B34740', '#5A4A2A', '#4A5D3A', '#2D2D2D', '#6B4A5D'],
+      accentPresets: ['#7A2A2A', '#B34740', '#5A4A2A', '#4A5D3A', '#2D2D2D', '#6B4A5D'],
       tonePresets: [
         { key: '#EDE4D2', label: '羊皮紙' },
         { key: '#F5F1E8', label: '月白' },
@@ -263,8 +263,9 @@ function ColorPicker({ settings, onChange, open, onClose }) {
     v38: {
       accentPresets: ['#1A1A1A', '#3D2818', '#2C2C2C', '#5A4A2A', '#4A5D3A', '#8C3A2E'],
       tonePresets: [
-        { key: 'bone',     label: '骨白' },
-        { key: 'cream',    label: '奶油' },
+        { key: 'bone',       label: '骨白' },
+        { key: 'paperwhite', label: '紙白' },
+        { key: 'cream',      label: '奶油' },
         { key: 'linen',    label: '亞麻' },
         { key: 'mist',     label: '薄霧' },
         { key: 'ash',      label: '灰燼' },
@@ -1206,7 +1207,7 @@ function ColorPicker({ settings, onChange, open, onClose }) {
       toneKey: 'bgTone',
     },
     v81: {
-      accentPresets: ['#00C030', '#5878FF', '#FFC844', '#FF98DC', '#FF6B5C', '#88FFAA'],
+      accentPresets: ['#4FC97A', '#5878FF', '#FFC844', '#FF98DC', '#FF6B5C', '#88FFAA'],
       tonePresets: [
         { key: 'letterboxd', label: 'LBxD 藍' },
         { key: 'midnight',   label: '深夜' },
@@ -1427,6 +1428,51 @@ function ColorPicker({ settings, onChange, open, onClose }) {
         { key: 'ivory',    label: '象牙' },
         { key: 'crimson',  label: '緋紅' },
         { key: 'plum',     label: '紫李' },
+      ],
+      toneKey: 'bgTone',
+    },
+    v96: {
+      accentPresets: ['#5A4838', '#7A5E40', '#3E322A', '#896E50', '#A88858', '#4A3E30'],
+      tonePresets: [
+        { key: 'linen',     label: '亞麻原色' },
+        { key: 'oatmeal',   label: '燕麥' },
+        { key: 'flax',      label: '生亞麻' },
+        { key: 'parchment', label: '羊皮' },
+        { key: 'mushroom',  label: '蘑菇' },
+        { key: 'driftwood', label: '漂木' },
+        { key: 'stone',     label: '石灰' },
+        { key: 'tea',       label: '淡茶' },
+        { key: 'fog',       label: '霧灰' },
+      ],
+      toneKey: 'bgTone',
+    },
+    v97: {
+      accentPresets: ['#B82820', '#1A1408', '#5A1818', '#3A2818', '#0F2348', '#8C2A1A'],
+      tonePresets: [
+        { key: 'morningprint', label: '晨報米' },
+        { key: 'rotogravure',  label: '凹版' },
+        { key: 'broadsheet',   label: '大報' },
+        { key: 'tabloid',      label: '小報' },
+        { key: 'gazette',      label: '公報' },
+        { key: 'editorial',    label: '社論' },
+        { key: 'foxed',        label: '霉斑' },
+        { key: 'classifieds',  label: '分類廣告' },
+        { key: 'masthead',     label: '報頭' },
+      ],
+      toneKey: 'bgTone',
+    },
+    v98: {
+      accentPresets: ['#5A2A18', '#7A4828', '#3E1F12', '#8C5A38', '#A8704A', '#4A3018'],
+      tonePresets: [
+        { key: 'teastain',    label: '茶漬' },
+        { key: 'oolong',      label: '烏龍' },
+        { key: 'darjeeling',  label: '大吉嶺' },
+        { key: 'matcha',      label: '抹茶' },
+        { key: 'pu-erh',      label: '普洱' },
+        { key: 'chamomile',   label: '洋甘菊' },
+        { key: 'oxidation',   label: '氧化' },
+        { key: 'foxing',      label: '霉斑' },
+        { key: 'inkbleed',    label: '滲墨' },
       ],
       toneKey: 'bgTone',
     },

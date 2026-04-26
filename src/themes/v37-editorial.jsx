@@ -15,6 +15,8 @@ function V37Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
   const tone = V37_BG_TONES[settings.themeColors.v37.bgTone] || V37_BG_TONES.black;
   const accent = settings.themeColors.v37.accent;
   const { bg, ink } = tone;
+  // Body text: soften pure white to reduce eye strain on pure-black bg.
+  const bodyInk = ink === '#FFF' ? '#ECECEC' : ink;
   // Light ink == dark background → ghost must be light-on-dark (was black-on-dark, invisible).
   const lightInk = ink !== '#0A0A0A';
   const ghost = lightInk ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
@@ -61,7 +63,7 @@ function V37Reader({ book, chapterTitle, chapterIdx, html, settings, scrollRef, 
             § UNNUMBERED TEXT
           </div>
           <div className="reading-body" style={book.preserveOriginalCss ? undefined : {
-            fontSize: settings.tweaks.fontSize + 1, lineHeight: settings.tweaks.lineHeight, color: ink,
+            fontSize: settings.tweaks.fontSize + 1, lineHeight: settings.tweaks.lineHeight, color: bodyInk,
             fontFamily: settings.tweaks.font === 'serif' ? 'var(--serif)' : 'var(--sans)',
           }} dangerouslySetInnerHTML={{ __html: html }}/>
           <div style={{ fontSize: 64, fontWeight: 900, lineHeight: 0.9, letterSpacing: '-0.06em', color: accent, marginTop: 24 }}>
