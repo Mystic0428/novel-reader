@@ -6,16 +6,25 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
   const activeRef = React.useRef(null);
   const scrollContainerRef = React.useRef(null);
   const previewTimerRef = React.useRef(null);
+  const scrollingUntilRef = React.useRef(0);
 
   // Schedule a hover preview after 300ms; cancel on mouseleave / select / close.
   // The preview never persists to settings — only the live reader re-renders.
+  // Suppress while the dropdown is actively scrolling: wheel/scroll fires
+  // mouseenter on rows that pass under a stationary cursor, which would
+  // otherwise trigger an unwanted preview.
   function schedulePreview(key) {
     clearTimeout(previewTimerRef.current);
+    if (Date.now() < scrollingUntilRef.current) return;
     previewTimerRef.current = setTimeout(() => onPreview && onPreview(key), 300);
   }
   function cancelPreview() {
     clearTimeout(previewTimerRef.current);
     if (onPreview) onPreview(null);
+  }
+  function handleScroll() {
+    scrollingUntilRef.current = Date.now() + 200;
+    clearTimeout(previewTimerRef.current);
   }
   React.useEffect(() => {
     if (!open) cancelPreview();
@@ -323,7 +332,7 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
               onMouseUp={e => { e.currentTarget.style.transform = 'none'; }}
             >🎲</button>
           </div>
-          <div ref={scrollContainerRef} className="scroll-thin" style={{
+          <div ref={scrollContainerRef} onScroll={handleScroll} className="scroll-thin" style={{
             flex: 1, overflowY: 'auto', padding: '4px 6px 10px',
           }}>
             {!q && favs.length > 0 && (() => {
