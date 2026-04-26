@@ -110,8 +110,6 @@ function renderThemeContent(props) {
     case 'v106': return <V106Reader {...props}/>;
     case 'v107': return <V107Reader {...props}/>;
     case 'v108': return <V108Reader {...props}/>;
-    case 'v109': return <V109Reader {...props}/>;
-    case 'v110': return <V110Reader {...props}/>;
     case 'v111': return <V111Reader {...props}/>;
     case 'v112': return <V112Reader {...props}/>;
     case 'v113': return <V113Reader {...props}/>;
@@ -236,8 +234,6 @@ function renderThemeFooter(props) {
     case 'v106': return <V106Footer {...props}/>;
     case 'v107': return <V107Footer {...props}/>;
     case 'v108': return <V108Footer {...props}/>;
-    case 'v109': return <V109Footer {...props}/>;
-    case 'v110': return <V110Footer {...props}/>;
     case 'v111': return <V111Footer {...props}/>;
     case 'v112': return <V112Footer {...props}/>;
     case 'v113': return <V113Footer {...props}/>;

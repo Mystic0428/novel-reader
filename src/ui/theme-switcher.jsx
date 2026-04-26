@@ -154,8 +154,6 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
     { key: 'v106', label: 'Twilight · 微光',                 group: '奇幻', font: 'serif', sample: '微光朦朧　紫霧氤氳', swatch: { bg: 'radial-gradient(ellipse at 50% 30%,#2C2438,#15101F 70%)' } },
     { key: 'v107', label: 'Hogwarts · 霍格華茲',             group: '奇幻', font: 'serif', sample: '魔法的本質　堅定的意志', swatch: { bg: 'radial-gradient(ellipse at 30% 30%,#1F3A2A,#0E1F18)' } },
     { key: 'v108', label: 'Wall of Titans · 巨人之壁',       group: '奇幻', font: 'sans',  sample: '城牆之外　從來不是傳說', swatch: { bg: 'linear-gradient(180deg,#2A2620,#1A1714)' } },
-    { key: 'v109', label: 'Spellbook · 咒語書',              group: '奇幻', font: 'serif', sample: '此頁所載之術　子時月圓', swatch: { bg: 'radial-gradient(ellipse at 50% 30%,#2A1F4E,#14102A)' } },
-    { key: 'v110', label: 'Cursed Forest · 詛咒森林',        group: '奇幻', font: 'serif', sample: '森林深處沒有路　只有低語', swatch: { bg: 'radial-gradient(ellipse at 40% 60%,#1A2A1F,#0A1410)' } },
     { key: 'v111', label: 'Night City · 夜城',               group: '現代', font: 'sans',  sample: '人格可以被下載　複製刪除', swatch: { bg: 'linear-gradient(135deg,#1A0830,#0A0418)' } },
     { key: 'v112', label: 'Cryogenic · 冷凍艙',              group: '現代', font: 'mono',  sample: 'STATUS · ACTIVE  休眠 247 年', swatch: { bg: 'linear-gradient(180deg,#0A1828,#050E18)' } },
     { key: 'v113', label: 'Cold Press · 冷壓紙',             group: '經典', font: 'serif', sample: '冬日早晨　紙頁潔淨冷靜', swatch: { bg: '#F4F6F8' } },

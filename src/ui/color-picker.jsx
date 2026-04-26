@@ -1626,36 +1626,6 @@ function ColorPicker({ settings, onChange, open, onClose }) {
       ],
       toneKey: 'bgTone',
     },
-    v109: {
-      accentPresets: ['#C0B888', '#A88FE8', '#8C7A4A', '#D8C8A0', '#A8B8E0', '#7878C8'],
-      tonePresets: [
-        { key: 'spellbook', label: '咒語書' },
-        { key: 'arcane',    label: '秘術紫' },
-        { key: 'nebula',    label: '星雲' },
-        { key: 'voidblue',  label: '虛空藍' },
-        { key: 'witchhour', label: '巫時' },
-        { key: 'incantum',  label: '吟咒' },
-        { key: 'ritual',    label: '儀式' },
-        { key: 'gloom',     label: '幽暗' },
-        { key: 'silvermoon',label: '銀月' },
-      ],
-      toneKey: 'bgTone',
-    },
-    v110: {
-      accentPresets: ['#7AA85A', '#A8C878', '#D4A848', '#5A8A4A', '#88A878', '#3A6028'],
-      tonePresets: [
-        { key: 'forest',  label: '詛咒森林' },
-        { key: 'moss',    label: '苔蘚' },
-        { key: 'fern',    label: '蕨類' },
-        { key: 'pine',    label: '松林' },
-        { key: 'thicket', label: '密叢' },
-        { key: 'mire',    label: '沼澤' },
-        { key: 'midnight',label: '夜林' },
-        { key: 'fog',     label: '迷霧' },
-        { key: 'rot',     label: '腐木' },
-      ],
-      toneKey: 'bgTone',
-    },
     v111: {
       accentPresets: ['#00F0FF', '#FFE848', '#FF2A6D', '#8E3DF0', '#39FF88', '#FF6B00'],
       tonePresets: [

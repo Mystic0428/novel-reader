@@ -112,8 +112,6 @@
       v106: { accent: '#B89BD0', bgTone: 'twilight' },
       v107: { accent: '#D4A848', bgTone: 'hogwarts' },
       v108: { accent: '#A8281F', bgTone: 'wall' },
-      v109: { accent: '#C0B888', bgTone: 'spellbook' },
-      v110: { accent: '#7AA85A', bgTone: 'forest' },
       v111: { accent: '#00F0FF', bgTone: 'nightcity' },
       v112: { accent: '#5AC8FF', bgTone: 'cryo' },
       v113: { accent: '#4A6B8E', bgTone: 'coldpress' },
