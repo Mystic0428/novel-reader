@@ -1,10 +1,36 @@
 // src/ui/theme-switcher.jsx — refined dropdown theme picker (scales to many themes)
-function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
+function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [hoveredKey, setHoveredKey] = React.useState(null);
   const activeRef = React.useRef(null);
   const scrollContainerRef = React.useRef(null);
+  const previewTimerRef = React.useRef(null);
+  const scrollingUntilRef = React.useRef(0);
+
+  // Schedule a hover preview after 300ms; cancel on mouseleave / select / close.
+  // The preview never persists to settings — only the live reader re-renders.
+  // Suppress while the dropdown is actively scrolling: wheel/scroll fires
+  // mouseenter on rows that pass under a stationary cursor, which would
+  // otherwise trigger an unwanted preview.
+  function schedulePreview(key) {
+    clearTimeout(previewTimerRef.current);
+    if (Date.now() < scrollingUntilRef.current) return;
+    previewTimerRef.current = setTimeout(() => onPreview && onPreview(key), 300);
+  }
+  function cancelPreview() {
+    clearTimeout(previewTimerRef.current);
+    if (onPreview) onPreview(null);
+  }
+  function handleScroll() {
+    scrollingUntilRef.current = Date.now() + 200;
+    clearTimeout(previewTimerRef.current);
+  }
+  React.useEffect(() => {
+    if (!open) cancelPreview();
+    return () => clearTimeout(previewTimerRef.current);
+    // eslint-disable-next-line
+  }, [open]);
 
   // Center the active theme in the dropdown's own scroll container — never the page.
   React.useLayoutEffect(() => {
@@ -118,9 +144,17 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
     { key: 'v96', label: 'Linen · 亞麻',                    group: '經典', font: 'serif', sample: '亞麻織紋　暖中性灰', swatch: { bg: '#EAE3D2' } },
     { key: 'v97', label: 'Newspaper · 晨報',                group: '檔案', font: 'serif', sample: '晨報頭版　紅線標題', swatch: { bg: '#F0E8D0' } },
     { key: 'v98', label: 'Tea Stained · 茶漬本',            group: '自然', font: 'serif', sample: '茶漬書頁　歲月留香', swatch: { bg: 'radial-gradient(ellipse at 30% 40%,#F0E0BC,#D4B888 80%)' } },
+    { key: 'v99',  label: 'Obsidian · 黑曜',                 group: '奇幻', font: 'serif', sample: '黑曜深夜　金箔閃爍', swatch: { bg: 'linear-gradient(180deg,#14161B,#0A0B0E)' } },
+    { key: 'v100', label: 'Moonstone · 月長石',              group: '奇幻', font: 'serif', sample: '月長石光　深夜寧靜', swatch: { bg: 'linear-gradient(180deg,#1F2738,#141A28)' } },
+    { key: 'v101', label: 'Bamboo Slip · 竹簡',              group: '武俠', font: 'serif', sample: '竹簡刻文　江湖往事', swatch: { bg: 'repeating-linear-gradient(90deg,#D4B782 0,#D4B782 22px,#C8A872 22px,#C8A872 23px)' } },
+    { key: 'v102', label: 'Rice Paper · 宣紙',               group: '武俠', font: 'serif', sample: '宣紙水墨　筆走龍蛇', swatch: { bg: '#F2EAD8' } },
+    { key: 'v103', label: 'Vermilion · 朱砂',                group: '武俠', font: 'serif', sample: '線裝書頁　朱砂落印', swatch: { bg: '#F0E4C8' } },
+    { key: 'v104', label: 'Pastel Sakura · 櫻霞',            group: '柔和', font: 'sans',  sample: '櫻花輕落　午後微光', swatch: { bg: '#FCEFEF' } },
+    { key: 'v105', label: 'Mint Cream · 薄荷奶霜',           group: '柔和', font: 'sans',  sample: '薄荷療癒　淡綠輕飄', swatch: { bg: '#EEF6F0' } },
+    { key: 'v106', label: 'Twilight · 微光',                 group: '奇幻', font: 'serif', sample: '微光朦朧　紫霧氤氳', swatch: { bg: 'radial-gradient(ellipse at 50% 30%,#2C2438,#15101F 70%)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
-  const groups = ['經典', '復古', '現代', '華麗', '東方', '奇幻', '暗黑', '遊戲', '自然', '檔案', '影視', '童趣', '靈性', '手工'];
+  const groups = ['經典', '復古', '現代', '華麗', '東方', '武俠', '奇幻', '暗黑', '遊戲', '自然', '檔案', '影視', '童趣', '柔和', '靈性', '手工'];
   const favs = settings.favoriteThemes || [];
   const activeAccent = (settings.themeColors[active.key] && settings.themeColors[active.key].accent) || '#8C3A2E';
 
@@ -145,9 +179,9 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
     return (
       <div
         ref={attachActiveRef && isActive ? activeRef : null}
-        onClick={() => { onChange(t.key); setOpen(false); setQuery(''); }}
-        onMouseEnter={() => setHoveredKey(t.key)}
-        onMouseLeave={() => setHoveredKey(prev => prev === t.key ? null : prev)}
+        onClick={() => { cancelPreview(); onChange(t.key); setOpen(false); setQuery(''); }}
+        onMouseEnter={() => { setHoveredKey(t.key); schedulePreview(t.key); }}
+        onMouseLeave={() => { setHoveredKey(prev => prev === t.key ? null : prev); cancelPreview(); }}
         style={{
           display: 'flex', alignItems: 'center', gap: 14,
           padding: '10px 12px', borderRadius: 8,
@@ -246,8 +280,8 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
         }}>▾</span>
       </button>
       {open && <>
-        <div onClick={() => { setOpen(false); setQuery(''); }} style={{ position: 'fixed', inset: 0, zIndex: 850 }}/>
-        <div style={{
+        <div onClick={() => { cancelPreview(); setOpen(false); setQuery(''); }} style={{ position: 'fixed', inset: 0, zIndex: 850 }}/>
+        <div onMouseLeave={cancelPreview} style={{
           position: 'absolute', right: 0, top: 'calc(100% + 12px)', width: 340, maxHeight: 540,
           display: 'flex', flexDirection: 'column',
           background: '#fff',
@@ -255,8 +289,8 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
           boxShadow: '0 24px 60px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.04)',
           zIndex: 851, fontFamily: 'var(--ui)', overflow: 'hidden',
         }}>
-          <div style={{ padding: 10, borderBottom: '0.5px solid rgba(0,0,0,0.06)' }}>
-            <div style={{ position: 'relative' }}>
+          <div style={{ padding: 10, borderBottom: '0.5px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ position: 'relative', flex: 1 }}>
               <span style={{
                 position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
                 fontSize: 12, opacity: 0.35, pointerEvents: 'none',
@@ -265,7 +299,7 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Escape') { setOpen(false); setQuery(''); } }}
+                onKeyDown={(e) => { if (e.key === 'Escape') { cancelPreview(); setOpen(false); setQuery(''); } }}
                 placeholder="搜尋風格…"
                 style={{
                   width: '100%', boxSizing: 'border-box',
@@ -278,8 +312,27 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange }) {
                 onBlur={e => e.target.style.background = 'rgba(0,0,0,0.02)'}
               />
             </div>
+            <button
+              onClick={() => {
+                const pool = themes.filter(t => t.key !== settings.activeTheme);
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                if (pick) { cancelPreview(); onChange(pick.key); setOpen(false); setQuery(''); }
+              }}
+              title="隨機挑一個主題"
+              style={{
+                width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                background: 'rgba(0,0,0,0.02)', border: '0.5px solid rgba(0,0,0,0.1)',
+                cursor: 'pointer', fontSize: 16, lineHeight: 1,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background .15s, transform .2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.02)'; }}
+              onMouseDown={e => { e.currentTarget.style.transform = 'rotate(-12deg) scale(.92)'; }}
+              onMouseUp={e => { e.currentTarget.style.transform = 'none'; }}
+            >🎲</button>
           </div>
-          <div ref={scrollContainerRef} className="scroll-thin" style={{
+          <div ref={scrollContainerRef} onScroll={handleScroll} className="scroll-thin" style={{
             flex: 1, overflowY: 'auto', padding: '4px 6px 10px',
           }}>
             {!q && favs.length > 0 && (() => {
