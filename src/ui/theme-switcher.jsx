@@ -152,9 +152,22 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
     { key: 'v104', label: 'Pastel Sakura · 櫻霞',            group: '柔和', font: 'sans',  sample: '櫻花輕落　午後微光', swatch: { bg: '#FCEFEF' } },
     { key: 'v105', label: 'Mint Cream · 薄荷奶霜',           group: '柔和', font: 'sans',  sample: '薄荷療癒　淡綠輕飄', swatch: { bg: '#EEF6F0' } },
     { key: 'v106', label: 'Twilight · 微光',                 group: '奇幻', font: 'serif', sample: '微光朦朧　紫霧氤氳', swatch: { bg: 'radial-gradient(ellipse at 50% 30%,#2C2438,#15101F 70%)' } },
+    { key: 'v107', label: 'Hogwarts · 霍格華茲',             group: '奇幻', font: 'serif', sample: '魔法的本質　堅定的意志', swatch: { bg: 'radial-gradient(ellipse at 30% 30%,#1F3A2A,#0E1F18)' } },
+    { key: 'v108', label: 'Wall of Titans · 巨人之壁',       group: '奇幻', font: 'sans',  sample: '城牆之外　從來不是傳說', swatch: { bg: 'linear-gradient(180deg,#2A2620,#1A1714)' } },
+    { key: 'v111', label: 'Night City · 夜城',               group: '現代', font: 'sans',  sample: '人格可以被下載　複製刪除', swatch: { bg: 'linear-gradient(135deg,#1A0830,#0A0418)' } },
+    { key: 'v112', label: 'Cryogenic · 冷凍艙',              group: '現代', font: 'mono',  sample: 'STATUS · ACTIVE  休眠 247 年', swatch: { bg: 'linear-gradient(180deg,#0A1828,#050E18)' } },
+    { key: 'v113', label: 'Cold Press · 冷壓紙',             group: '經典', font: 'serif', sample: '冬日早晨　紙頁潔淨冷靜', swatch: { bg: '#F4F6F8' } },
+    { key: 'v114', label: 'Manila · 牛皮',                   group: '經典', font: 'serif', sample: '舊文件袋　時間沉積的厚度', swatch: { bg: '#D4B98C' } },
+    { key: 'v115', label: 'Grid · 方格紙',                   group: '經典', font: 'sans',  sample: '從一張方格紙開始　約束帶來自由', swatch: { bg: 'linear-gradient(0deg, transparent 90%, rgba(74,107,142,.2) 100%) 0 0/8px 8px,linear-gradient(90deg, transparent 90%, rgba(74,107,142,.2) 100%) 0 0/8px 8px,#FAFAF7' } },
+    { key: 'v116', label: 'Christmas · 聖誕',                group: '節日', font: 'serif', sample: '雪在窗外靜靜落下　爐火劈啪', swatch: { bg: 'radial-gradient(ellipse at 20% 30%,#1A3A2A,#0E2018)' } },
+    { key: 'v117', label: 'Halloween · 萬聖',                group: '節日', font: 'serif', sample: '十月最後一夜　影子拉得很長', swatch: { bg: 'linear-gradient(180deg,#1F0F2A,#0E0518)' } },
+    { key: 'v118', label: '農曆新年',                        group: '節日', font: 'serif', sample: '春到福臨家門開　爆竹一歲除', swatch: { bg: '#C8242C' } },
+    { key: 'v119', label: 'Storybook · 故事書',              group: '童趣', font: 'serif', sample: '從前從前　會做夢的小狐狸', swatch: { bg: '#F8EDD4' } },
+    { key: 'v120', label: 'Cthulhu · 克蘇魯',                group: '暗黑', font: 'serif', sample: '我看見的東西　不應存在', swatch: { bg: 'radial-gradient(ellipse at 30% 70%,#0F2828,#050F0F)' } },
+    { key: 'v121', label: 'Gothic Cathedral · 哥德教堂',     group: '暗黑', font: 'serif', sample: '尖拱陰影裡　彩繪玻璃黎明亮起', swatch: { bg: 'linear-gradient(180deg,#181420,#0A0814)' } },
   ];
   const active = themes.find(t => t.key === settings.activeTheme) || themes[0];
-  const groups = ['經典', '復古', '現代', '華麗', '東方', '武俠', '奇幻', '暗黑', '遊戲', '自然', '檔案', '影視', '童趣', '柔和', '靈性', '手工'];
+  const groups = ['經典', '復古', '現代', '華麗', '東方', '武俠', '奇幻', '暗黑', '遊戲', '自然', '檔案', '影視', '節日', '童趣', '柔和', '靈性', '手工'];
   const favs = settings.favoriteThemes || [];
   const activeAccent = (settings.themeColors[active.key] && settings.themeColors[active.key].accent) || '#8C3A2E';
 

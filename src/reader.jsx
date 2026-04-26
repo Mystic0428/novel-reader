@@ -108,6 +108,19 @@ function renderThemeContent(props) {
     case 'v104': return <V104Reader {...props}/>;
     case 'v105': return <V105Reader {...props}/>;
     case 'v106': return <V106Reader {...props}/>;
+    case 'v107': return <V107Reader {...props}/>;
+    case 'v108': return <V108Reader {...props}/>;
+    case 'v111': return <V111Reader {...props}/>;
+    case 'v112': return <V112Reader {...props}/>;
+    case 'v113': return <V113Reader {...props}/>;
+    case 'v114': return <V114Reader {...props}/>;
+    case 'v115': return <V115Reader {...props}/>;
+    case 'v116': return <V116Reader {...props}/>;
+    case 'v117': return <V117Reader {...props}/>;
+    case 'v118': return <V118Reader {...props}/>;
+    case 'v119': return <V119Reader {...props}/>;
+    case 'v120': return <V120Reader {...props}/>;
+    case 'v121': return <V121Reader {...props}/>;
     default:    return <V1Reader {...props}/>;
   }
 }
@@ -219,6 +232,19 @@ function renderThemeFooter(props) {
     case 'v104': return <V104Footer {...props}/>;
     case 'v105': return <V105Footer {...props}/>;
     case 'v106': return <V106Footer {...props}/>;
+    case 'v107': return <V107Footer {...props}/>;
+    case 'v108': return <V108Footer {...props}/>;
+    case 'v111': return <V111Footer {...props}/>;
+    case 'v112': return <V112Footer {...props}/>;
+    case 'v113': return <V113Footer {...props}/>;
+    case 'v114': return <V114Footer {...props}/>;
+    case 'v115': return <V115Footer {...props}/>;
+    case 'v116': return <V116Footer {...props}/>;
+    case 'v117': return <V117Footer {...props}/>;
+    case 'v118': return <V118Footer {...props}/>;
+    case 'v119': return <V119Footer {...props}/>;
+    case 'v120': return <V120Footer {...props}/>;
+    case 'v121': return <V121Footer {...props}/>;
     default:    return <V1Footer {...props}/>;
   }
 }
