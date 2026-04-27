@@ -185,10 +185,24 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
     return (settings.themeColors[t.key] && settings.themeColors[t.key].accent) || 'rgba(0,0,0,0.4)';
   }
 
+  // The dropdown sits on a white panel. Very light accents (e.g. v37 極黑's
+  // pure white) become invisible when used for the active row's gradient,
+  // left bar, and ✓ tick. Substitute a dark slate when the accent is too
+  // bright to read against #fff so the active state stays legible.
+  function visibleAccent(accent) {
+    const m = /^#([0-9a-f]{6})$/i.exec(accent);
+    if (!m) return accent;
+    const n = parseInt(m[1], 16);
+    const r = (n >> 16) & 0xff, g = (n >> 8) & 0xff, b = n & 0xff;
+    const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return luma > 220 ? '#1F1F1F' : accent;
+  }
+
   function ThemeRow({ t, attachActiveRef, isFav }) {
     const isActive = t.key === settings.activeTheme;
     const isHovered = hoveredKey === t.key;
     const accent = accentOf(t);
+    const uiAccent = visibleAccent(accent);
     return (
       <div
         ref={attachActiveRef && isActive ? activeRef : null}
@@ -199,7 +213,7 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
           display: 'flex', alignItems: 'center', gap: 14,
           padding: '10px 12px', borderRadius: 8,
           background: isActive
-            ? `linear-gradient(90deg, ${accent}1F, ${accent}0A)`
+            ? `linear-gradient(90deg, ${uiAccent}1F, ${uiAccent}0A)`
             : isHovered ? 'rgba(0,0,0,0.03)' : 'transparent',
           cursor: 'pointer', position: 'relative',
           transition: 'background .12s',
@@ -208,7 +222,7 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
         {isActive && (
           <span style={{
             position: 'absolute', left: 0, top: 8, bottom: 8, width: 3,
-            background: accent, borderRadius: 2,
+            background: uiAccent, borderRadius: 2,
           }}/>
         )}
         <span style={{
@@ -243,7 +257,7 @@ function ThemeSwitcher({ settings, onChange, onSettingsChange, onPreview }) {
             cursor: 'pointer', flexShrink: 0,
           }}>★</span>
         {isActive && (
-          <span style={{ fontSize: 12, color: accent, fontWeight: 600, flexShrink: 0 }}>✓</span>
+          <span style={{ fontSize: 12, color: uiAccent, fontWeight: 600, flexShrink: 0 }}>✓</span>
         )}
       </div>
     );
