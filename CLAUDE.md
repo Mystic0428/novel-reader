@@ -22,7 +22,7 @@ Single `AppContext` in `src/app.jsx`, hydrated once on mount from IndexedDB. The
 `chapterCacheRef` is a Map kept across the session (cleared on book switch) so revisiting a chapter doesn't re-parse the EPUB. `parsedRef` (per-Reader-mount) holds the parsed EPUB metadata so prefetch and chapter switches don't re-parse the OPF.
 
 ### Theme system (the largest surface)
-~95 themes in `src/themes/v{N}-{name}.jsx`. Each exports a `V{N}Reader` and `V{N}Footer` component on `window`. The reader's `renderThemeContent` and `renderThemeFooter` switch on `settings.activeTheme` and dispatch to the right pair.
+~120 themes (numbered up to v121) in `src/themes/v{N}-{name}.jsx`. Each exports a `V{N}Reader` and `V{N}Footer` component on `window`. The reader's `renderThemeContent` and `renderThemeFooter` switch on `settings.activeTheme` and dispatch to the right pair.
 
 **Reader component prop contract** (all themes must accept these):
 ```
@@ -36,7 +36,7 @@ Single `AppContext` in `src/app.jsx`, hydrated once on mount from IndexedDB. The
 3. `src/reader.jsx` — `case 'vN':` in **both** `renderThemeContent` and `renderThemeFooter`
 4. `src/storage/settings.js` — `themeColors.vN: { accent, bgTone }` default
 5. `src/ui/color-picker.jsx` — `vN: { accentPresets, tonePresets, toneKey }`
-6. `src/ui/theme-switcher.jsx` — entry in the `themes` array (set `group` to one of the 14 existing groups, or append a new group string to `groups`)
+6. `src/ui/theme-switcher.jsx` — entry in the `themes` array (set `group` to one of the 17 existing groups in the `groups` array, or append a new group string)
 
 **Theme conventions to respect**:
 - `book.preserveOriginalCss` — when `true`, skip your inline typography on `.reading-body`; the reader's injected `<style>` block is also skipped so EPUB-embedded CSS wins.
@@ -45,7 +45,7 @@ Single `AppContext` in `src/app.jsx`, hydrated once on mount from IndexedDB. The
 - Set `--accent: ${accent}` as a CSS var on your reading-body wrapper so child rules can inherit it.
 - Each theme has 9 bg-tone variants in a local `V{N}_BG_TONES` map keyed by `bgTone`. Color-picker writes the chosen key into `settings.themeColors.vN.bgTone`.
 
-### IndexedDB schema (DB version 2)
+### IndexedDB schema (DB version 3)
 `src/storage/idb.js` is a thin wrapper. Stores defined in `STORE_CONFIG`:
 - `books`, `roots`, `settings`, `kv` — keyPath `'id'`
 - `readingEvents` — autoIncrement, indexes `byDate` and `byBook`. Append-only event log driving the stats panel. Logged from `openChapter` in `reader.jsx`. **Idempotent per `(bookId, chapterId, date)`** — re-opening the same chapter mid-day doesn't inflate counts.

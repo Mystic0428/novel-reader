@@ -5,7 +5,7 @@
 A local-first, zero-build, desktop novel reader for **EPUB** and **TXT**, designed for Chinese serialized web novels (zh-TW / zh-CN) but works for anything.
 
 - **Library-first UX** — Netflix-style home with hero, horizontal rows (繼續閱讀 / 有新章節 / per-tag / per-collection), search with `/` shortcut, dark filtered grid
-- **~75 atmospheric reader themes** across 10 groups (經典 / 復古 / 現代 / 華麗 / 東方 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案), each with 4–9 background variants and 6 accent presets, ★ favorites + search in the picker
+- **~120 atmospheric reader themes** across 17 groups (經典 / 復古 / 現代 / 華麗 / 東方 / 武俠 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案 / 影視 / 節日 / 童趣 / 柔和 / 靈性 / 手工), each with 4–9 background variants and 6 accent presets, ★ favorites + search in the picker
 - **Reading stats** — 📊 modal with Lv.N reader badge, current/longest streak, GitHub-style 365-day activity heatmap, totals (chapters / words / active days)
 - **Book detail card** — right-click any cover → 📋 書本資訊 → manila library-card overlay with circulation record, recent activity, tags, collections, actions
 - **Tachiyomi-style "+N" badges** for newly added chapters when an EPUB updates on disk
@@ -76,20 +76,27 @@ The library auto-scans permitted roots on load, so newly-scraped books appear wi
 
 ## Themes
 
-About **75 reader themes** across **10 groups**. Each theme has **4–9 background variants** and **6 accent presets** (color picker 🎨). The theme picker has a search box (matches Chinese label or group name) and ★ favorites that pin to the top.
+About **120 reader themes** across **17 groups**. Each theme has **4–9 background variants** and **6 accent presets** (color picker 🎨). The theme picker has a search box (matches Chinese label or group name) and ★ favorites that pin to the top.
 
-| Group | Vibe | Example themes |
-| ----- | ---- | -------------- |
-| **經典** | Quiet defaults | Warm 書房 / Glass 毛玻璃 / Dark 典藏 / Apple Books 書櫃 / 紙墨 純讀 / Bookshop / Notebook 札記本 / Long-form 長文雜誌 |
-| **復古** | Pre-2000 print + tech | Terminal 終端機 / Polaroid 拍立得 / 8-bit 像素 / Diner 50s / Newsprint 老報紙 / Cassette 卡帶 / Typewriter 打字機 / Pulp 廉價小說 / Vinyl 黑膠 |
-| **現代** | Contemporary editorial | Brutalist 野獸派 / Editorial 極黑 / Memphis 80s / Wes 對稱 / Cyberpunk 霓虹 / Riso 印刷 / Swiss 編輯部 / Rams Braun T1000 / Frutiger Aero / Vaporwave / Solarpunk / Neumorphism / Claymorphism / Mesh Aurora / VisionOS |
-| **華麗** | Ornate decorative | Deco 裝飾藝術 / Baroque 巴洛克 / Dunhuang 敦煌 / Arcana 塔羅 / Gothic 哥德 / Art Nouveau / Illuminated 抄本 / First Folio / Byzantine / Ex Libris 維多利亞 / Cloisonné 景泰藍 / Leather & Gilt 燙金皮革 / Marbled / Ivory 象牙雕刻 / 上海 1934 月份牌 |
-| **東方** | CJK aesthetics | 宋卷 山水 / 青花 瓷器 / 浮世繪 北齋 / 水墨 沉硯 / 直書 線裝古籍 / 雕版 / Rinpa 和風金屏 / 敦煌 殘卷 / 蘇州 漏窗 / 侘寂 殘缺 |
-| **奇幻** | RPG / fantasy literature | Grimoire 魔典 / Adventurer's Codex 冒險者手冊 / Rune Stone 符文石碑 / Fae Codex 精靈卷宗 |
-| **暗黑** | Macabre / gothic | Mourning 維多利亞遺照 / Dossier 命案檔案 / Ghost Story 鬼故事筆記 / Bestiary 怪物百科 |
-| **遊戲** | Game UI imitations | RPG Textbox 對話框 / Visual Novel 視覺小說 / Board Game 桌遊規則書 / Steam Deck 掌機介面 |
-| **自然** | Outdoor / botanical | Mountain Cabin 山屋木紋 / Tide Pool 潮間 / Pressed Botanical 壓花標本 / Campfire 營火 |
-| **檔案** | Bureaucratic / forensic | Bulletin 公報 / Transcript 法庭逐字 / Field Journal 田野筆記 / Library Card 圖書館卡 |
+| Group | Vibe |
+| ----- | ---- |
+| **經典** (14) | Quiet defaults — Warm 書房 / Glass 毛玻璃 / Dark 典藏 / Apple Books 書櫃 / 紙墨 純讀 / Bookshop / Notebook 札記本 / Long-form 長文雜誌 |
+| **復古** (9) | Pre-2000 print + tech — Terminal 終端機 / Polaroid 拍立得 / 8-bit 像素 / Diner 50s / Newsprint 老報紙 / Cassette 卡帶 / Typewriter 打字機 / Pulp 廉價小說 / Vinyl 黑膠 |
+| **現代** (17) | Contemporary editorial — Brutalist 野獸派 / Editorial 極黑 / Memphis 80s / Wes 對稱 / Cyberpunk 霓虹 / Riso 印刷 / Swiss 編輯部 / Rams Braun T1000 / Frutiger Aero / Vaporwave / Solarpunk / Neumorphism / Claymorphism / Mesh Aurora / VisionOS |
+| **華麗** (15) | Ornate decorative — Deco 裝飾藝術 / Baroque 巴洛克 / Arcana 塔羅 / Gothic 哥德 / Art Nouveau / Illuminated 抄本 / First Folio / Byzantine / Ex Libris 維多利亞 / Cloisonné 景泰藍 / Leather & Gilt 燙金皮革 / Marbled / Ivory 象牙雕刻 / 上海 1934 月份牌 / Cathedral 大教堂 |
+| **東方** (10) | CJK aesthetics — 宋卷 山水 / 青花 瓷器 / 浮世繪 北齋 / 水墨 沉硯 / 直書 線裝古籍 / 雕版 / Rinpa 和風金屏 / 敦煌 殘卷 / 蘇州 漏窗 / 侘寂 殘缺 |
+| **武俠** (3) | Wuxia / jianghu palette |
+| **奇幻** (9) | RPG / fantasy literature — Grimoire 魔典 / Adventurer's Codex 冒險者手冊 / Rune Stone 符文石碑 / Fae Codex 精靈卷宗 / Storybook 童話書 |
+| **暗黑** (6) | Macabre / gothic — Mourning 維多利亞遺照 / Dossier 命案檔案 / Ghost Story 鬼故事筆記 / Bestiary 怪物百科 / Cthulhu 克蘇魯 |
+| **遊戲** (4) | Game UI imitations — RPG Textbox 對話框 / Visual Novel 視覺小說 / Board Game 桌遊規則書 / Steam Deck 掌機介面 |
+| **自然** (5) | Outdoor / botanical — Mountain Cabin 山屋木紋 / Tide Pool 潮間 / Pressed Botanical 壓花標本 / Campfire 營火 |
+| **檔案** (5) | Bureaucratic / forensic — Bulletin 公報 / Transcript 法庭逐字 / Field Journal 田野筆記 / Library Card 圖書館卡 / Manila 公文夾 |
+| **影視** (4) | Cinema / TV-inspired |
+| **節日** (3) | Holiday — Christmas / Halloween / 農曆新年 |
+| **童趣** (5) | Playful / picture-book |
+| **柔和** (2) | Soft / pastel |
+| **靈性** (4) | Spiritual / contemplative |
+| **手工** (4) | Handcraft / textile — Paperlace / Linen / Coldpress 等 |
 
 Every theme affects only the **reading area**; the library home and TOC drawer stay consistent across themes. Per-book accent and background are stored in settings, so switching theme remembers your last picks.
 
@@ -198,11 +205,11 @@ Non-JSX scripts are consumed raw — all functions are hoisted top-level and att
 
 ## Storage Schema
 
-IndexedDB object stores (DB version 2):
+IndexedDB object stores (DB version 3):
 
 - **books** — `{ id, rootId, relPath, fileHandle, sourceType, title, author, coverBlob, chaptersMeta, wordCount, lastChapterId, lastScroll, tags, collections, lastKnownChapterCount, preserveOriginalCss, addedAt, lastReadAt, fileLastModified }`
 - **roots** — `{ id, name, dirHandle, excludeDirs, bookCount, lastScannedAt }`
-- **settings** — single row, `id: 'global'`, holds `activeTheme`, `themeColors[v1..v79]`, `tweaks` (fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive), `favoriteThemes`, `sortBy`, `sortOrder`, `filterTag`, `filterCollection`
+- **settings** — single row, `id: 'global'`, holds `activeTheme`, `themeColors[v1..v121]`, `tweaks` (fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive), `favoriteThemes`, `sortBy`, `sortOrder`, `filterTag`, `filterCollection`
 - **readingEvents** — append-only, `{ id (auto), bookId, chapterId, date (YYYY-MM-DD), ts, words }`. Indexed by `byDate` and `byBook`. Logged by `openChapter`, idempotent per (book, chapter, day).
 - **kv** — generic key-value scratch space
 
@@ -246,7 +253,7 @@ To add a new theme:
 3. Add switch cases in `src/reader.jsx` (both `renderThemeContent` and `renderThemeFooter`)
 4. Add defaults to `src/storage/settings.js` (`themeColors.vN`)
 5. Add accent + tone presets to `src/ui/color-picker.jsx`
-6. Add an entry to the themes array in `src/ui/theme-switcher.jsx` (set `group` to one of the existing 10 groups, or append a new group name to `groups`)
+6. Add an entry to the themes array in `src/ui/theme-switcher.jsx` (set `group` to one of the existing 17 groups, or append a new group name to `groups`)
 
 **Reader prop contract**: `{ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }`. Respect `book.preserveOriginalCss` (skip inline typography when true). Use the global `injectDropCap(html, size)` helper for drop caps — it skips CJK automatically. Use the global `stripChapterPrefix(title)` helper to clean "第N章：" / numeric prefixes. Set `--accent` CSS var on your root if you want it to inherit into any child CSS.
 
