@@ -5,7 +5,7 @@
 一個在瀏覽器裡跑、不需編譯、本機優先的桌面小說閱讀器，支援 **EPUB** 與 **TXT**。原本是為了中文連載網路小說（zh-TW / zh-CN）設計的，但其他內容也一樣能讀。
 
 - **以書庫為主的 UX** — Netflix 風格首頁：大張 hero 看板、橫向捲動書列（繼續閱讀 / 有新章節 / 依 tag & collection 分組）、`/` 快捷鍵聚焦搜尋、深色 grid 篩選檢視
-- **約 75 種閱讀主題**，分 10 個分類（經典 / 復古 / 現代 / 華麗 / 東方 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案），每個主題有 4–9 種背景色變體 + 6 種 accent 預設，主題切換器有搜尋框 + ★ 最愛
+- **約 120 種閱讀主題**，分 17 個分類（經典 / 復古 / 現代 / 華麗 / 東方 / 武俠 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案 / 影視 / 節日 / 童趣 / 柔和 / 靈性 / 手工），每個主題有 4–9 種背景色變體 + 6 種 accent 預設，主題切換器有搜尋框 + ★ 最愛
 - **閱讀統計**（📊 modal）— Lv.N reader 等級徽章、連續天數、GitHub 風格 365 天活動熱圖、總章節 / 總字數 / 累計天數
 - **書本資訊卡** — 右鍵任一書 → 📋 書本資訊 → 圖書館借閱卡風格的 overlay，含借閱記錄、最近活動、tags、collections、操作列
 - **Tachiyomi 式 "+N" 徽章** — EPUB 檔在磁碟上新增章節時，自動顯示紅色數字
@@ -76,20 +76,27 @@ python -m http.server 8080
 
 ## 主題
 
-約 **75 個閱讀主題**，分 **10 個分類**。每個主題有 **4–9 種背景變體** 和 **6 種 accent 預設**（🎨 顏色面板）。主題切換器有搜尋框（中英 label / 分類名稱都比對）+ ★ 最愛置頂。
+約 **120 個閱讀主題**，分 **17 個分類**。每個主題有 **4–9 種背景變體** 和 **6 種 accent 預設**（🎨 顏色面板）。主題切換器有搜尋框（中英 label / 分類名稱都比對）+ ★ 最愛置頂。
 
-| 分類 | 風格 | 例子 |
-| ---- | ---- | ---- |
-| **經典** | 安靜的預設值 | Warm 書房 / Glass 毛玻璃 / Dark 典藏 / Apple Books 書櫃 / 紙墨 純讀 / Bookshop / Notebook 札記本 / Long-form 長文雜誌 |
-| **復古** | 2000 年前的印刷與科技 | Terminal 終端機 / Polaroid 拍立得 / 8-bit 像素 / Diner 50s / Newsprint 老報紙 / Cassette 卡帶 / Typewriter 打字機 / Pulp 廉價小說 / Vinyl 黑膠 |
-| **現代** | 當代編輯設計 | Brutalist 野獸派 / Editorial 極黑 / Memphis 80s / Wes 對稱 / Cyberpunk 霓虹 / Riso 印刷 / Swiss 編輯部 / Rams Braun T1000 / Frutiger Aero / Vaporwave / Solarpunk / Neumorphism / Claymorphism / Mesh Aurora / VisionOS |
-| **華麗** | 繁複裝飾 | Deco 裝飾藝術 / Baroque 巴洛克 / Dunhuang 敦煌 / Arcana 塔羅 / Gothic 哥德 / Art Nouveau / Illuminated 抄本 / First Folio / Byzantine / Ex Libris 維多利亞 / Cloisonné 景泰藍 / Leather & Gilt 燙金皮革 / Marbled / Ivory 象牙雕刻 / 上海 1934 月份牌 |
-| **東方** | CJK 美學 | 宋卷 山水 / 青花 瓷器 / 浮世繪 北齋 / 水墨 沉硯 / 直書 線裝古籍 / 雕版 / Rinpa 和風金屏 / 敦煌 殘卷 / 蘇州 漏窗 / 侘寂 殘缺 |
-| **奇幻** | RPG / 奇幻文學 | Grimoire 魔典 / Adventurer's Codex 冒險者手冊 / Rune Stone 符文石碑 / Fae Codex 精靈卷宗 |
-| **暗黑** | Macabre / 哥德 | Mourning 維多利亞遺照 / Dossier 命案檔案 / Ghost Story 鬼故事筆記 / Bestiary 怪物百科 |
-| **遊戲** | 遊戲 UI 仿造 | RPG Textbox 對話框 / Visual Novel 視覺小說 / Board Game 桌遊規則書 / Steam Deck 掌機介面 |
-| **自然** | 戶外 / 植物 | Mountain Cabin 山屋木紋 / Tide Pool 潮間 / Pressed Botanical 壓花標本 / Campfire 營火 |
-| **檔案** | 官僚 / 法庭 | Bulletin 公報 / Transcript 法庭逐字 / Field Journal 田野筆記 / Library Card 圖書館卡 |
+| 分類 | 風格 |
+| ---- | ---- |
+| **經典** (14) | 安靜的預設值 — Warm 書房 / Glass 毛玻璃 / Dark 典藏 / Apple Books 書櫃 / 紙墨 純讀 / Bookshop / Notebook 札記本 / Long-form 長文雜誌 |
+| **復古** (9) | 2000 年前的印刷與科技 — Terminal 終端機 / Polaroid 拍立得 / 8-bit 像素 / Diner 50s / Newsprint 老報紙 / Cassette 卡帶 / Typewriter 打字機 / Pulp 廉價小說 / Vinyl 黑膠 |
+| **現代** (17) | 當代編輯設計 — Brutalist 野獸派 / Editorial 極黑 / Memphis 80s / Wes 對稱 / Cyberpunk 霓虹 / Riso 印刷 / Swiss 編輯部 / Rams Braun T1000 / Frutiger Aero / Vaporwave / Solarpunk / Neumorphism / Claymorphism / Mesh Aurora / VisionOS |
+| **華麗** (15) | 繁複裝飾 — Deco 裝飾藝術 / Baroque 巴洛克 / Arcana 塔羅 / Gothic 哥德 / Art Nouveau / Illuminated 抄本 / First Folio / Byzantine / Ex Libris 維多利亞 / Cloisonné 景泰藍 / Leather & Gilt 燙金皮革 / Marbled / Ivory 象牙雕刻 / 上海 1934 月份牌 / Cathedral 大教堂 |
+| **東方** (10) | CJK 美學 — 宋卷 山水 / 青花 瓷器 / 浮世繪 北齋 / 水墨 沉硯 / 直書 線裝古籍 / 雕版 / Rinpa 和風金屏 / 敦煌 殘卷 / 蘇州 漏窗 / 侘寂 殘缺 |
+| **武俠** (3) | 江湖／武俠調性 |
+| **奇幻** (9) | RPG / 奇幻文學 — Grimoire 魔典 / Adventurer's Codex 冒險者手冊 / Rune Stone 符文石碑 / Fae Codex 精靈卷宗 / Storybook 童話書 |
+| **暗黑** (6) | Macabre / 哥德 — Mourning 維多利亞遺照 / Dossier 命案檔案 / Ghost Story 鬼故事筆記 / Bestiary 怪物百科 / Cthulhu 克蘇魯 |
+| **遊戲** (4) | 遊戲 UI 仿造 — RPG Textbox 對話框 / Visual Novel 視覺小說 / Board Game 桌遊規則書 / Steam Deck 掌機介面 |
+| **自然** (5) | 戶外 / 植物 — Mountain Cabin 山屋木紋 / Tide Pool 潮間 / Pressed Botanical 壓花標本 / Campfire 營火 |
+| **檔案** (5) | 官僚 / 法庭 — Bulletin 公報 / Transcript 法庭逐字 / Field Journal 田野筆記 / Library Card 圖書館卡 / Manila 公文夾 |
+| **影視** (4) | 電影／影集靈感 |
+| **節日** (3) | 節慶 — Christmas / Halloween / 農曆新年 |
+| **童趣** (5) | 童書插畫風 |
+| **柔和** (2) | 柔和粉彩 |
+| **靈性** (4) | 沉思／靈性 |
+| **手工** (4) | 手作／織品 — Paperlace / Linen / Coldpress 等 |
 
 主題只會影響**閱讀區**；書庫首頁、目錄抽屜的外觀在所有主題下維持一致。每個主題的 accent 與背景色獨立記在 settings 裡，切換主題時會記得你之前的選擇。
 
@@ -198,11 +205,11 @@ styles/
 
 ## 資料結構（Storage Schema）
 
-IndexedDB object stores（DB version 2）：
+IndexedDB object stores（DB version 3）：
 
 - **books** — `{ id, rootId, relPath, fileHandle, sourceType, title, author, coverBlob, chaptersMeta, wordCount, lastChapterId, lastScroll, tags, collections, lastKnownChapterCount, preserveOriginalCss, addedAt, lastReadAt, fileLastModified }`
 - **roots** — `{ id, name, dirHandle, excludeDirs, bookCount, lastScannedAt }`
-- **settings** — 只有一列，`id: 'global'`，包含 `activeTheme`、`themeColors[v1..v79]`、`tweaks`（fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive）、`favoriteThemes`、`sortBy`、`sortOrder`、`filterTag`、`filterCollection`
+- **settings** — 只有一列，`id: 'global'`，包含 `activeTheme`、`themeColors[v1..v121]`、`tweaks`（fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive）、`favoriteThemes`、`sortBy`、`sortOrder`、`filterTag`、`filterCollection`
 - **readingEvents** — append-only，`{ id (auto), bookId, chapterId, date (YYYY-MM-DD), ts, words }`，索引 `byDate` + `byBook`，由 `openChapter` 寫入，每天每 (book, chapter) 唯一
 - **kv** — 通用 key-value 暫存
 
@@ -246,7 +253,7 @@ IndexedDB object stores（DB version 2）：
 3. 在 `src/reader.jsx` 的 switch 加 case（`renderThemeContent` 和 `renderThemeFooter` 兩個都要）
 4. 在 `src/storage/settings.js` 加 `themeColors.vN` 預設值
 5. 在 `src/ui/color-picker.jsx` 加 accent + tone preset
-6. 在 `src/ui/theme-switcher.jsx` 的主題陣列加一筆（`group` 設成現有 10 個分類之一，或在 `groups` 加新分類）
+6. 在 `src/ui/theme-switcher.jsx` 的主題陣列加一筆（`group` 設成現有 17 個分類之一，或在 `groups` 加新分類）
 
 **Reader prop 合約**：`{ book, chapterTitle, chapterIdx, html, settings, scrollRef, onScroll, onPrev, onNext, canPrev, canNext }`。要尊重 `book.preserveOriginalCss`（true 時跳過 inline 排版）。Drop cap 用全域的 `injectDropCap(html, size)` helper，會自動跳過 CJK。章節標題前綴用全域的 `stripChapterPrefix(title)` 清掉「第N章：」/數字前綴。如果想讓子元素 CSS 讀到 accent，在 root 設 `--accent` CSS var。
 
