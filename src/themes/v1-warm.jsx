@@ -71,9 +71,12 @@ function stripChapterPrefix(title) {
   //   "第12章：半路為盜，愈發兇狠 （1）"
   // collapsed to just "（1）" because `第.+?[　\s]+` greedily ate up to the
   // space *inside* the title.
+  //
+  // Leading bracket tags like "[R19] " or "【番外】" are preserved — they
+  // carry meaning (rating / category) the reader still wants to see.
   return (title || '').replace(
-    /^(第[\d一二三四五六七八九十百千零兩\s　]+(?:章|節|节|回|卷|部|篇|話|话)[：:、，,.\s　]*|\d+[.\-:、][\s　]*|\d+[\s　]+)/,
-    ''
+    /^((?:[\[【][^\]】]{1,12}[\]】][\s　]*)*)(?:第[\d一二三四五六七八九十百千零兩\s　]+(?:章|節|节|回|卷|部|篇|話|话)[：:、，,.\s　]*|\d+[.\-:、][\s　]*|\d+[\s　]+)/,
+    '$1'
   );
 }
 function chapterNumberZh(n) {
