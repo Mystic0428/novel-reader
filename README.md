@@ -16,7 +16,7 @@ A local-first, zero-build, desktop novel reader for **EPUB** and **TXT**, design
 - **Immersive reading mode** — topbar/footer auto-fade after 3s of inactivity; Chinese typography controls (段首縮排 / 段距 / 字重)
 - **Everything runs in the browser** — no server, no build step, no bundler
 
-> Born to read the output of my [esjzone-scraper](https://github.com/Mystic0428/esjzone-scraper), so it has first-class support for serialized fiction that gains chapters over time.
+> Born to read the output of my own scraper, so it has first-class support for serialized fiction that gains chapters over time.
 
 ---
 
