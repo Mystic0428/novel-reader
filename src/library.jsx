@@ -155,14 +155,14 @@ function Library() {
           <>
             {hero && <Hero book={hero} dispatch={dispatch}/>}
             <div style={{ padding: '20px 0 40px' }}>
-              {fresh.length > 0 && <BookRow title="🔥 有新章節" tint="#D94A3E" books={fresh.slice(0, 20)} total={fresh.length} dispatch={dispatch}/>}
+              {fresh.length > 0 && <BookRow title="🔥 有新章節" tint="#D94A3E" books={fresh} total={fresh.length} dispatch={dispatch}/>}
               {currentlyReading.length > 0 && <BookRow title="繼續閱讀" books={currentlyReading} total={currentlyReading.length} dispatch={dispatch}/>}
-              <BookRow title={`全部藏書 · ${sortLabel(settings)}`} books={allSorted.slice(0, 20)} total={allSorted.length} dispatch={dispatch}/>
+              <BookRow title={`全部藏書 · ${sortLabel(settings)}`} books={allSorted} total={allSorted.length} dispatch={dispatch}/>
               {byCollection.map((g) => (
-                <BookRow key={`col-${g.name}`} title={`📁 ${g.name}`} books={g.books.slice(0, 16)} total={g.books.length} dispatch={dispatch}/>
+                <BookRow key={`col-${g.name}`} title={`📁 ${g.name}`} books={g.books} total={g.books.length} dispatch={dispatch}/>
               ))}
               {byTag.map((g) => (
-                <BookRow key={`tag-${g.name}`} title={`# ${g.name}`} books={g.books.slice(0, 16)} total={g.books.length} dispatch={dispatch}/>
+                <BookRow key={`tag-${g.name}`} title={`# ${g.name}`} books={g.books} total={g.books.length} dispatch={dispatch}/>
               ))}
               {(tags.length > 0 || collections.length > 0) && (
                 <CategoryBrowse tags={tags} collections={collections} books={books} dispatch={dispatch}/>
