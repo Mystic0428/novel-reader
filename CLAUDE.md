@@ -14,10 +14,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Zero-build, window-global module style
 Every file under `src/` is loaded as an individual `<script type="text/babel">` in `novel-reader.html`. There is no module system. Components and helpers must attach themselves to `window` to be reachable by other files (e.g. `window.V37Reader = V37Reader`, `window.idb = { ... }`, `window.booksStore = { ... }`).
 
-The file load order in `novel-reader.html` matters: `storage → parsers → ui → themes → library → reader → app`. A file may use any global declared *earlier in HTML order* by render time — function declarations are hoisted within a script but not across scripts.
+The file load order in `novel-reader.html` matters: `storage → parsers → ui → themes → library → manage → reader → app`. A file may use any global declared *earlier in HTML order* by render time — function declarations are hoisted within a script but not across scripts. `manage.jsx` is loaded after `library.jsx` because it reuses `bookProgress`, `relTime`, `sortBooks`, `openBook` etc. that `library.jsx` declares (and `library.jsx` attaches to `window` for cross-file use).
 
 ### React state shape
-Single `AppContext` in `src/app.jsx`, hydrated once on mount from IndexedDB. The context exposes `{ state, dispatch, chapterCacheRef }`. `state` holds `{ view, activeBookId, settings, books, roots, ready }`. `view` is either `'library'` or `'reader'` — there is no router; the App renders one or the other.
+Single `AppContext` in `src/app.jsx`, hydrated once on mount from IndexedDB. The context exposes `{ state, dispatch, chapterCacheRef }`. `state` holds `{ view, activeBookId, settings, books, roots, ready }`. `view` is one of `'library'` (Netflix-style home), `'manage'` (藏書閣 — Rune-Stone-themed dashboard for finding/sorting/bulk-managing books, in `src/manage.jsx`), or `'reader'` — there is no router; the App renders one of three based on `view`.
 
 `chapterCacheRef` is a Map kept across the session (cleared on book switch) so revisiting a chapter doesn't re-parse the EPUB. `parsedRef` (per-Reader-mount) holds the parsed EPUB metadata so prefetch and chapter switches don't re-parse the OPF.
 
@@ -53,7 +53,9 @@ Single `AppContext` in `src/app.jsx`, hydrated once on mount from IndexedDB. The
 `settingsStore.save(patch)` uses `mergeDeep` — patch keys overlay defaults. Arrays replace, primitives replace, plain objects merge recursively. Single row keyed `'global'`.
 
 ### Inter-component communication shortcut
-`src/library.jsx` mounts `window.openBookCard = (book) => setCardBookId(book.id)` so `BookMenu` instances rendered deep inside `RowCard`s can trigger the detail card without prop-drilling through `Library → BookRow → RowCard → BookMenu`. Pragmatic for this self-use single-context tool.
+`src/library.jsx` mounts `window.openBookCard = (book) => setCardBookId(book.id)` so `BookMenu` instances rendered deep inside `RowCard`s can trigger the detail card without prop-drilling through `Library → BookRow → RowCard → BookMenu`. Pragmatic for this self-use single-context tool. `src/manage.jsx` does the same when it's the active view (Library is unmounted during 'manage', so each view owns the global while mounted).
+
+`src/library.jsx` also attaches `bookProgress`, `relTime`, `sortBooks`, `newChapterCount` to `window` for use by `manage.jsx` (and other future views). `sortBooks` supports `sortBy` keys `lastRead | addedAt | title | author | progress | wordCount`; `title`/`author` use `localeCompare(_, 'zh-Hant', { numeric: true })` so Chinese titles sort by pinyin instead of raw Unicode.
 
 ### File System Access API + Chrome
 Folder scanning relies on `showDirectoryPicker` (Chromium-only). `roots` store keeps `dirHandle` instances; permission must be re-prompted on every page load via `rootsStore.ensurePermission`. Library auto-scans permitted roots on mount; non-permitted ones are silently skipped.

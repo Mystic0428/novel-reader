@@ -5,6 +5,8 @@
 A local-first, zero-build, desktop novel reader for **EPUB** and **TXT**, designed for Chinese serialized web novels (zh-TW / zh-CN) but works for anything.
 
 - **Library-first UX** — Netflix-style home with hero, horizontal rows (繼續閱讀 / 有新章節 / per-tag / per-collection), search with `/` shortcut, dark filtered grid
+- **藏書閣 (Library Manage view)** — full-screen Rune-Stone-themed dashboard for finding / sorting / bulk-managing books: left sidebar filter, sort by progress / words / pinyin (zh-Hant), batch tag / collection / remove
+- **In-chapter find** — `Ctrl+F` in the reader opens a topbar search bar that highlights all matches and steps between them (`Enter` / `Shift+Enter`)
 - **~120 atmospheric reader themes** across 17 groups (經典 / 復古 / 現代 / 華麗 / 東方 / 武俠 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案 / 影視 / 節日 / 童趣 / 柔和 / 靈性 / 手工), each with 4–9 background variants and 6 accent presets, ★ favorites + search in the picker
 - **Reading stats** — 📊 modal with Lv.N reader badge, current/longest streak, GitHub-style 365-day activity heatmap, totals (chapters / words / active days)
 - **Book detail card** — right-click any cover → 📋 書本資訊 → manila library-card overlay with circulation record, recent activity, tags, collections, actions
@@ -63,13 +65,16 @@ The library auto-scans permitted roots on load, so newly-scraped books appear wi
 
 | Key | Where | Action |
 | --- | ----- | ------ |
-| `/` | Library | Focus the search input |
-| `Esc` | Library search | Clear search + blur |
+| `/` | Library / 藏書閣 | Focus the search input |
+| `Esc` | Library / 藏書閣 search | Clear search + blur |
+| `Esc` | 藏書閣 | Exit batch mode → clear search → back to home |
 | `←` / `→` | Reader | Previous / next chapter |
 | `PgUp` / `PgDn` / `Space` | Reader | Page scroll |
 | `T` | Reader | Toggle TOC drawer |
 | `,` | Reader | Toggle tweaks panel |
 | `F` | Reader | Toggle browser fullscreen |
+| `Ctrl+F` / `Cmd+F` | Reader | Open in-chapter find |
+| `Enter` / `Shift+Enter` | Find bar | Next / previous match |
 | `Esc` | Reader | Back to library |
 
 ---
@@ -104,7 +109,7 @@ Every theme affects only the **reading area**; the library home and TOC drawer s
 
 ## Library Home (Netflix-style)
 
-- **Sticky top bar** — logo, search input (with `/` focus shortcut + ✕ clear), 📊 stats, sort dropdown, 📁 根目錄, ＋ 加檔
+- **Sticky top bar** — logo, search input (with `/` focus shortcut + ✕ clear), sort dropdown, 📚 藏書閣, 📊 統計, 📁 根目錄, ＋ 加檔
 - **Hero** — most recently read book (or the first available one), with blurred cover backdrop, progress bar, 繼續閱讀 CTA
 - **Rows** (horizontal scroll, drag-to-pan with momentum):
   - 🔥 有新章節 — books whose on-disk chapter count grew since your last read
@@ -115,6 +120,16 @@ Every theme affects only the **reading area**; the library home and TOC drawer s
 - **分類瀏覽** — category cards (tags + collections); click to filter
 - **Search / filter mode** — switches to a dark grid view with chip-style tag/collection filters and an empty state with a "清除全部條件" button when nothing matches
 - **Right-click any cover** → 📋 書本資訊, # tags, 📁 collection, ↺ clear progress, 🗑 remove
+
+### 藏書閣 · The Stacks (📚)
+
+A separate full-screen view (top bar → 📚 藏書閣) for when you have enough books that horizontal rows aren't enough:
+
+- **Left sidebar** — status (全部 / 正在讀 / 未開始 / 已讀) + per-`#`tag + per-`📁`collection with live counts
+- **Top bar** — back to home, search (`/` to focus), grid size toggle (⊞ / ⊟), batch-mode toggle, sort dropdown (最近讀 / 加入時間 / 書名 / 作者 / 進度 / 字數)
+- **Center grid** — responsive, switchable cell size, hover for chapters / words / last-read, slim progress bar, +N badge for new chapters
+- **Right panel** — by default a stat overview (totals, donut, 今年讀完 / 連續閱讀 / 累積字數); switches to **batch tools** when batch mode is on (改 tag / 移到 collection / 🗑 移除 with confirm)
+- Visual: Rune-Stone palette (deep brown + ancient gold) — visually distinct from the Netflix-style home and reader themes so you always know which view you're in
 
 ### Reading stats (📊)
 
@@ -171,8 +186,9 @@ Drop a `favicon.png` (any image, square ≥ 32px) in the repo root. Reload — t
 ```
 novel-reader.html            — entry point (loads all scripts)
 src/
-  app.jsx                    — AppContext, root router (library ↔ reader)
+  app.jsx                    — AppContext, root router (library / manage / reader)
   library.jsx                — Netflix home + filtered grid
+  manage.jsx                 — 藏書閣 (Rune Stone library management view)
   reader.jsx                 — reader shell, chapter cache, prefetch, immersive
   storage/
     idb.js                   — tiny IndexedDB wrapper (per-store config, indexes)
@@ -188,6 +204,7 @@ src/
     book-menu.jsx            — right-click menu (info / tags / collection / clear / remove)
     book-card.jsx            — library-card-style book detail modal
     toc-drawer.jsx           — slide-in chapter list (with search + auto-center)
+    find-in-chapter.jsx      — Ctrl+F in-chapter search (DOM <mark> injection)
     tweaks-panel.jsx         — typography + immersive controls
     stats-panel.jsx          — reading stats modal (hero + heatmap + tiles)
     theme-switcher.jsx       — grouped theme picker (search + favorites)
@@ -199,7 +216,7 @@ styles/
   v{1,4,5}-*.css             — CSS-heavy themes (others are JSX-inline)
 ```
 
-Non-JSX scripts are consumed raw — all functions are hoisted top-level and attached to `window` where needed. Dependency order in `novel-reader.html` is: storage → parsers → UI → themes → library → reader → app.
+Non-JSX scripts are consumed raw — all functions are hoisted top-level and attached to `window` where needed. Dependency order in `novel-reader.html` is: storage → parsers → UI → themes → library → manage → reader → app.
 
 ---
 
@@ -209,7 +226,7 @@ IndexedDB object stores (DB version 3):
 
 - **books** — `{ id, rootId, relPath, fileHandle, sourceType, title, author, coverBlob, chaptersMeta, wordCount, lastChapterId, lastScroll, tags, collections, lastKnownChapterCount, preserveOriginalCss, addedAt, lastReadAt, fileLastModified }`
 - **roots** — `{ id, name, dirHandle, excludeDirs, bookCount, lastScannedAt }`
-- **settings** — single row, `id: 'global'`, holds `activeTheme`, `themeColors[v1..v121]`, `tweaks` (fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive), `favoriteThemes`, `sortBy`, `sortOrder`, `filterTag`, `filterCollection`
+- **settings** — single row, `id: 'global'`, holds `activeTheme`, `themeColors[v1..v121]`, `tweaks` (fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive), `favoriteThemes`, home `sortBy` / `sortOrder` / `filterTag` / `filterCollection`, manage view `manageSortBy` / `manageSortOrder` / `manageFilter` / `manageGridSize`
 - **readingEvents** — append-only, `{ id (auto), bookId, chapterId, date (YYYY-MM-DD), ts, words }`. Indexed by `byDate` and `byBook`. Logged by `openChapter`, idempotent per (book, chapter, day).
 - **kv** — generic key-value scratch space
 

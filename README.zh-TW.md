@@ -5,6 +5,8 @@
 一個在瀏覽器裡跑、不需編譯、本機優先的桌面小說閱讀器，支援 **EPUB** 與 **TXT**。原本是為了中文連載網路小說（zh-TW / zh-CN）設計的，但其他內容也一樣能讀。
 
 - **以書庫為主的 UX** — Netflix 風格首頁：大張 hero 看板、橫向捲動書列（繼續閱讀 / 有新章節 / 依 tag & collection 分組）、`/` 快捷鍵聚焦搜尋、深色 grid 篩選檢視
+- **藏書閣（Library Manage view）** — Rune Stone 配色的全螢幕管理頁：左 sidebar 篩選、grid 檢視、依進度 / 字數 / 拼音 (zh-Hant) 排序、批次改 tag / 移收藏集 / 移除
+- **章節內查找** — 閱讀器裡按 `Ctrl+F` 開啟頂端搜尋列，標亮所有命中、用 `Enter` / `Shift+Enter` 跳上一筆 / 下一筆
 - **約 120 種閱讀主題**，分 17 個分類（經典 / 復古 / 現代 / 華麗 / 東方 / 武俠 / 奇幻 / 暗黑 / 遊戲 / 自然 / 檔案 / 影視 / 節日 / 童趣 / 柔和 / 靈性 / 手工），每個主題有 4–9 種背景色變體 + 6 種 accent 預設，主題切換器有搜尋框 + ★ 最愛
 - **閱讀統計**（📊 modal）— Lv.N reader 等級徽章、連續天數、GitHub 風格 365 天活動熱圖、總章節 / 總字數 / 累計天數
 - **書本資訊卡** — 右鍵任一書 → 📋 書本資訊 → 圖書館借閱卡風格的 overlay，含借閱記錄、最近活動、tags、collections、操作列
@@ -63,13 +65,16 @@ python -m http.server 8080
 
 | 按鍵 | 在哪 | 動作 |
 | ---- | ---- | ---- |
-| `/` | 書庫 | focus 搜尋框 |
-| `Esc` | 書庫搜尋 | 清空搜尋 + blur |
+| `/` | 書庫 / 藏書閣 | focus 搜尋框 |
+| `Esc` | 書庫 / 藏書閣搜尋 | 清空搜尋 + blur |
+| `Esc` | 藏書閣 | 退批次模式 → 清搜尋 → 回首頁 |
 | `←` / `→` | 閱讀器 | 上一章 / 下一章 |
 | `PgUp` / `PgDn` / `Space` | 閱讀器 | 翻頁捲動 |
 | `T` | 閱讀器 | 開關目錄抽屜 |
 | `,` | 閱讀器 | 開關調整面板 |
 | `F` | 閱讀器 | 全螢幕 |
+| `Ctrl+F` / `Cmd+F` | 閱讀器 | 開啟章節內查找 |
+| `Enter` / `Shift+Enter` | 查找列 | 下一筆 / 上一筆 |
 | `Esc` | 閱讀器 | 回書庫 |
 
 ---
@@ -104,7 +109,7 @@ python -m http.server 8080
 
 ## 書庫首頁（Netflix 風）
 
-- **Sticky 上列** — logo、搜尋框（`/` 聚焦 + ✕ 清除）、📊 統計、排序下拉、📁 根目錄、＋ 加檔
+- **Sticky 上列** — logo、搜尋框（`/` 聚焦 + ✕ 清除）、排序下拉、📚 藏書閣、📊 統計、📁 根目錄、＋ 加檔
 - **Hero 看板** — 最近讀的書（或第一本可用的書），模糊封面當背景、進度條、「繼續閱讀」按鈕
 - **書列**（橫向捲動，可拖曳帶慣性）：
   - 🔥 有新章節 — 磁碟上章節數超過你上次讀到的書
@@ -115,6 +120,16 @@ python -m http.server 8080
 - **分類瀏覽** — tag 和 collection 的分類卡；點了就套用 filter
 - **搜尋 / 篩選模式** — 切到深色 grid 檢視，上方有 chip 式 tag/collection 篩選；無結果時顯示 empty state + 「清除全部條件」按鈕
 - **右鍵任一書封** → 📋 書本資訊、# tags、📁 collection、↺ 清除進度、🗑 移除
+
+### 藏書閣 · The Stacks（📚）
+
+獨立的全螢幕管理頁（首頁上列 → 📚 藏書閣），給書多到橫向 row 找不到時用：
+
+- **左 sidebar** — 狀態（全部 / 正在讀 / 未開始 / 已讀）+ 每個 `#` tag + 每個 `📁` collection 的計數
+- **上列** — 回首頁、搜尋（`/` focus）、grid 大小切換（⊞ / ⊟）、批次模式切換、排序下拉（最近讀 / 加入時間 / 書名 / 作者 / 進度 / 字數）
+- **中央 grid** — responsive、書封大小可切、hover 看章節數 / 字數 / 上次讀、細進度條、+N 新章 badge
+- **右側面板** — 預設書庫概覽（總書數、Donut、今年讀完 / 連續閱讀 / 累積字數）；批次模式時換成**批次工具**（改 tag / 移到 collection / 🗑 移除含確認）
+- 視覺：Rune Stone 配色（深褐 + 古金）— 跟 Netflix 首頁、各閱讀主題視覺區隔，一眼就知道自己在哪一頁
 
 ### 閱讀統計（📊）
 
@@ -171,8 +186,9 @@ python -m http.server 8080
 ```
 novel-reader.html            — 入口點（載入所有 script）
 src/
-  app.jsx                    — AppContext、根路由（library ↔ reader）
+  app.jsx                    — AppContext、根路由（library / manage / reader）
   library.jsx                — Netflix 首頁 + 篩選 grid
+  manage.jsx                 — 藏書閣（Rune Stone 書庫管理頁）
   reader.jsx                 — 閱讀器外殼、章節 cache、預載、沉浸式
   storage/
     idb.js                   — IndexedDB 小包裝（per-store config + indexes）
@@ -188,6 +204,7 @@ src/
     book-menu.jsx            — 右鍵選單（資訊 / tags / collection / 清除 / 移除）
     book-card.jsx            — 圖書館卡風格的書本詳情 modal
     toc-drawer.jsx           — 滑入式章節目錄（含搜尋 + 自動置中）
+    find-in-chapter.jsx      — Ctrl+F 章節內查找（DOM <mark> 注入）
     tweaks-panel.jsx         — 排版 + 沉浸式控制
     stats-panel.jsx          — 閱讀統計 modal（hero + 熱圖 + tiles）
     theme-switcher.jsx       — 分組主題下拉（搜尋 + 最愛）
@@ -199,7 +216,7 @@ styles/
   v{1,4,5}-*.css             — 需要 CSS 的主題（其他用 JSX inline）
 ```
 
-非 JSX 的腳本直接被讀入 — 所有 function 都是 top-level（hoisted），需要被共用的會掛到 `window`。`novel-reader.html` 的載入順序：storage → parsers → UI → themes → library → reader → app。
+非 JSX 的腳本直接被讀入 — 所有 function 都是 top-level（hoisted），需要被共用的會掛到 `window`。`novel-reader.html` 的載入順序：storage → parsers → UI → themes → library → manage → reader → app。
 
 ---
 
@@ -209,7 +226,7 @@ IndexedDB object stores（DB version 3）：
 
 - **books** — `{ id, rootId, relPath, fileHandle, sourceType, title, author, coverBlob, chaptersMeta, wordCount, lastChapterId, lastScroll, tags, collections, lastKnownChapterCount, preserveOriginalCss, addedAt, lastReadAt, fileLastModified }`
 - **roots** — `{ id, name, dirHandle, excludeDirs, bookCount, lastScannedAt }`
-- **settings** — 只有一列，`id: 'global'`，包含 `activeTheme`、`themeColors[v1..v121]`、`tweaks`（fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive）、`favoriteThemes`、`sortBy`、`sortOrder`、`filterTag`、`filterCollection`
+- **settings** — 只有一列，`id: 'global'`，包含 `activeTheme`、`themeColors[v1..v121]`、`tweaks`（fontSize / lineHeight / font / texture / paragraphIndent / paragraphSpacing / fontWeight / immersive）、`favoriteThemes`、首頁 `sortBy` / `sortOrder` / `filterTag` / `filterCollection`、藏書閣 `manageSortBy` / `manageSortOrder` / `manageFilter` / `manageGridSize`
 - **readingEvents** — append-only，`{ id (auto), bookId, chapterId, date (YYYY-MM-DD), ts, words }`，索引 `byDate` + `byBook`，由 `openChapter` 寫入，每天每 (book, chapter) 唯一
 - **kv** — 通用 key-value 暫存
 
