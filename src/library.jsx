@@ -73,9 +73,8 @@ function Library() {
   // Data slices for Netflix rows. "繼續閱讀" and "有新章節" keep their purpose-specific
   // order (last read / new-chapter count). Other rows follow the user's sort choice.
   // Any book the user has touched stays in 繼續閱讀, including ones at the last
-  // chapter — re-readers want quick access regardless of "100% done" math, and
-  // the row's lastReadAt-desc sort + 10-item cap means stale books fall off
-  // naturally.
+  // chapter — re-readers want quick access regardless of "100% done" math.
+  // No cap: capping made stale books invisible (had to search to find them).
   const currentlyReading = React.useMemo(() =>
     books.filter((b) => b.lastReadAt)
       .sort((a, b) => (b.lastReadAt || 0) - (a.lastReadAt || 0)),
@@ -157,7 +156,7 @@ function Library() {
             {hero && <Hero book={hero} dispatch={dispatch}/>}
             <div style={{ padding: '20px 0 40px' }}>
               {fresh.length > 0 && <BookRow title="🔥 有新章節" tint="#D94A3E" books={fresh.slice(0, 20)} total={fresh.length} dispatch={dispatch}/>}
-              {currentlyReading.length > 0 && <BookRow title="繼續閱讀" books={currentlyReading.slice(0, 10)} total={currentlyReading.length} dispatch={dispatch}/>}
+              {currentlyReading.length > 0 && <BookRow title="繼續閱讀" books={currentlyReading} total={currentlyReading.length} dispatch={dispatch}/>}
               <BookRow title={`全部藏書 · ${sortLabel(settings)}`} books={allSorted.slice(0, 20)} total={allSorted.length} dispatch={dispatch}/>
               {byCollection.map((g) => (
                 <BookRow key={`col-${g.name}`} title={`📁 ${g.name}`} books={g.books.slice(0, 16)} total={g.books.length} dispatch={dispatch}/>
