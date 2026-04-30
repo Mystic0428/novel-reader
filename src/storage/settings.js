@@ -134,6 +134,10 @@
     filterTag: null,
     filterCollection: null,
     favoriteThemes: [],
+    manageSortBy: 'lastRead',
+    manageSortOrder: 'desc',
+    manageFilter: null,
+    manageGridSize: 'md',
   };
 
   function mergeDeep(base, patch) {
