@@ -3,7 +3,7 @@ const AppContext = React.createContext(null);
 window.AppContext = AppContext;
 
 const initialState = {
-  view: 'library',          // 'library' | 'reader'
+  view: 'library',          // 'library' | 'reader' | 'manage'
   activeBookId: null,
   settings: null,           // loaded async
   books: [],                // loaded async
@@ -87,7 +87,9 @@ function App() {
   const ctx = { state, dispatch, chapterCacheRef };
   return (
     <AppContext.Provider value={ctx}>
-      {state.view === 'library' ? <Library/> : <Reader/>}
+      {state.view === 'reader' ? <Reader/>
+        : state.view === 'manage' ? <ManageView/>
+        : <Library/>}
     </AppContext.Provider>
   );
 }

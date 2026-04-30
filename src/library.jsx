@@ -720,7 +720,8 @@ function HomeTopBar({ settings, dispatch, search, onSearchChange, searchInputRef
         )}
       </div>
       <SortDropdown settings={settings} onSort={setSort}/>
-      <button onClick={onOpenStats} style={addBtnStyleDark()} title="閱讀統計">📊</button>
+      <button onClick={() => dispatch({ type: 'SET_VIEW', view: 'manage' })} style={addBtnStyleDark()} title="藏書閣">📚 藏書閣</button>
+      <button onClick={onOpenStats} style={addBtnStyleDark()} title="閱讀統計">📊 統計</button>
       <RootsDropdownDark roots={roots} onAddRoot={addRoot} onRemoveRoot={removeRoot} onEditRoot={editRootExcludes} onRescanRoot={rescanRoot} supported={supported}/>
       <button onClick={addFile} style={addBtnStyleDark()}>＋ 加檔</button>
       {busy && (
@@ -879,15 +880,18 @@ function sortBooks(books, settings) {
   const order = settings.sortOrder === 'asc' ? 1 : -1;
   return [...books].sort((a, b) => {
     switch (settings.sortBy) {
-      case 'title': return a.title.localeCompare(b.title) * order;
-      case 'author': return (a.author || '').localeCompare(b.author || '') * order;
+      case 'title': return a.title.localeCompare(b.title, 'zh-Hant', { numeric: true }) * order;
+      case 'author': return (a.author || '').localeCompare(b.author || '', 'zh-Hant', { numeric: true }) * order;
       case 'addedAt': return (a.addedAt - b.addedAt) * order;
+      case 'progress': return (bookProgress(a) - bookProgress(b)) * order;
+      case 'wordCount': return ((a.wordCount || 0) - (b.wordCount || 0)) * order;
       case 'lastRead':
       default:
         return ((a.lastReadAt || a.addedAt) - (b.lastReadAt || b.addedAt)) * order;
     }
   });
 }
+window.sortBooks = sortBooks;
 
 function sortLabel(settings) {
   const map = { lastRead: '最近讀', addedAt: '加入時間', title: '書名', author: '作者' };
@@ -1089,6 +1093,7 @@ function bookProgress(b) {
   const raw = (idx + (b.lastScroll || 0)) / meta.length;
   return Math.max(0, Math.min(1, raw));
 }
+window.bookProgress = bookProgress;
 
 function newChapterCount(b) {
   const len = (b.chaptersMeta || []).length;
@@ -1112,3 +1117,4 @@ function relTime(ts) {
   if (mo < 12) return `${mo} 個月前`;
   return `${Math.floor(d / 365)} 年前`;
 }
+window.relTime = relTime;
