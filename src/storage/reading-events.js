@@ -12,12 +12,22 @@
   // Log "I opened bookId/chapterId today" — but only once per (book, chapter, day).
   // This means re-opening the same chapter mid-day is idempotent; reading it again
   // tomorrow logs a new event so streaks/heatmap reflect day-to-day activity.
+  //
+  // Backfill exception: if the existing event's `words` is 0 (likely written
+  // before EPUB chapter word counts were computed) and we now have a real
+  // word count, update the row. This corrects historical 0 values without
+  // changing the policy (re-reads still don't add to totals).
   async function log({ bookId, chapterId, words = 0 }) {
     if (!bookId || !chapterId) return null;
     const date = todayStr();
     const existing = await idb.listByIndex('readingEvents', 'byBook', bookId);
     const dup = (existing || []).find((e) => e.date === date && e.chapterId === chapterId);
-    if (dup) return dup.id;
+    if (dup) {
+      if ((!dup.words || dup.words === 0) && words > 0) {
+        await idb.put('readingEvents', { ...dup, words });
+      }
+      return dup.id;
+    }
     const ts = Date.now();
     return idb.add('readingEvents', { bookId, chapterId, date, ts, words });
   }

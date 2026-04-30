@@ -344,19 +344,35 @@ function Reader() {
     // Badge = chaptersMeta.length - lastKnownChapterCount drops as they read further.
     const idx = b.chaptersMeta.findIndex(c => c.id === chapterId);
     const ackCount = idx >= 0 ? Math.max(b.lastKnownChapterCount || 0, idx + 1) : (b.lastKnownChapterCount || 0);
+
+    // Compute chapter word count from the parsed HTML (EPUB parseTOC doesn't
+    // populate it — only the TXT parser does, since it has the full text in
+    // hand). Backfill into chaptersMeta + book.wordCount lazily, the first
+    // time each chapter is actually read.
+    const chMetaSnapshot = b.chaptersMeta[idx] || {};
+    const computedWords = countTextWords(res.html);
+    let chaptersMetaPatch = null;
+    let wordCountPatch = null;
+    if (idx >= 0 && computedWords > 0 && chMetaSnapshot.wordCount !== computedWords) {
+      const newMeta = b.chaptersMeta.slice();
+      newMeta[idx] = { ...newMeta[idx], wordCount: computedWords };
+      chaptersMetaPatch = newMeta;
+      wordCountPatch = newMeta.reduce((s, c) => s + (c.wordCount || 0), 0);
+    }
+
     await booksStore.update(b.id, {
       lastChapterId: chapterId,
       lastScroll: restoreScroll,
       lastReadAt: Date.now(),
       lastKnownChapterCount: ackCount,
+      ...(chaptersMetaPatch ? { chaptersMeta: chaptersMetaPatch, wordCount: wordCountPatch } : {}),
     });
     const fresh = await booksStore.get(b.id);
     setBook(fresh);
 
     // Log a reading event for stats. Idempotent per (book, chapter, day) so
     // re-opening the same chapter doesn't inflate counts.
-    const chMeta = b.chaptersMeta[idx] || {};
-    readingEventsStore.log({ bookId: b.id, chapterId, words: chMeta.wordCount || 0 })
+    readingEventsStore.log({ bookId: b.id, chapterId, words: computedWords })
       .catch((err) => console.warn('reading-event log failed', err));
 
     // Prefetch the next chapter so forward navigation is instant. Use idle time
@@ -583,6 +599,22 @@ function Reader() {
   );
 }
 window.Reader = Reader;
+
+// Count "words" in a chapter's HTML by extracting textContent and measuring
+// length. For CJK this is one count per glyph (matching the TXT parser's
+// `c.text.length` convention); for English it overcounts vs. word-boundary
+// splitting, but readingEvents `words` is just an aggregate counter — same
+// scale across chapters is what matters, not linguistic precision.
+function countTextWords(html) {
+  if (!html) return 0;
+  try {
+    const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html');
+    const text = (doc.body.textContent || '').replace(/\s+/g, '');
+    return text.length;
+  } catch (_) {
+    return 0;
+  }
+}
 
 async function loadBookBlob(book, setPermIssue) {
   if (!book.fileHandle && !book.rootId) return null;
