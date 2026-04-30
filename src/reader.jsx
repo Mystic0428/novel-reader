@@ -402,10 +402,15 @@ function Reader() {
   const [tocOpen, setTocOpen] = React.useState(false);
   const [tweaksOpen, setTweaksOpen] = React.useState(false);
   const [colorOpen, setColorOpen] = React.useState(false);
+  const [findOpen, setFindOpen] = React.useState(false);
   const [chromeVisible, setChromeVisible] = React.useState(true);
   const idleTimerRef = React.useRef(null);
   const immersive = settings.tweaks.immersive !== false;
-  const panelOpen = tocOpen || tweaksOpen || colorOpen;
+  const panelOpen = tocOpen || tweaksOpen || colorOpen || findOpen;
+
+  // Close find on chapter switch — search is per-chapter and the .reading-body
+  // gets replaced by React anyway, dropping any injected <mark>s with it.
+  React.useEffect(() => { setFindOpen(false); }, [currentChapterId]);
 
   // Immersive auto-hide: 3s of no input hides topbar/footer; any mouse/key/wheel/
   // touch reveals them. While a panel is open we force-show and don't schedule a
@@ -467,12 +472,26 @@ function Reader() {
   // Keyboard shortcuts
   React.useEffect(() => {
     function onKey(e) {
+      // Ctrl/Cmd+F opens in-chapter find regardless of which panel is open or
+      // whether focus is in an input — matches browser-native muscle memory.
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        setFindOpen(true);
+        return;
+      }
       if (tocOpen || tweaksOpen) {
         if (e.key === 'Escape') { setTocOpen(false); setTweaksOpen(false); }
         return;
       }
+      if (findOpen) {
+        // FindInChapterBar handles Esc/Enter via its own input; nothing to do here.
+        return;
+      }
       const inInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
       if (inInput) return;
+      // Single-key shortcuts only when no modifier is held — prevents Ctrl+T,
+      // Ctrl+,, etc. from firing the bare-key actions.
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
       switch (e.key) {
         case 'ArrowLeft': e.preventDefault(); prevChapter(); break;
         case 'ArrowRight': e.preventDefault(); nextChapter(); break;
@@ -490,7 +509,7 @@ function Reader() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line
-  }, [book, currentChapterId, tocOpen, tweaksOpen]);
+  }, [book, currentChapterId, tocOpen, tweaksOpen, findOpen]);
 
   if (!book) return <div className="loading-screen">載入中…</div>;
   if (permIssue) return <PermissionBanner book={book} onRetry={() => window.location.reload()} onBack={backToLibrary}/>;
@@ -518,17 +537,21 @@ function Reader() {
       )}
       <div style={{
         flexShrink: 0,
-        opacity: chromeVisible ? 1 : 0,
+        opacity: (chromeVisible || findOpen) ? 1 : 0,
         transition: 'opacity 220ms ease',
-        pointerEvents: chromeVisible ? 'auto' : 'none',
+        pointerEvents: (chromeVisible || findOpen) ? 'auto' : 'none',
       }}>
-        <ReaderTopBar
-          book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
-          onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}
-          onOpenColor={() => setColorOpen(true)}
-          settings={settings} onThemeChange={changeTheme} onSettingsChange={setSettings}
-          onPreview={setPreviewTheme}
-        />
+        {findOpen ? (
+          <FindInChapterBar scrollRef={scrollRef} onClose={() => setFindOpen(false)}/>
+        ) : (
+          <ReaderTopBar
+            book={book} chapterTitle={chapterTitle} onBack={backToLibrary}
+            onOpenToc={() => setTocOpen(true)} onOpenTweaks={() => setTweaksOpen(true)}
+            onOpenColor={() => setColorOpen(true)}
+            settings={settings} onThemeChange={changeTheme} onSettingsChange={setSettings}
+            onPreview={setPreviewTheme}
+          />
+        )}
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', position: 'relative' }}>
         {renderThemeContent({ book, chapterTitle, chapterIdx, html: chapterHtml, settings: effectiveSettings, scrollRef, onScroll, onPrev: prevChapter, onNext: nextChapter, canPrev: chapterIdx > 0, canNext: chapterIdx < book.chaptersMeta.length - 1 })}
