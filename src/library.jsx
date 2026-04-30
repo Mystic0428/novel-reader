@@ -340,6 +340,7 @@ function BookRow({ title, books, tint, total, dispatch }) {
         onDragStart={(e) => e.preventDefault()}
         style={{
           display: 'flex', gap: 16, padding: '12px 50px 16px', overflowX: 'auto', scrollSnapType: 'x proximity',
+          scrollPaddingLeft: 50, scrollPaddingRight: 50,
           cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none',
         }}>
         {books.map((b) => <RowCard key={b.id} book={b} dispatch={dispatch}/>)}
