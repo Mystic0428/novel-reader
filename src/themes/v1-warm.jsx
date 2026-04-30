@@ -74,10 +74,11 @@ function stripChapterPrefix(title) {
   //
   // Leading bracket tags like "[R19] " or "【番外】" are preserved — they
   // carry meaning (rating / category) the reader still wants to see.
-  return (title || '').replace(
+  const stripped = (title || '').replace(
     /^((?:[\[【][^\]】]{1,12}[\]】][\s　]*)*)(?:第[\d一二三四五六七八九十百千零兩\s　]+(?:章|節|节|回|卷|部|篇|話|话)[：:、，,.\s　]*|\d+[.\-:、][\s　]*|\d+[\s　]+)/,
     '$1'
   );
+  return stripped || (title || '');
 }
 function chapterNumberZh(n) {
   const d = ['零','一','二','三','四','五','六','七','八','九','十'];
