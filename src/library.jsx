@@ -183,7 +183,7 @@ function Hero({ book, dispatch }) {
     const u = URL.createObjectURL(book.coverBlob);
     setCoverUrl(u);
     return () => URL.revokeObjectURL(u);
-  }, [book.coverBlob]);
+  }, [book.id, !!book.coverBlob]);
 
   const progress = bookProgress(book);
   const chapterIdx = (book.chaptersMeta || []).findIndex((c) => c.id === book.lastChapterId);
