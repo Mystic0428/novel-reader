@@ -322,6 +322,15 @@ function BookRow({ title, books, tint, total, dispatch }) {
     if (dragRef.current.moved > 5) { e.stopPropagation(); e.preventDefault(); }
   }
 
+  // Reset scroll to start when the row's first book changes (e.g. user reads
+  // a book and returns home — that book jumps to position 0 in 繼續閱讀).
+  // Without this, the preserved scrollLeft makes the new first card appear
+  // flush against the screen edge instead of sitting in the 50px gutter.
+  const firstId = books[0]?.id;
+  React.useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0;
+  }, [firstId]);
+
   return (
     <div style={{ marginBottom: 36 }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 12, padding: '0 50px' }}>
